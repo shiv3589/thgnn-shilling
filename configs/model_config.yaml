@@ -1,0 +1,29 @@
+model:
+  name: thgnn
+  hidden_dim: 128
+  num_layers: 3
+  num_heads: 4
+  dropout: 0.1
+  temporal_encoding: true
+
+training:
+  epochs: 100
+  batch_size: 512
+  lr: 1.0e-3
+  weight_decay: 1.0e-5
+  patience: 10
+  seed: 42
+
+data:
+  dataset: ml-1m
+  split: temporal
+  neg_samples: 4
+
+logging:
+  wandb: false
+  project: thgnn-shilling
+  log_every: 10
+
+output:
+  checkpoint_dir: checkpoints/
+  save_best: true

@@ -1,0 +1,23 @@
+dataset:
+  name: ml-1m           # ml-1m | amazon-books | yelp
+  raw_dir: data/raw/
+  processed_dir: data/processed/
+  splits_dir: data/splits/
+
+preprocessing:
+  min_user_interactions: 5
+  min_item_interactions: 5
+  rating_threshold: 3.5  # binarize: >= threshold → positive
+  temporal_order: true
+
+splits:
+  strategy: temporal     # temporal | random
+  train_ratio: 0.7
+  val_ratio: 0.1
+  test_ratio: 0.2
+  seed: 42
+
+graph:
+  user_features: true
+  item_features: true
+  edge_types: [user-item, user-user, item-item]

@@ -1,0 +1,10 @@
+torch>=2.1
+torch-geometric
+transformers
+pandas
+numpy
+scikit-learn
+pyyaml
+wandb
+tqdm
+scipy

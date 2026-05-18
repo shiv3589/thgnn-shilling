@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "thgnn-shilling"
+version = "0.1.0"
+description = "Temporal Heterogeneous GNN for shilling attack detection in recommender systems"
+requires-python = ">=3.9"
+dependencies = [
+    "torch>=2.1",
+    "torch-geometric",
+    "transformers",
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "pyyaml",
+    "wandb",
+    "tqdm",
+    "scipy",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.setuptools.package-dir]
+"" = "."
