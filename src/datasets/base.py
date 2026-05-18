@@ -336,3 +336,15 @@ class BaseLoader(ABC):
     ) -> Optional[np.ndarray]:
         """Return float32 array of shape (num_items, D) or None."""
         return None
+
+    def get_item_texts(self, item_id_map: Dict) -> List[str]:
+        """Return a descriptive text string for each item in contiguous index order.
+
+        The returned list has ``len(item_id_map)`` entries where index ``i``
+        corresponds to the item whose contiguous index is ``i``.
+
+        Base implementation returns empty strings.  Subclasses override this
+        so that ``ItemEncoder`` has meaningful input even when item features are
+        purely numeric (e.g. ML-1M) or stored in separate metadata files.
+        """
+        return [""] * len(item_id_map)

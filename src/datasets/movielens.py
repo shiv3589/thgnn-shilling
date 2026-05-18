@@ -132,6 +132,20 @@ class MovieLens1MLoader(BaseLoader):
                     feats[idx, 1 + gi] = 1.0
         return feats
 
+    def get_item_texts(self, item_id_map: Dict) -> List[str]:
+        """Return ``"<title> <genres-space-separated>"`` for each item."""
+        base = self.raw_dir / "ml-1m"
+        raw: Dict[str, str] = {}
+        with open(base / "movies.dat", encoding="latin-1") as f:
+            for line in f:
+                parts = line.strip().split("::")
+                mid, title, genre_str = parts[0], parts[1], parts[2]
+                raw[mid] = f"{title} {genre_str.replace('|', ' ')}"
+        texts = [""] * len(item_id_map)
+        for orig_id, idx in item_id_map.items():
+            texts[idx] = raw.get(str(orig_id), "")
+        return texts
+
     @staticmethod
     def _check_files(base: Path) -> None:
         missing = [

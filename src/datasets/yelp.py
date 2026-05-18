@@ -137,6 +137,25 @@ class Yelp2018Loader(BaseLoader):
             feats[idx, 2] = float(m.get("is_open", 0))
         return feats
 
+    def get_item_texts(self, item_id_map: Dict) -> List[str]:
+        """Return ``"<business name> <categories>"`` for each business/item."""
+        base = self.raw_dir / "yelp2018"
+        texts: List[str] = [""] * len(item_id_map)
+        with open(base / "yelp_academic_dataset_business.json", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                row = json.loads(line)
+                bid = row.get("business_id")
+                if bid not in item_id_map:
+                    continue
+                idx = item_id_map[bid]
+                name = (row.get("name") or "").strip()
+                cats = (row.get("categories") or "").strip()
+                texts[idx] = f"{name} {cats}".strip()
+        return texts
+
     @staticmethod
     def _check_files(base: Path) -> None:
         required = [

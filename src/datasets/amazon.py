@@ -147,6 +147,29 @@ class AmazonBaseLoader(BaseLoader):
             feats[idx, 2] = float(np.log1p(m.get("rating_number", 0)))
         return feats
 
+    def get_item_texts(self, item_id_map: Dict) -> List[str]:
+        """Return ``"<title> <features> <description>"`` for each item.
+
+        Re-reads the metadata JSONL so this can be called independently of
+        ``load()``.  Combines up to 5 feature bullets and 2 description
+        sentences to stay within the encoder's 128-token budget.
+        """
+        texts: List[str] = [""] * len(item_id_map)
+        for row in tqdm(
+            _iter_jsonl(self._meta_path()),
+            desc=f"item-text/{self.category}",
+            leave=False,
+        ):
+            asin = row.get("parent_asin") or row.get("asin")
+            if asin not in item_id_map:
+                continue
+            idx = item_id_map[asin]
+            title = (row.get("title") or "").strip()
+            features = " ".join((row.get("features") or [])[:5])
+            desc = " ".join((row.get("description") or [])[:2]).strip()
+            texts[idx] = f"{title} {features} {desc}".strip()
+        return texts
+
 
 class AmazonBooksLoader(AmazonBaseLoader):
     """Amazon Books (2023 reviews, McAuley Lab).
