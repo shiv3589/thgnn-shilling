@@ -26,7 +26,6 @@ data/processed/
 data/splits/
 *.csv
 *.tsv
-*.json
 *.jsonl
 *.parquet
 *.h5
@@ -42,6 +41,9 @@ data/splits/
 
 # W&B
 wandb/
+
+# JSON files in data directories (keep results/ and configs/ unaffected)
+data/**/*.json
 
 # Experiment outputs
 outputs/
