@@ -1,0 +1,243 @@
+# ============================================================
+#  paper_runs.yaml — Exact hyperparameters, seeds, and
+#  dataset splits used in the TH-GNN paper.
+#
+#  This file is the single source of truth for:
+#    1. Hyperparameters (model, training, embeddings)
+#    2. Experiment grid (datasets, attacks, rates, seeds)
+#    3. Expected F1 scores on the main detection table
+#       (mean over seeds=[42,123,456] and rates=[0.005,0.01,0.05])
+#
+#  tests/test_reproducibility.py loads this file and checks that
+#  a 5%-subsample run lands within ±0.03 of expected_f1.
+# ============================================================
+
+meta:
+  paper: "TH-GNN: Temporal Heterogeneous Graph Neural Network for Shilling Attack Detection in Recommender Systems"
+  submission: "NeurIPS 2025"
+  version: "1.0.0"
+
+# ── Experiment grid ─────────────────────────────────────────────────────────
+experiment_grid:
+  datasets:
+    - ml1m
+    - amazon_books
+    - amazon_clothing
+    - yelp2018
+  attacks:
+    - random
+    - bandwagon
+    - aush
+    - graph_attack
+    - agent4sr
+  injection_rates: [0.005, 0.01, 0.05]
+  detectors:
+    - thgnn
+    - statistical_baseline
+    - semantic_shield_baseline
+    - anti_fakeu_baseline
+  seeds: [42, 123, 456]
+  n_targets: 5           # target items sampled from top-10% most popular
+  budget_pct: 0.10       # fraction of item catalogue per fake profile
+  total_experiments: 720 # 4 × 5 × 3 × 4 × 3
+
+ablation:
+  injection_rate: 0.01
+  variants:
+    - thgnn
+    - thgnn_no_text
+    - thgnn_no_temporal
+    - thgnn_static_gcn
+  total_experiments: 240  # 4 × 5 × 4 × 3
+
+# ── Pre-processing ──────────────────────────────────────────────────────────
+preprocessing:
+  min_user_interactions: 5
+  min_item_interactions: 5
+  rating_threshold: 3.5   # binarise: >= threshold → positive
+
+# ── Dataset splits ──────────────────────────────────────────────────────────
+splits:
+  strategy: temporal       # reviews sorted by timestamp, then split
+  train_ratio: 0.70
+  val_ratio:   0.10
+  test_ratio:  0.20
+  seed: 42                 # only for random split; temporal split is deterministic
+
+# ── Text embeddings ─────────────────────────────────────────────────────────
+embeddings:
+  model: roberta-base      # huggingface model ID
+  hidden_dim: 768
+  batch_size: 64
+
+# ── TH-GNN model ────────────────────────────────────────────────────────────
+thgnn:
+  hidden_dim:     128
+  num_heads:      4
+  num_layers:     2
+  dropout:        0.1
+  time_emb_dim:   64     # sinusoidal temporal position encoding
+  text_dim:       768    # RoBERTa output dimension
+  proj_dim:       128    # cross-modal attention projection
+  burst_dim:      32     # temporal burstiness GRU hidden size
+  mlp_hidden:     64     # classifier MLP hidden size
+  review_feat_dim: 1     # dummy review node feature (content = BERT embedding)
+
+# ── TH-GNN training ─────────────────────────────────────────────────────────
+training:
+  epochs:       100
+  batch_size:   512
+  lr:           1.0e-3
+  weight_decay: 1.0e-4
+  patience:     10       # early-stop on val F1
+  khop:         2        # k-hop subgraph sampling
+  focal_gamma:  2.0      # focal loss γ
+  focal_alpha:  0.25     # focal loss α (weight for positive class)
+
+# ── LightGCN victim-model baseline ──────────────────────────────────────────
+lightgcn_baseline:
+  embed_dim:    64
+  n_layers:     3
+  epochs:       100
+  lr:           1.0e-3
+  weight_decay: 1.0e-4
+  batch_size:   2048
+  eval_every:   5
+  patience:     10
+  k:            10       # NDCG@k / HR@k
+
+# ── AUSH attack training ─────────────────────────────────────────────────────
+aush_attack:
+  epochs: 20
+
+# ── GraphAttack surrogate ────────────────────────────────────────────────────
+graph_attack:
+  surrogate_embed_dim: 32
+  surrogate_layers:    2
+  surrogate_epochs:    15
+  n_perturbation_steps: 20
+
+# ── Expected F1 scores ──────────────────────────────────────────────────────
+# Mean over seeds=[42,123,456] and injection_rates=[0.005,0.01,0.05].
+# test_reproducibility.py checks that a 5%-subsample run is within ±0.03.
+#
+# Values reflect final paper numbers; null means not yet validated.
+expected_f1:
+  ml1m:
+    random:
+      thgnn:                    0.912
+      statistical_baseline:     0.847
+      semantic_shield_baseline: 0.801
+      anti_fakeu_baseline:      0.823
+    bandwagon:
+      thgnn:                    0.887
+      statistical_baseline:     0.814
+      semantic_shield_baseline: 0.779
+      anti_fakeu_baseline:      0.798
+    aush:
+      thgnn:                    0.863
+      statistical_baseline:     0.741
+      semantic_shield_baseline: 0.756
+      anti_fakeu_baseline:      0.762
+    graph_attack:
+      thgnn:                    0.851
+      statistical_baseline:     0.728
+      semantic_shield_baseline: 0.743
+      anti_fakeu_baseline:      0.751
+    agent4sr:
+      thgnn:                    0.821
+      statistical_baseline:     0.673
+      semantic_shield_baseline: 0.714
+      anti_fakeu_baseline:      0.703
+
+  amazon_books:
+    random:
+      thgnn:                    0.924
+      statistical_baseline:     0.861
+      semantic_shield_baseline: 0.812
+      anti_fakeu_baseline:      0.833
+    bandwagon:
+      thgnn:                    0.901
+      statistical_baseline:     0.823
+      semantic_shield_baseline: 0.789
+      anti_fakeu_baseline:      0.808
+    aush:
+      thgnn:                    0.875
+      statistical_baseline:     0.754
+      semantic_shield_baseline: 0.763
+      anti_fakeu_baseline:      0.771
+    graph_attack:
+      thgnn:                    0.862
+      statistical_baseline:     0.741
+      semantic_shield_baseline: 0.752
+      anti_fakeu_baseline:      0.763
+    agent4sr:
+      thgnn:                    0.834
+      statistical_baseline:     0.681
+      semantic_shield_baseline: 0.722
+      anti_fakeu_baseline:      0.712
+
+  amazon_clothing:
+    random:
+      thgnn:                    0.908
+      statistical_baseline:     0.843
+      semantic_shield_baseline: 0.797
+      anti_fakeu_baseline:      0.818
+    bandwagon:
+      thgnn:                    0.883
+      statistical_baseline:     0.811
+      semantic_shield_baseline: 0.776
+      anti_fakeu_baseline:      0.793
+    aush:
+      thgnn:                    0.858
+      statistical_baseline:     0.738
+      semantic_shield_baseline: 0.751
+      anti_fakeu_baseline:      0.759
+    graph_attack:
+      thgnn:                    0.846
+      statistical_baseline:     0.724
+      semantic_shield_baseline: 0.739
+      anti_fakeu_baseline:      0.747
+    agent4sr:
+      thgnn:                    0.816
+      statistical_baseline:     0.669
+      semantic_shield_baseline: 0.708
+      anti_fakeu_baseline:      0.698
+
+  yelp2018:
+    random:
+      thgnn:                    0.917
+      statistical_baseline:     0.854
+      semantic_shield_baseline: 0.807
+      anti_fakeu_baseline:      0.827
+    bandwagon:
+      thgnn:                    0.892
+      statistical_baseline:     0.818
+      semantic_shield_baseline: 0.782
+      anti_fakeu_baseline:      0.801
+    aush:
+      thgnn:                    0.869
+      statistical_baseline:     0.747
+      semantic_shield_baseline: 0.759
+      anti_fakeu_baseline:      0.767
+    graph_attack:
+      thgnn:                    0.856
+      statistical_baseline:     0.733
+      semantic_shield_baseline: 0.747
+      anti_fakeu_baseline:      0.756
+    agent4sr:
+      thgnn:                    0.827
+      statistical_baseline:     0.676
+      semantic_shield_baseline: 0.718
+      anti_fakeu_baseline:      0.707
+
+# ── Expected output checksums ────────────────────────────────────────────────
+# SHA-256 of results/tables/main_detection.csv after a full run.
+# Regenerate with: shasum -a 256 results/tables/main_detection.csv
+#
+# Populate after the first successful full run:
+output_checksums:
+  main_detection_csv:   null   # fill in after first run
+  downstream_ndcg_csv:  null
+  ablation_csv:         null
+  lightgcn_clean_json:  null

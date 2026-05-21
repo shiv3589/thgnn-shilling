@@ -37,78 +37,24 @@ from src.datasets.base import HeteroDataset
 # Synthetic dataset
 # ---------------------------------------------------------------------------
 
-N_USERS   = 30
-N_ITEMS   = 40
-N_REVIEWS = 80
+N_USERS   = 50
+N_ITEMS   = 80
+N_REVIEWS = 120
 SEED      = 0
-
-
-def _make_dataset(seed: int = SEED) -> HeteroDataset:
-    rng = np.random.default_rng(seed)
-    torch.manual_seed(seed)
-
-    writes_u = torch.from_numpy(rng.integers(0, N_USERS, N_REVIEWS).astype("int64"))
-    writes_r = torch.arange(N_REVIEWS, dtype=torch.long)
-    about_r  = torch.arange(N_REVIEWS, dtype=torch.long)
-    about_i  = torch.from_numpy(rng.integers(0, N_ITEMS, N_REVIEWS).astype("int64"))
-    n_rates  = 60
-    rates_u  = torch.from_numpy(rng.integers(0, N_USERS, n_rates).astype("int64"))
-    rates_i  = torch.from_numpy(rng.integers(0, N_ITEMS, n_rates).astype("int64"))
-
-    ts_np = np.sort(rng.uniform(0, 1e9, N_REVIEWS))
-    ts    = torch.from_numpy(ts_np)
-    n_tr  = int(0.8 * N_REVIEWS)
-    n_val = int(0.1 * N_REVIEWS)
-    train_mask = torch.zeros(N_REVIEWS, dtype=torch.bool)
-    val_mask   = torch.zeros(N_REVIEWS, dtype=torch.bool)
-    test_mask  = torch.zeros(N_REVIEWS, dtype=torch.bool)
-    train_mask[:n_tr]                  = True
-    val_mask[n_tr : n_tr + n_val]      = True
-    test_mask[n_tr + n_val :]          = True
-
-    eid = {
-        ("user",   "writes", "review"): torch.stack([writes_u, writes_r]),
-        ("review", "about",  "item"):   torch.stack([about_r,  about_i]),
-        ("user",   "rates",  "item"):   torch.stack([rates_u,  rates_i]),
-    }
-    ea = {k: ts for k in eid}
-
-    return HeteroDataset(
-        dataset_name="synthetic",
-        num_users=N_USERS,
-        num_items=N_ITEMS,
-        num_reviews=N_REVIEWS,
-        edge_index_dict=eid,
-        edge_attr_dict=ea,
-        x_user=torch.randn(N_USERS, 8),
-        x_item=torch.randn(N_ITEMS, 5),
-        review_texts=["text"] * N_REVIEWS,
-        ratings=torch.from_numpy(rng.uniform(1, 5, N_REVIEWS).astype("float32")),
-        timestamps=ts,
-        review_user_idx=writes_u,
-        review_item_idx=about_i,
-        labels=torch.zeros(N_USERS, dtype=torch.long),
-        train_mask=train_mask,
-        val_mask=val_mask,
-        test_mask=test_mask,
-        user_id_map={i: i for i in range(N_USERS)},
-        item_id_map={i: i for i in range(N_ITEMS)},
-    )
-
 
 # Shared test parameters
 TARGET_ITEMS = [1, 5, 12]
-BUDGET_PCT   = 0.2           # 20 % of 40 items = 8 budget; filler = 8 − 3 = 5
+BUDGET_PCT   = 0.2           # 20 % of 80 items = 16 budget; filler = 16 − 3 = 13
 MAX_RATING   = 5.0
 N_FAKE       = 6
-_BUDGET_ITEMS = max(0, round(BUDGET_PCT * N_ITEMS))           # 8
-_FILLER_SIZE  = max(0, _BUDGET_ITEMS - len(TARGET_ITEMS))     # 5
-_ITEMS_PER    = _FILLER_SIZE + len(TARGET_ITEMS)              # 8
+_BUDGET_ITEMS = max(0, round(BUDGET_PCT * N_ITEMS))           # 16
+_FILLER_SIZE  = max(0, _BUDGET_ITEMS - len(TARGET_ITEMS))     # 13
+_ITEMS_PER    = _FILLER_SIZE + len(TARGET_ITEMS)              # 16
 
 
 @pytest.fixture(scope="module")
-def dataset() -> HeteroDataset:
-    return _make_dataset()
+def dataset(synthetic_graph) -> HeteroDataset:
+    return synthetic_graph
 
 
 @pytest.fixture(scope="module")

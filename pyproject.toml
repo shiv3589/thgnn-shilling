@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+requires = ["setuptools>=40.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "thgnn-shilling"
@@ -26,3 +26,10 @@ include = ["src*"]
 
 [tool.setuptools.package-dir]
 "" = "."
+
+[tool.pytest.ini_options]
+markers = [
+    "smoke:     Fast structural tests on synthetic data (no raw data required)",
+    "subsample: 5%%-subsample integration test (requires raw data)",
+    "full:      Validates completed results/raw/ against paper_runs.yaml",
+]
