@@ -1,0 +1,174 @@
+% ============================================================
+%  related_work.tex — TH-GNN paper, NeurIPS 2025
+% ============================================================
+
+\section{Related Work}
+\label{sec:related}
+
+% ── Shilling Attack Detection ─────────────────────────────────────────────────
+\subsection{Shilling Attack Detection}
+\label{sec:rel_shilling}
+
+Shilling attack detection has a two-decade history spanning statistical,
+supervised, and graph-based paradigms.
+The foundational statistical approach treats each user's rating profile as a
+feature vector and flags outliers.
+Chirita et al.~\cite{chirita2005preventing} define per-user features—rating
+deviation from the item mean, weighted deviation from mean average (WDMA),
+profile length, and filler-item ratio—that together capture the coarse
+fingerprints of injection: inflated ratings on targets, uniform filler scores,
+and unnaturally short profiles.
+Complementary work applies PCA to the user-rating matrix, treating injected
+profiles as low-rank perturbations whose principal directions separate from
+genuine user variance~\cite{williams2006detection}.
+Clustering methods extend this idea by grouping users whose rating vectors are
+suspiciously similar—a pattern induced when an attacker re-uses a fixed filler
+template across many fake accounts~\cite{mehta2009unsupervised}.
+Statistical detectors are fast and require no labelled data, but they fail
+against adaptive attacks calibrated to match the genuine rating distribution,
+such as the bandwagon strategy~\cite{mobasher2007attacks} and its successors.
+
+Supervised classifiers introduced labelled shilling datasets and per-user
+feature engineering.
+Random-forest and SVM detectors trained on rating-based features achieve
+strong recall against known attack families but overfit to the specific
+injection signature seen at training time and degrade on unseen attack
+profiles~\cite{burke2005segment}.
+Deep-learning variants replace hand-crafted statistics with recurrent or
+convolutional encoders over rating sequences, recovering temporal patterns
+that scalar features discard~\cite{wu2021fight}.
+However, all of these approaches treat users independently; they miss the
+relational anomalies produced when a group of fake profiles collectively
+targets a set of items.
+
+Graph-based detectors exploit this relational signal.
+Methods that build user-item bipartite graphs and score nodes by structural
+anomaly measures—degree asymmetry, neighbourhood overlap, co-purchase
+concentration—substantially outperform single-user statistics against
+structurally coherent attack families such as AUSH~\cite{lin2020aush}.
+Anti-FakeU~\cite{zhang2022antifakeu} is the most directly comparable prior
+work: it constructs a bipartite user-item graph and detects fake users through
+graph-based anomaly scoring over first-order neighbourhood statistics including
+co-purchase overlap and degree asymmetry.
+Yet Anti-FakeU encodes neither review text nor edge timestamps, leaving two
+systematic blind spots: it cannot detect the cross-modal inconsistencies
+introduced when LLM-generated text accompanies structurally plausible rating
+patterns, and it has no mechanism for recognising the coordinated temporal
+bursts that distinguish modern injection campaigns from organic activity.
+
+% ── LLM-Generated Fake Content Detection ─────────────────────────────────────
+\subsection{LLM-Generated Fake Content Detection}
+\label{sec:rel_llm_detection}
+
+Detecting computationally generated deceptive content is a longstanding
+problem that has grown substantially harder with the advent of large language
+models.
+Ott et al.~\cite{ott2011finding} established crowdsourced deceptive hotel
+reviews as a benchmark and showed that both human judges and unigram
+classifiers perform only slightly above chance, motivating automated linguistic
+approaches.
+Subsequent work catalogued the textual fingerprints of platform-scale review
+spam—exaggerated sentiment, sparse specifics, heavy first-person framing, and
+suspiciously brief activity windows~\cite{jindal2008opinion}—and trained
+supervised classifiers to exploit them.
+These classifiers were effective against template-based generators but relied
+on distributional assumptions that neural generators easily violate.
+
+The GPT era reset the detection landscape.
+Zellers et al.~\cite{zellers2019defending} demonstrated that neural fake-news
+generators produce text that fools both human readers and classical detectors,
+and that the most effective discriminator is a model of the same family trained
+adversarially.
+Contemporary LLM-generated text detectors exploit subtle statistical biases
+in autoregressive sampling—token-probability curvature, rank-based
+features—but these signals vanish under paraphrasing or when the attacker
+controls the decoding parameters~\cite{guo2023close}.
+LLM watermarking~\cite{kirchenbauer2023watermark} embeds detectable statistical
+patterns at generation time by biasing token selection toward a secret hash
+partition; while theoretically grounded, watermarks are inapplicable when the
+attacker controls the generator and absent from commercially deployed models.
+
+SemanticShield~\cite{li2025semanticshield} targets the recommender-system setting
+specifically: it encodes each user's aggregated review corpus with a pre-trained
+language model and flags profiles whose representation drifts from the
+genuine-user centroid in embedding space.
+SemanticShield is the strongest single-modality text baseline for LLM-agent
+attacks when review text is present.
+However, it degrades to chance on datasets without review text, provides no
+mechanism for detecting temporal coordination among injected profiles, and
+ignores the structural signals available in the user-item interaction
+graph—signals that are informative even when the textual content of fake
+profiles is indistinguishable from genuine users.
+
+% ── Heterogeneous and Temporal GNNs ──────────────────────────────────────────
+\subsection{Heterogeneous and Temporal Graph Neural Networks}
+\label{sec:rel_gnn}
+
+Standard graph neural networks homogenise all nodes and edges into a single
+feature space, discarding semantically meaningful type distinctions.
+The Heterogeneous Graph Transformer (HGT; Hu et al.~\cite{hu2020hgt}) addresses
+this by parameterising queries, keys, values, and message matrices separately
+per node type and per relation type, learning qualitatively different
+interaction patterns for each combination.
+HGT achieves state-of-the-art performance on heterogeneous academic network
+benchmarks and has since been adapted for knowledge-graph reasoning and
+cross-domain recommendation~\cite{lv2021we}.
+The type-specific parameterisation is critical for the shilling detection
+setting, where user, item, and review nodes carry structurally and semantically
+different attack signatures.
+
+Temporal dynamics introduce a complementary axis.
+Temporal Graph Networks (TGN; Rossi et al.~\cite{rossi2020temporal}) maintain
+a per-node memory that is updated by a message function conditioned on
+continuous-time edge events, enabling representations that track the
+evolving state of each node as new interactions arrive.
+TGN demonstrates that even simple time-encoding—e.g.\ learnable sinusoidal
+embeddings of inter-event gaps—yields large gains on link-prediction benchmarks
+with bursty arrival processes.
+Fraud detection has independently discovered temporal signals: FRAUDRE and
+related approaches show that the inter-arrival time distribution of fraudulent
+accounts differs markedly from genuine users, producing anomaly signals that
+static graph features miss entirely~\cite{liu2025fraud}.
+Despite these parallel advances, no prior work has combined heterogeneous graph
+encoding with learnable temporal attention for shilling attack detection, where
+the three-type user-review-item topology and the timestamped injection signal
+together provide orthogonal and non-redundant detection axes.
+
+% ── LLM Agents for Recommendation Attack ─────────────────────────────────────
+\subsection{LLM Agents for Recommendation Attack}
+\label{sec:rel_llm_attack}
+
+Agent4SR~\cite{zhang2024agent4sr} is the first work to frame shilling attack
+construction as a multi-step agentic task: a large language model is prompted
+to construct a complete fake user persona, generate a coherent review history,
+and assign ratings consistent with the persona's stated preferences, all while
+optimising target-item exposure.
+The resulting profiles are grammatically fluent, topically coherent, and
+statistically similar to genuine users, systematically evading detectors
+that rely on either distributional rating anomalies or linguistic
+outlier detection.
+Related work has explored LLM-based poisoning in broader adversarial
+recommendation settings~\cite{deldjoo2024survey}, and prompt-injection attacks
+against retrieval-augmented recommenders~\cite{shi2023large}, but systematic
+evaluation of detection strategies against agent-generated profiles across
+multiple datasets and injection rates remains absent from the literature.
+
+% ── Gap synthesis ─────────────────────────────────────────────────────────────
+
+The gaps surveyed above form three orthogonal failure modes in existing
+detectors: Anti-FakeU's reliance on graph structure alone leaves it blind to
+the cross-modal inconsistencies introduced by LLM-generated review text;
+SemanticShield's reliance on text alone renders it ineffective on rating-only
+datasets and unable to leverage graph topology; and neither family incorporates
+temporal information, missing the coordinated injection-timing signals that are
+present even when individual profiles appear genuine.
+TH-GNN closes all three gaps simultaneously: the two-layer HGT backbone encodes
+the heterogeneous user-review-item graph with per-type and per-relation
+parameterisation, the cross-modal attention fusion integrates review and item
+text streams with the structural embedding, and the sinusoidal temporal
+encoding together with the burstiness GRU capture the edge-timestamp patterns
+that betray injection campaigns at both the per-edge and per-user level.
+The result is a detector that is strictly more informative than any
+single-modality baseline and, as the ablation study confirms, degrades
+gracefully when any individual stream is absent rather than failing
+catastrophically.

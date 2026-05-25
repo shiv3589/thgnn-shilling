@@ -1,0 +1,17 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.4, pytest-7.4.0, pluggy-1.0.0 -- /Users/shivamswarup/anaconda3/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/parul/thgnn-shilling
+configfile: pyproject.toml
+plugins: anyio-4.11.0
+collecting ... collected 128 items / 121 deselected / 7 selected
+
+tests/test_reproducibility.py::TestSmoke::test_pipeline_completes[RandomAttack] PASSED [ 14%]
+tests/test_reproducibility.py::TestSmoke::test_pipeline_completes[BandwagonAttack] PASSED [ 28%]
+tests/test_reproducibility.py::TestSmoke::test_deterministic_with_same_seed PASSED [ 42%]
+tests/test_reproducibility.py::TestSmoke::test_different_seeds_differ PASSED [ 57%]
+tests/test_reproducibility.py::TestSmoke::test_higher_injection_raises_f1 PASSED [ 71%]
+tests/test_reproducibility.py::TestSmoke::test_paper_config_schema PASSED [ 85%]
+tests/test_reproducibility.py::TestSmoke::test_expected_f1_values_in_range PASSED [100%]
+
+====================== 7 passed, 121 deselected in 16.77s ======================

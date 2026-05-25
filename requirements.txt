@@ -8,3 +8,4 @@ pyyaml
 wandb
 tqdm
 scipy
+tabulate>=0.8.10

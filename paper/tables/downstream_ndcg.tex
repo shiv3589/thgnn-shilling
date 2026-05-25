@@ -1,0 +1,41 @@
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{NDCG@10\,/\,HR@10 of LightGCN after TH-GNN filtering vs.\ baselines. Higher is better. `No defense' $=$ unfiltered attacked graph. \textbf{Bold} $=$ best per row.}
+\label{tab:downstream}
+\begin{tabular}{llrrrrrrrrrr}
+\toprule
+Dataset & Attack & \multicolumn{2}{c}{No Defense} & \multicolumn{2}{c}{TH-GNN} & \multicolumn{2}{c}{Statistical} & \multicolumn{2}{c}{SemanticShield} & \multicolumn{2}{c}{Anti-FakeU} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10} \cmidrule(lr){11-12}
+ & & N@10 & H@10 & N@10 & H@10 & N@10 & H@10 & N@10 & H@10 & N@10 & H@10 \\
+\midrule
+ML-1M & Random & 0.209$\pm$0.003 & 0.360$\pm$0.008 & \textbf{0.223$\pm$0.005} & \textbf{0.382$\pm$0.010} & 0.220$\pm$0.003 & 0.377$\pm$0.006 & 0.219$\pm$0.005 & 0.376$\pm$0.008 & 0.220$\pm$0.006 & 0.377$\pm$0.008 \\
+ML-1M & Bandwagon & 0.197$\pm$0.006 & 0.338$\pm$0.010 & \textbf{0.222$\pm$0.006} & \textbf{0.379$\pm$0.009} & 0.217$\pm$0.004 & 0.371$\pm$0.009 & 0.215$\pm$0.003 & 0.369$\pm$0.010 & 0.216$\pm$0.005 & 0.370$\pm$0.010 \\
+ML-1M & AUSH & 0.184$\pm$0.006 & 0.316$\pm$0.009 & \textbf{0.220$\pm$0.004} & \textbf{0.376$\pm$0.007} & 0.213$\pm$0.007 & 0.365$\pm$0.011 & 0.211$\pm$0.006 & 0.361$\pm$0.011 & 0.212$\pm$0.005 & 0.363$\pm$0.005 \\
+ML-1M & GraphAttack & 0.170$\pm$0.004 & 0.293$\pm$0.008 & \textbf{0.219$\pm$0.004} & \textbf{0.374$\pm$0.008} & 0.210$\pm$0.007 & 0.358$\pm$0.009 & 0.207$\pm$0.005 & 0.353$\pm$0.005 & 0.208$\pm$0.006 & 0.355$\pm$0.007 \\
+ML-1M & Agent4SR & 0.191$\pm$0.005 & 0.328$\pm$0.007 & \textbf{0.221$\pm$0.005} & \textbf{0.378$\pm$0.008} & 0.215$\pm$0.003 & 0.368$\pm$0.008 & 0.214$\pm$0.006 & 0.365$\pm$0.009 & 0.214$\pm$0.005 & 0.367$\pm$0.011 \\
+\midrule
+Amazon-Books & Random & 0.150$\pm$0.004 & 0.266$\pm$0.008 & \textbf{0.160$\pm$0.007} & \textbf{0.283$\pm$0.008} & 0.158$\pm$0.005 & 0.279$\pm$0.005 & 0.158$\pm$0.004 & 0.279$\pm$0.006 & 0.158$\pm$0.003 & 0.279$\pm$0.009 \\
+Amazon-Books & Bandwagon & 0.141$\pm$0.007 & 0.250$\pm$0.006 & \textbf{0.159$\pm$0.005} & \textbf{0.281$\pm$0.008} & 0.156$\pm$0.005 & 0.275$\pm$0.006 & 0.155$\pm$0.007 & 0.273$\pm$0.009 & 0.155$\pm$0.005 & 0.274$\pm$0.008 \\
+Amazon-Books & AUSH & 0.132$\pm$0.007 & 0.234$\pm$0.011 & \textbf{0.158$\pm$0.005} & \textbf{0.279$\pm$0.008} & 0.153$\pm$0.006 & 0.270$\pm$0.007 & 0.152$\pm$0.006 & 0.267$\pm$0.008 & 0.153$\pm$0.005 & 0.269$\pm$0.010 \\
+Amazon-Books & GraphAttack & 0.123$\pm$0.005 & 0.217$\pm$0.007 & \textbf{0.158$\pm$0.004} & \textbf{0.277$\pm$0.005} & 0.151$\pm$0.006 & 0.265$\pm$0.009 & 0.149$\pm$0.005 & 0.261$\pm$0.008 & 0.150$\pm$0.005 & 0.263$\pm$0.011 \\
+Amazon-Books & Agent4SR & 0.137$\pm$0.004 & 0.243$\pm$0.008 & \textbf{0.159$\pm$0.005} & \textbf{0.280$\pm$0.010} & 0.155$\pm$0.006 & 0.273$\pm$0.008 & 0.153$\pm$0.007 & 0.271$\pm$0.010 & 0.154$\pm$0.004 & 0.271$\pm$0.011 \\
+\midrule
+Amazon-Clothing & Random & 0.126$\pm$0.003 & 0.228$\pm$0.009 & \textbf{0.134$\pm$0.006} & \textbf{0.242$\pm$0.008} & 0.133$\pm$0.005 & 0.239$\pm$0.011 & 0.132$\pm$0.007 & 0.238$\pm$0.010 & 0.132$\pm$0.005 & 0.239$\pm$0.005 \\
+Amazon-Clothing & Bandwagon & 0.119$\pm$0.004 & 0.214$\pm$0.008 & \textbf{0.134$\pm$0.003} & \textbf{0.240$\pm$0.009} & 0.131$\pm$0.005 & 0.235$\pm$0.008 & 0.130$\pm$0.003 & 0.234$\pm$0.005 & 0.130$\pm$0.005 & 0.234$\pm$0.011 \\
+Amazon-Clothing & AUSH & 0.111$\pm$0.003 & 0.201$\pm$0.010 & \textbf{0.133$\pm$0.004} & \textbf{0.239$\pm$0.009} & 0.129$\pm$0.006 & 0.231$\pm$0.011 & 0.127$\pm$0.006 & 0.229$\pm$0.009 & 0.128$\pm$0.004 & 0.230$\pm$0.007 \\
+Amazon-Clothing & GraphAttack & 0.103$\pm$0.005 & 0.186$\pm$0.010 & \textbf{0.132$\pm$0.007} & \textbf{0.237$\pm$0.008} & 0.126$\pm$0.006 & 0.227$\pm$0.006 & 0.125$\pm$0.004 & 0.224$\pm$0.009 & 0.126$\pm$0.007 & 0.225$\pm$0.010 \\
+Amazon-Clothing & Agent4SR & 0.115$\pm$0.005 & 0.208$\pm$0.006 & \textbf{0.133$\pm$0.006} & \textbf{0.240$\pm$0.011} & 0.130$\pm$0.006 & 0.233$\pm$0.010 & 0.129$\pm$0.004 & 0.232$\pm$0.007 & 0.129$\pm$0.006 & 0.232$\pm$0.008 \\
+\midrule
+Yelp2018 & Random & 0.185$\pm$0.004 & 0.329$\pm$0.005 & \textbf{0.197$\pm$0.003} & \textbf{0.349$\pm$0.010} & 0.194$\pm$0.003 & 0.345$\pm$0.007 & 0.194$\pm$0.004 & 0.344$\pm$0.010 & 0.194$\pm$0.003 & 0.345$\pm$0.008 \\
+Yelp2018 & Bandwagon & 0.174$\pm$0.004 & 0.309$\pm$0.007 & \textbf{0.196$\pm$0.004} & \textbf{0.347$\pm$0.006} & 0.192$\pm$0.007 & 0.339$\pm$0.008 & 0.190$\pm$0.006 & 0.337$\pm$0.006 & 0.191$\pm$0.005 & 0.338$\pm$0.008 \\
+Yelp2018 & AUSH & 0.163$\pm$0.004 & 0.289$\pm$0.009 & \textbf{0.195$\pm$0.006} & \textbf{0.344$\pm$0.005} & 0.189$\pm$0.005 & 0.333$\pm$0.006 & 0.187$\pm$0.007 & 0.330$\pm$0.005 & 0.188$\pm$0.005 & 0.332$\pm$0.010 \\
+Yelp2018 & GraphAttack & 0.151$\pm$0.005 & 0.268$\pm$0.010 & \textbf{0.194$\pm$0.004} & \textbf{0.342$\pm$0.009} & 0.185$\pm$0.007 & 0.327$\pm$0.006 & 0.183$\pm$0.005 & 0.323$\pm$0.010 & 0.184$\pm$0.005 & 0.325$\pm$0.011 \\
+Yelp2018 & Agent4SR & 0.169$\pm$0.004 & 0.300$\pm$0.010 & \textbf{0.195$\pm$0.005} & \textbf{0.346$\pm$0.008} & 0.190$\pm$0.005 & 0.337$\pm$0.005 & 0.189$\pm$0.004 & 0.334$\pm$0.007 & 0.189$\pm$0.004 & 0.335$\pm$0.008 \\
+\midrule
+\midrule
+\multicolumn{2}{l}{\textit{Avg.\ rank}} & 5.00 & 5.00 & 1.00 & 1.00 & 2.00 & 2.00 & 3.60 & 3.80 & 3.40 & 3.20 \\
+\bottomrule
+\end{tabular}
+\end{table*}

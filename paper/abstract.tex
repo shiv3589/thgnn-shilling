@@ -1,0 +1,24 @@
+% ============================================================
+%  abstract.tex — TH-GNN paper, NeurIPS 2025
+% ============================================================
+
+\begin{abstract}
+LLM agents can now generate realistic shilling profiles---fluent reviews and
+coherent ratings---at scale, systematically defeating recommender-system
+defences.
+Text-only detectors that flag semantic drift in review embeddings are blind to
+graph structure and temporal coordination; graph-only detectors that exploit
+neighbourhood anomalies cannot reason over review semantics or the cross-modal
+inconsistencies produced by LLM-generated content.
+We propose TH-GNN, a heterogeneous temporal graph neural network with a
+two-layer Heterogeneous Graph Transformer backbone that applies per-type,
+per-relation attention augmented with learnable sinusoidal temporal encodings
+on every edge.
+Cross-modal attention fuses the structural user embedding with frozen RoBERTa
+representations of reviews and item descriptions; a GRU over log-inter-arrival
+times captures burstiness.
+Across five attack families and four datasets, TH-GNN achieves a grand-mean
+F\textsubscript{1} of 0.870, outperforming the strongest text-only baseline on
+Agent4SR attacks by 10.9\,pp and 11.5\,pp at the lowest injection rate.
+Code and data splits are available at [REPO URL].
+\end{abstract}

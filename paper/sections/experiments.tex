@@ -1,0 +1,215 @@
+% ============================================================
+%  experiments.tex — TH-GNN paper, NeurIPS 2025
+%  Generated from:
+%    configs/paper_runs.yaml
+%    results/tables/main_detection.csv
+%    results/tables/downstream_ndcg.csv
+%    results/tables/budget_curves.csv
+%    results/tables/ablation.csv
+%    REPRODUCE.md
+% ============================================================
+
+\section{Experiments}
+
+% ── Datasets ─────────────────────────────────────────────────────────────────
+\subsection{Datasets}
+\label{sec:datasets}
+
+We evaluate on four publicly available benchmarks spanning diverse domains,
+review densities, and temporal extents (Table~\ref{tab:datasets}).
+All datasets are filtered to the 5-core (users and items with at least five interactions),
+split 70/10/20 by timestamp, and shared across all detectors and attacks.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{Dataset statistics after 5-core filtering.
+  $^\dagger$ML-1M contains no review text; text-stream inputs receive
+  zero-padded RoBERTa embeddings for all users.}
+\label{tab:datasets}
+\begin{tabular}{lrrrrl}
+\toprule
+Dataset & \#Users & \#Items & \#Reviews & \#Ratings & Span \\
+\midrule
+ML-1M$^\dagger$  &   6,040 &   3,706 &        --- &  1,000,209 & 2000--2003 \\
+Amazon-Books     & 294,000 & 152,000 &  2,700,000 &  2,700,000 & 1996--2018 \\
+Amazon-Clothing  &  39,000 &  23,000 &    278,000 &    278,000 & 2000--2018 \\
+Yelp2018         &  31,000 &  38,000 &  1,560,000 &  1,560,000 & 2004--2018 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{MovieLens-1M}~\cite{harper2015movielens} is the canonical collaborative-filtering
+benchmark for shilling-attack research, providing a dense, well-curated rating signal over
+a controlled three-year window.
+\textbf{Amazon-Books}~\cite{ni2019justifying} is the largest dataset in our suite; its
+lengthy review corpus is the primary testbed for evaluating detection of LLM-generated
+textual profiles.
+\textbf{Amazon-Clothing}~\cite{ni2019justifying} has the sparsest interaction graph of the
+four, stressing detection performance when fake profiles must be identified within thin
+neighbourhood structure.
+\textbf{Yelp2018}~\cite{he2020lightgcn} spans a physically grounded business domain with
+14 years of timestamped check-in reviews, introducing realistic temporal burstiness patterns
+that are qualitatively different from product-catalogue data.
+
+% ── Baselines ─────────────────────────────────────────────────────────────────
+\subsection{Baselines}
+\label{sec:baselines}
+
+We compare against three representative shilling-attack detectors that collectively cover
+the statistical, text-semantic, and graph-structural detection paradigms.
+
+\textbf{Statistical baseline}~\cite{chirita2005preventing} extracts per-user rating
+features—rating deviation from the item mean, weighted deviation from mean average (WDMA),
+profile length, and filler-item ratio—and trains a random-forest classifier on top.
+It is fast and broadly applicable but has no access to review text or graph topology,
+limiting its effectiveness against adaptive attacks that mimic the rating distribution.
+
+\textbf{SemanticShield}~\cite{li2025semanticshield} encodes each user's review text with a
+pre-trained language model and scores profiles by their semantic drift from the population
+centroid, treating outlier embeddings as injection signals.
+SemanticShield is the strongest single-modality baseline for LLM-agent attacks when review
+text exists, but degrades on rating-only datasets (ML-1M) and provides no temporal signal,
+leaving co-ordinated burst campaigns undetected.
+
+\textbf{Anti-FakeU}~\cite{zhang2022antifakeu} builds a user--item bipartite graph and
+detects fake users through graph-based anomaly scoring over first-order neighbourhood
+statistics, including co-purchase overlap and degree asymmetry.
+Anti-FakeU outperforms statistical methods against structural attacks (AUSH, GraphAttack)
+but ignores review text and edge timestamps, making it insensitive to the cross-modal
+inconsistencies and temporal fingerprints introduced by modern adversarial profiles.
+
+% ── Attack Setup ──────────────────────────────────────────────────────────────
+\subsection{Attack Setup}
+\label{sec:attacks}
+
+We evaluate five attacks from four conceptual families.
+In all settings each fake profile is assigned a budget of 10\,\% of the item catalogue
+(\texttt{budget\_pct}\,=\,0.10) and the attacker targets $n\!=\!5$ items sampled from
+the top-10\,\% most popular.
+Injection rates are swept over $\{0.5\%, 1\%, 5\%\}$.
+
+\textbf{Classic attacks.}
+The \emph{random} attack~\cite{lam2004shilling} assigns each fake profile ratings drawn
+uniformly from the global distribution, with target items scored maximally.
+The \emph{bandwagon} attack~\cite{mobasher2007attacks} additionally assigns the maximum
+rating to a fixed set of globally popular ``filler'' items to mimic realistic user behaviour
+and exploit popularity bias in the victim recommender.
+Both attacks are parameter-free and serve as the detection lower bound.
+
+\textbf{GAN-based attack.}
+AUSH~\cite{lin2020aush} trains a generative adversarial network whose generator produces
+user rating profiles conditioned on the target items, while the discriminator enforces
+statistical indistinguishability from real users.
+AUSH generates rating vectors only; no review text is produced, so text-stream detectors
+receive zero-padded embeddings for all injected profiles.
+
+\textbf{GNN-targeted attack.}
+GraphAttack~\cite{wu2022graphattack} first trains a two-layer surrogate GNN (32-dimensional
+embeddings, 15 epochs) on a partial view of the interaction graph, then applies 20 steps
+of gradient-based perturbation to craft rating vectors that maximise target-item exposure
+against the surrogate while satisfying $\ell_\infty$ invisibility constraints.
+This is the hardest structural adversary and the most challenging for count-based detectors
+at low injection rates.
+
+\textbf{LLM-agent attack.}
+Agent4SR~\cite{zhang2024agent4sr} drives a large language model agent to generate
+natural-language reviews and coherent rating histories for each fake user; profiles are
+cached after generation to avoid redundant API calls across the injection-rate sweep.
+The resulting profiles are grammatically fluent, topically consistent, and statistically
+similar to real users, defeating all detectors that rely on either textual anomalies
+or rating distributional signals alone.
+
+% ── Implementation Details ────────────────────────────────────────────────────
+\subsection{Implementation Details}
+\label{sec:impl}
+
+TH-GNN uses a 2-layer HGT encoder (hidden dimension 128, 4 attention heads),
+a 64-dimensional sinusoidal temporal encoding fused at each layer,
+128-dimensional cross-modal attention projections for the review and item text streams
+(RoBERTa-base~\cite{liu2019roberta}, frozen, 768-dim output),
+a 32-dimensional GRU for the temporal-burstiness stream,
+and a two-layer MLP classifier (64 hidden units, sigmoid output).
+The model is trained with Adam ($lr = 10^{-3}$, weight decay $10^{-4}$, batch size 512)
+for up to 100 epochs with patience-10 early stopping on validation
+F\textsubscript{1}; class imbalance at low injection rates is addressed by focal
+loss~\cite{lin2017focal} ($\gamma = 2.0$, $\alpha = 0.25$).
+The downstream victim model is LightGCN~\cite{he2020lightgcn} (64-dim embeddings,
+3 propagation layers, evaluated at NDCG@10 and HR@10).
+All 720 main experiments (4 datasets $\times$ 5 attacks $\times$ 3 rates $\times$
+3 seeds $\times$ 4 detectors) were run on a single NVIDIA A100 80\,GB GPU
+(Intel Xeon Gold 6248R, 256\,GB RAM, Ubuntu 22.04, PyTorch 2.2.1+cu121), requiring
+approximately 18 hours wall-clock time for the full matrix.
+
+% ── Main Results ──────────────────────────────────────────────────────────────
+\subsection{Main Results}
+\label{sec:results}
+
+\textbf{Overall detection performance.}
+Table~\ref{tab:main_detection} reports F\textsubscript{1}, detection rate (DR), and
+false-alarm rate (FAR), each averaged over three seeds and three injection rates.
+TH-GNN achieves F\textsubscript{1} between 0.816 (Agent4SR, Amazon-Clothing) and
+0.924 (Random, Amazon-Books), with a grand mean of \textbf{0.870} across all 20
+dataset--attack configurations—uniformly above every baseline on every row.
+TH-GNN's FAR stays below 4.5\,\% throughout (range: 3.2--4.4\,\%), whereas
+the best-performing baselines incur FAR between 6.8\,\% (SemanticShield, Random)
+and 12.5\,\% (Statistical, Agent4SR), which is operationally significant because
+false positives remove legitimate users from the recommendation graph.
+On ML-1M, which contains no review text, the review and item text streams fall back to zero vectors; TH-GNN still achieves 0.867 F\textsubscript{1}, isolating the contribution of the graph and temporal streams alone.
+
+\textbf{LLM-agent attack.}
+The performance gap is starkest on Agent4SR, where fluent LLM-generated reviews and
+plausible rating histories defeat detectors that rely on statistical anomalies or
+text-only signals.
+TH-GNN achieves a mean F\textsubscript{1} of 0.824 on Agent4SR (averaged across four
+datasets) against SemanticShield's 0.716—a margin of \textbf{$+$10.8\,pp}—and the
+Statistical baseline's 0.675 ($+$14.9\,pp).
+Notably, TH-GNN's DR on Agent4SR (0.830--0.843 across datasets) exceeds the
+F\textsubscript{1} of any baseline, indicating that temporal-coordination patterns
+in LLM campaigns are detectable even when individual review text is indistinguishable
+from genuine users.
+
+\textbf{Downstream recommendation quality.}
+Table~\ref{tab:downstream} measures LightGCN NDCG@10 and HR@10 after each detector
+filters injected profiles from the training graph.
+Without defence, GraphAttack reduces NDCG@10 on ML-1M from a clean 0.224 to 0.170
+($-$24\,\%); TH-GNN filtering restores it to 0.219 (97.8\,\% of clean),
+while the next-best detector (Statistical) reaches only 0.210 (93.8\,\%).
+TH-GNN ranks first in both NDCG@10 and HR@10 across all 20 dataset--attack
+conditions (average rank 1.00 for both metrics), confirming that higher detection
+F\textsubscript{1} translates directly to downstream ranking quality.
+
+\textbf{Low-budget regime.}
+Figure~\ref{fig:budget_curves} plots F\textsubscript{1} against injection rate on ML-1M.
+At the lowest rate (0.5\%), where only 5 fake profiles exist per 1{,}000 real users,
+the gap between TH-GNN and baselines \emph{widens} rather than closes: for Agent4SR,
+TH-GNN achieves F\textsubscript{1}\,=\,0.806 versus SemanticShield's 0.691
+(\textbf{$+$11.5\,pp}); for GraphAttack the margin is 0.827 vs.\ 0.722
+(\textbf{$+$10.5\,pp}).
+This widening occurs because graph-temporal signals—coordination timestamps and
+heterogeneous edge patterns—become proportionally more salient when the injected
+mass is too small to trigger count-based or distributional detectors.
+
+% ── Ablation Study ────────────────────────────────────────────────────────────
+\subsection{Ablation Study}
+\label{sec:ablation}
+
+Crucially, all three ablated variants still surpass the best baseline in grand-mean
+F\textsubscript{1} ($\geq$\,0.821 vs.\ Anti-FakeU 0.770), indicating that the architectural combination is what drives the gain over prior GNN detectors.
+This confirms that the architectural combination itself — not any single stream — drives the gain over prior GNN detectors.
+Table~\ref{tab:ablation} reports F\textsubscript{1}, DR, and FAR at 1\,\% injection
+rate, averaged over four datasets and five attacks.
+Removing the temporal-encoding stream (sinusoidal $\Delta t$ bias\,+\,burstiness GRU)
+causes the largest single degradation: F\textsubscript{1} falls 5.1\,pp from 0.872 to
+0.821, and FAR nearly doubles from 4.1\,\% to 6.5\,\%, confirming that timestamped
+edge features are the most discriminative signal across all five attack families,
+including classic attacks whose flat injection timeline is already distinctive.
+Replacing the heterogeneous graph transformer with a static homogeneous GCN costs
+4.2\,pp F\textsubscript{1} (0.872\,$\to$\,0.830), demonstrating that per-type and
+per-relation parameterisation is necessary when structurally heterogeneous node types
+(users, items, reviews) carry qualitatively different attack fingerprints.
+Removing both text streams yields the smallest drop (3.3\,pp), though the degradation
+is concentrated on Agent4SR where review-text coherence provides the only non-graph
+signal; the cross-attack average understates the text stream's value for LLM-based
+threats specifically (see Figure~\ref{fig:llm_vs_gan}).
