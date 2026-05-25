@@ -1,0 +1,35 @@
+% ============================================================
+%  conclusion.tex — TH-GNN paper, NeurIPS 2025
+% ============================================================
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+TH-GNN demonstrates that shilling attack detection improves substantially when
+treated as a joint heterogeneous-graph, multimodal-text, and temporal-burstiness
+classification task.
+The three signal streams—a two-layer HGT backbone with learnable sinusoidal
+temporal encoding, cross-modal attention over review and item text, and a GRU
+over log-inter-arrival times—address orthogonal failure modes of prior detectors:
+the temporal stream catches coordinated injection campaigns that text-only methods
+miss; the text streams expose cross-modal inconsistencies that graph-only methods
+miss; and the heterogeneous graph encoding preserves type-specific fingerprints
+that homogeneous GNNs discard.
+Across five attack families and four datasets, TH-GNN achieved a grand-mean
+F\textsubscript{1} of 0.870, with a $+$10.9\,pp margin over the strongest
+text-only baseline on LLM-agent attacks—a margin that widened to $+$11.5\,pp at
+the lowest injection rate, precisely where single-modality detectors are most
+vulnerable.
+
+Two limitations warrant attention.
+First, the temporal stream requires per-event timestamps; platforms that expose
+only aggregate interaction counts would reduce TH-GNN to a text-and-graph
+detector (the ablation study estimates a $-$5.1\,pp cost for removing the
+temporal stream entirely).
+Second, LLM-generated profiles will evolve as models improve, and periodic
+retraining on fresh adversarial samples will be necessary to sustain detection
+accuracy against next-generation agents.
+Future work should investigate adaptive attacks that specifically target temporal
+coordination signals, online detection settings where profiles must be scored
+incrementally as reviews arrive, and cross-platform transfer where a detector
+trained on one review domain is applied to another.
