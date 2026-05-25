@@ -99,6 +99,7 @@ and category string.
 For ML-1M, which contains no review text, both the review and item CLS vectors
 are set to $\mathbf{0}^{768}$, isolating the graph and temporal streams for
 that dataset.
+These node features are the input to the HGT encoder described next.
 
 % ── HGT Encoder ──────────────────────────────────────────────────────────────
 \subsection{HGT Encoder with Temporal Encoding}
@@ -276,6 +277,7 @@ through a two-layer MLP with a LayerNorm input gate:
 \end{align}
 where $\mathbf{W}_1 \in \mathbb{R}^{64 \times 160}$,
 $\mathbf{W}_2 \in \mathbb{R}^{1 \times 64}$, and $\sigma$ is the sigmoid.
+We train the full model end-to-end using the focal loss objective described next.
 
 % ── Training Objective ────────────────────────────────────────────────────────
 \subsection{Training Objective}

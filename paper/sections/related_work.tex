@@ -11,40 +11,40 @@
 
 Shilling attack detection has a two-decade history spanning statistical,
 supervised, and graph-based paradigms.
-The foundational statistical approach treats each user's rating profile as a
-feature vector and flags outliers.
-Chirita et al.~\cite{chirita2005preventing} define per-user features—rating
+The foundational statistical approach treated each user's rating profile as a
+feature vector and flagged outliers.
+Chirita et al.~\cite{chirita2005preventing} defined per-user features—rating
 deviation from the item mean, weighted deviation from mean average (WDMA),
-profile length, and filler-item ratio—that together capture the coarse
+profile length, and filler-item ratio—that together captured the coarse
 fingerprints of injection: inflated ratings on targets, uniform filler scores,
 and unnaturally short profiles.
 Complementary work applies PCA to the user-rating matrix, treating injected
 profiles as low-rank perturbations whose principal directions separate from
 genuine user variance~\cite{williams2006detection}.
-Clustering methods extend this idea by grouping users whose rating vectors are
+Clustering methods extended this idea by grouping users whose rating vectors were
 suspiciously similar—a pattern induced when an attacker re-uses a fixed filler
 template across many fake accounts~\cite{mehta2009unsupervised}.
-Statistical detectors are fast and require no labelled data, but they fail
+Statistical detectors were fast and required no labelled data, but they failed
 against adaptive attacks calibrated to match the genuine rating distribution,
 such as the bandwagon strategy~\cite{mobasher2007attacks} and its successors.
 
 Supervised classifiers introduced labelled shilling datasets and per-user
 feature engineering.
-Random-forest and SVM detectors trained on rating-based features achieve
-strong recall against known attack families but overfit to the specific
-injection signature seen at training time and degrade on unseen attack
+Random-forest and SVM detectors trained on rating-based features achieved
+strong recall against known attack families but overfitted to the specific
+injection signature seen at training time and degraded on unseen attack
 profiles~\cite{burke2005segment}.
-Deep-learning variants replace hand-crafted statistics with recurrent or
+Deep-learning variants replaced hand-crafted statistics with recurrent or
 convolutional encoders over rating sequences, recovering temporal patterns
-that scalar features discard~\cite{wu2021fight}.
+that scalar features discarded~\cite{wu2021fight}.
 However, all of these approaches treat users independently; they miss the
 relational anomalies produced when a group of fake profiles collectively
 targets a set of items.
 
-Graph-based detectors exploit this relational signal.
-Methods that build user-item bipartite graphs and score nodes by structural
+Graph-based detectors exploited this relational signal.
+Methods that built user-item bipartite graphs and scored nodes by structural
 anomaly measures—degree asymmetry, neighbourhood overlap, co-purchase
-concentration—substantially outperform single-user statistics against
+concentration—substantially outperformed single-user statistics against
 structurally coherent attack families such as AUSH~\cite{lin2020aush}.
 Anti-FakeU~\cite{zhang2022antifakeu} is the most directly comparable prior
 work: it constructs a bipartite user-item graph and detects fake users through
@@ -55,6 +55,8 @@ systematic blind spots: it cannot detect the cross-modal inconsistencies
 introduced when LLM-generated text accompanies structurally plausible rating
 patterns, and it has no mechanism for recognising the coordinated temporal
 bursts that distinguish modern injection campaigns from organic activity.
+LLM-based generation has compounded this challenge by eliminating the textual
+fingerprints that historically distinguished synthetic from genuine profiles.
 
 % ── LLM-Generated Fake Content Detection ─────────────────────────────────────
 \subsection{LLM-Generated Fake Content Detection}
@@ -99,6 +101,8 @@ mechanism for detecting temporal coordination among injected profiles, and
 ignores the structural signals available in the user-item interaction
 graph—signals that are informative even when the textual content of fake
 profiles is indistinguishable from genuine users.
+The structural and temporal graph architectures that can provide these
+complementary signals are surveyed next.
 
 % ── Heterogeneous and Temporal GNNs ──────────────────────────────────────────
 \subsection{Heterogeneous and Temporal Graph Neural Networks}
@@ -106,27 +110,27 @@ profiles is indistinguishable from genuine users.
 
 Standard graph neural networks homogenise all nodes and edges into a single
 feature space, discarding semantically meaningful type distinctions.
-The Heterogeneous Graph Transformer (HGT; Hu et al.~\cite{hu2020hgt}) addresses
+The Heterogeneous Graph Transformer (HGT; Hu et al.~\cite{hu2020hgt}) addressed
 this by parameterising queries, keys, values, and message matrices separately
 per node type and per relation type, learning qualitatively different
 interaction patterns for each combination.
-HGT achieves state-of-the-art performance on heterogeneous academic network
-benchmarks and has since been adapted for knowledge-graph reasoning and
+HGT achieved state-of-the-art performance on heterogeneous academic network
+benchmarks and was subsequently adapted for knowledge-graph reasoning and
 cross-domain recommendation~\cite{lv2021we}.
 The type-specific parameterisation is critical for the shilling detection
 setting, where user, item, and review nodes carry structurally and semantically
 different attack signatures.
 
 Temporal dynamics introduce a complementary axis.
-Temporal Graph Networks (TGN; Rossi et al.~\cite{rossi2020temporal}) maintain
-a per-node memory that is updated by a message function conditioned on
-continuous-time edge events, enabling representations that track the
-evolving state of each node as new interactions arrive.
-TGN demonstrates that even simple time-encoding—e.g.\ learnable sinusoidal
+Temporal Graph Networks (TGN; Rossi et al.~\cite{rossi2020temporal}) maintained
+a per-node memory updated by a message function conditioned on
+continuous-time edge events, enabling representations that tracked the
+evolving state of each node as new interactions arrived.
+TGN demonstrated that even simple time-encoding—e.g.\ learnable sinusoidal
 embeddings of inter-event gaps—yields large gains on link-prediction benchmarks
 with bursty arrival processes.
 Fraud detection has independently discovered temporal signals: FRAUDRE and
-related approaches show that the inter-arrival time distribution of fraudulent
+related approaches showed that the inter-arrival time distribution of fraudulent
 accounts differs markedly from genuine users, producing anomaly signals that
 static graph features miss entirely~\cite{liu2025fraud}.
 Despite these parallel advances, no prior work has combined heterogeneous graph
@@ -138,14 +142,14 @@ together provide orthogonal and non-redundant detection axes.
 \subsection{LLM Agents for Recommendation Attack}
 \label{sec:rel_llm_attack}
 
-Agent4SR~\cite{zhang2024agent4sr} is the first work to frame shilling attack
-construction as a multi-step agentic task: a large language model is prompted
+Agent4SR~\cite{zhang2024agent4sr} was the first work to frame shilling attack
+construction as a multi-step agentic task: a large language model was prompted
 to construct a complete fake user persona, generate a coherent review history,
 and assign ratings consistent with the persona's stated preferences, all while
 optimising target-item exposure.
-The resulting profiles are grammatically fluent, topically coherent, and
+The resulting profiles were grammatically fluent, topically coherent, and
 statistically similar to genuine users, systematically evading detectors
-that rely on either distributional rating anomalies or linguistic
+that relied on either distributional rating anomalies or linguistic
 outlier detection.
 Related work has explored LLM-based poisoning in broader adversarial
 recommendation settings~\cite{deldjoo2024survey}, and prompt-injection attacks

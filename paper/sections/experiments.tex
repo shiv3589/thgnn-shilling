@@ -52,6 +52,9 @@ neighbourhood structure.
 \textbf{Yelp2018}~\cite{he2020lightgcn} spans a physically grounded business domain with
 14 years of timestamped check-in reviews, introducing realistic temporal burstiness patterns
 that are qualitatively different from product-catalogue data.
+Together, these four datasets provide complementary test conditions spanning
+rating-only and text-rich settings, sparse and dense interaction graphs, and
+short and long temporal windows.
 
 % ── Baselines ─────────────────────────────────────────────────────────────────
 \subsection{Baselines}
@@ -79,6 +82,7 @@ statistics, including co-purchase overlap and degree asymmetry.
 Anti-FakeU outperforms statistical methods against structural attacks (AUSH, GraphAttack)
 but ignores review text and edge timestamps, making it insensitive to the cross-modal
 inconsistencies and temporal fingerprints introduced by modern adversarial profiles.
+We evaluate all three baselines against the five attack families described next.
 
 % ── Attack Setup ──────────────────────────────────────────────────────────────
 \subsection{Attack Setup}
@@ -149,67 +153,68 @@ approximately 18 hours wall-clock time for the full matrix.
 \textbf{Overall detection performance.}
 Table~\ref{tab:main_detection} reports F\textsubscript{1}, detection rate (DR), and
 false-alarm rate (FAR), each averaged over three seeds and three injection rates.
-TH-GNN achieves F\textsubscript{1} between 0.816 (Agent4SR, Amazon-Clothing) and
+TH-GNN achieved F\textsubscript{1} between 0.816 (Agent4SR, Amazon-Clothing) and
 0.924 (Random, Amazon-Books), with a grand mean of \textbf{0.870} across all 20
-dataset--attack configurations—uniformly above every baseline on every row.
-TH-GNN's FAR stays below 4.5\,\% throughout (range: 3.2--4.4\,\%), whereas
-the best-performing baselines incur FAR between 6.8\,\% (SemanticShield, Random)
+dataset--attack configurations, uniformly above every baseline on every row.
+TH-GNN's FAR stayed below 4.5\,\% throughout (range: 3.2--4.4\,\%), whereas
+the best-performing baselines incurred FAR between 6.8\,\% (SemanticShield, Random)
 and 12.5\,\% (Statistical, Agent4SR), which is operationally significant because
 false positives remove legitimate users from the recommendation graph.
-On ML-1M, which contains no review text, the review and item text streams fall back to zero vectors; TH-GNN still achieves 0.867 F\textsubscript{1}, isolating the contribution of the graph and temporal streams alone.
+On ML-1M, which contains no review text, the review and item text streams fell back to zero vectors; TH-GNN still achieved 0.867 F\textsubscript{1}, isolating the contribution of the graph and temporal streams alone.
 
 \textbf{LLM-agent attack.}
-The performance gap is starkest on Agent4SR, where fluent LLM-generated reviews and
-plausible rating histories defeat detectors that rely on statistical anomalies or
+The performance gap was starkest on Agent4SR, where fluent LLM-generated reviews and
+plausible rating histories defeated detectors that relied on statistical anomalies or
 text-only signals.
-TH-GNN achieves a mean F\textsubscript{1} of 0.824 on Agent4SR (averaged across four
-datasets) against SemanticShield's 0.716—a margin of \textbf{$+$10.8\,pp}—and the
-Statistical baseline's 0.675 ($+$14.9\,pp).
-Notably, TH-GNN's DR on Agent4SR (0.830--0.843 across datasets) exceeds the
+TH-GNN achieved a mean F\textsubscript{1} of 0.825 on Agent4SR (averaged across four
+datasets) against SemanticShield's 0.716—a margin of \textbf{$+$10.9\,pp}—and the
+Statistical baseline's 0.675 ($+$15.0\,pp).
+Notably, TH-GNN's DR on Agent4SR (0.825--0.843 across datasets) exceeded the
 F\textsubscript{1} of any baseline, indicating that temporal-coordination patterns
-in LLM campaigns are detectable even when individual review text is indistinguishable
+in LLM campaigns were detectable even when individual review text was indistinguishable
 from genuine users.
 
 \textbf{Downstream recommendation quality.}
-Table~\ref{tab:downstream} measures LightGCN NDCG@10 and HR@10 after each detector
+Table~\ref{tab:downstream} reports LightGCN NDCG@10 and HR@10 after each detector
 filters injected profiles from the training graph.
-Without defence, GraphAttack reduces NDCG@10 on ML-1M from a clean 0.224 to 0.170
-($-$24\,\%); TH-GNN filtering restores it to 0.219 (97.8\,\% of clean),
-while the next-best detector (Statistical) reaches only 0.210 (93.8\,\%).
-TH-GNN ranks first in both NDCG@10 and HR@10 across all 20 dataset--attack
+Without defence, GraphAttack reduced NDCG@10 on ML-1M from a clean 0.224 to 0.170
+($-$24\,\%); TH-GNN filtering restored it to 0.219 (97.8\,\% of clean),
+while the next-best detector (Statistical) reached only 0.210 (93.8\,\%).
+TH-GNN ranked first in both NDCG@10 and HR@10 across all 20 dataset--attack
 conditions (average rank 1.00 for both metrics), confirming that higher detection
 F\textsubscript{1} translates directly to downstream ranking quality.
 
 \textbf{Low-budget regime.}
 Figure~\ref{fig:budget_curves} plots F\textsubscript{1} against injection rate on ML-1M.
 At the lowest rate (0.5\%), where only 5 fake profiles exist per 1{,}000 real users,
-the gap between TH-GNN and baselines \emph{widens} rather than closes: for Agent4SR,
-TH-GNN achieves F\textsubscript{1}\,=\,0.806 versus SemanticShield's 0.691
-(\textbf{$+$11.5\,pp}); for GraphAttack the margin is 0.827 vs.\ 0.722
+the gap between TH-GNN and baselines \emph{widened} rather than closed: for Agent4SR,
+TH-GNN achieved F\textsubscript{1}\,=\,0.806 versus SemanticShield's 0.691
+(\textbf{$+$11.5\,pp}); for GraphAttack the margin was 0.827 vs.\ 0.722
 (\textbf{$+$10.5\,pp}).
-This widening occurs because graph-temporal signals—coordination timestamps and
-heterogeneous edge patterns—become proportionally more salient when the injected
-mass is too small to trigger count-based or distributional detectors.
+This widening occurred because graph-temporal signals—coordination timestamps and
+heterogeneous edge patterns—became proportionally more salient when the injected
+mass was too small to trigger count-based or distributional detectors.
 
 % ── Ablation Study ────────────────────────────────────────────────────────────
 \subsection{Ablation Study}
 \label{sec:ablation}
 
-Crucially, all three ablated variants still surpass the best baseline in grand-mean
-F\textsubscript{1} ($\geq$\,0.821 vs.\ Anti-FakeU 0.770), indicating that the architectural combination is what drives the gain over prior GNN detectors.
-This confirms that the architectural combination itself — not any single stream — drives the gain over prior GNN detectors.
 Table~\ref{tab:ablation} reports F\textsubscript{1}, DR, and FAR at 1\,\% injection
 rate, averaged over four datasets and five attacks.
 Removing the temporal-encoding stream (sinusoidal $\Delta t$ bias\,+\,burstiness GRU)
-causes the largest single degradation: F\textsubscript{1} falls 5.1\,pp from 0.872 to
-0.821, and FAR nearly doubles from 4.1\,\% to 6.5\,\%, confirming that timestamped
+caused the largest single degradation: F\textsubscript{1} fell 5.1\,pp from 0.872 to
+0.821, and FAR nearly doubled from 4.1\,\% to 6.5\,\%, confirming that timestamped
 edge features are the most discriminative signal across all five attack families,
 including classic attacks whose flat injection timeline is already distinctive.
-Replacing the heterogeneous graph transformer with a static homogeneous GCN costs
+Replacing the heterogeneous graph transformer with a static homogeneous GCN cost
 4.2\,pp F\textsubscript{1} (0.872\,$\to$\,0.830), demonstrating that per-type and
 per-relation parameterisation is necessary when structurally heterogeneous node types
 (users, items, reviews) carry qualitatively different attack fingerprints.
-Removing both text streams yields the smallest drop (3.3\,pp), though the degradation
-is concentrated on Agent4SR where review-text coherence provides the only non-graph
-signal; the cross-attack average understates the text stream's value for LLM-based
+Removing both text streams yielded the smallest drop (3.3\,pp), though the degradation
+was concentrated on Agent4SR where review-text coherence provided the only non-graph
+signal; the cross-attack average understated the text stream's value for LLM-based
 threats specifically (see Figure~\ref{fig:llm_vs_gan}).
+Crucially, all three ablated variants still surpassed the best baseline in grand-mean
+F\textsubscript{1} ($\geq$\,0.821 vs.\ Anti-FakeU 0.770), confirming that the
+architectural combination—not any single stream—drives the gain over prior GNN
+detectors.
