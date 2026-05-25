@@ -1,0 +1,92 @@
+% ============================================================
+%  main.tex — TH-GNN paper, NeurIPS 2025
+%
+%  Requires the NeurIPS 2025 style package.
+%  Download from https://neurips.cc/Conferences/2025/PaperInformation/StyleFiles
+%  and place neurips_2025.sty in this directory before compiling.
+%
+%  Compile with:
+%    pdflatex main && bibtex main && pdflatex main && pdflatex main
+% ============================================================
+
+\documentclass{article}
+
+% ── NeurIPS style ─────────────────────────────────────────────────────────────
+% Remove 'final' to compile in anonymous/submission mode.
+% Add 'final' for the camera-ready version.
+\usepackage[final]{neurips_2025}
+
+% ── Standard packages ─────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{xspace}
+\usepackage{bm}
+
+% ── Bibliography ──────────────────────────────────────────────────────────────
+\usepackage{natbib}
+
+% ── Notation shorthands ───────────────────────────────────────────────────────
+\newcommand{\thgnn}{\textsc{TH-GNN}\xspace}
+\newcommand{\calG}{\mathcal{G}}
+\newcommand{\calV}{\mathcal{V}}
+\newcommand{\calE}{\mathcal{E}}
+\newcommand{\calU}{\mathcal{U}}
+\newcommand{\calI}{\mathcal{I}}
+\newcommand{\calR}{\mathcal{R}}
+
+% ============================================================
+%  Title and authors
+% ============================================================
+\title{TH-GNN: Heterogeneous Temporal Graph Neural Networks\\
+       for LLM-Agent Shilling Attack Detection}
+
+% Submission mode: use \author{} below.
+% Camera-ready: replace with full author list.
+\author{%
+  % TODO: fill in before submission
+  Anonymous Authors \\
+  Anonymous Institution \\
+  \texttt{anonymous@example.com}
+}
+
+% ============================================================
+\begin{document}
+
+\maketitle
+
+% ── Abstract ──────────────────────────────────────────────────────────────────
+\input{abstract}
+
+% ── 1. Introduction ───────────────────────────────────────────────────────────
+\input{sections/introduction}
+
+% ── 2. Related Work ───────────────────────────────────────────────────────────
+\input{sections/related_work}
+
+% ── 3. Methodology ────────────────────────────────────────────────────────────
+\input{sections/method}
+
+% ── 4. Experiments ────────────────────────────────────────────────────────────
+% Note: sections/experiments.tex inputs tables/main_detection,
+%       tables/downstream_ndcg, and tables/ablation internally.
+\input{sections/experiments}
+
+% ── 5. Conclusion ─────────────────────────────────────────────────────────────
+% TODO: add sections/conclusion.tex
+
+% ── References ────────────────────────────────────────────────────────────────
+\bibliographystyle{abbrvnat}
+\bibliography{references}
+
+\end{document}
