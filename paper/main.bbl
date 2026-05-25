@@ -1,0 +1,435 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{28}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showDOI #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showDOI      \undefined \def \showDOI       #1{#1}\fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[\protect\citeauthoryear{Burke, Mobasher, Williams, and Bhaumik}{Burke
+  et~al\mbox{.}}{2005}]%
+        {burke2005segment}
+\bibfield{author}{\bibinfo{person}{Robin Burke}, \bibinfo{person}{Bamshad
+  Mobasher}, \bibinfo{person}{Chad Williams}, {and} \bibinfo{person}{Runa
+  Bhaumik}.} \bibinfo{year}{2005}\natexlab{}.
+\newblock \showarticletitle{Segment-Based Injection Attacks against
+  Collaborative Filtering Recommender Systems}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 5th IEEE International
+  Conference on Data Mining (ICDM)}}. \bibinfo{publisher}{IEEE},
+  \bibinfo{pages}{577--580}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Chirita, Nejdl, and Zamfir}{Chirita
+  et~al\mbox{.}}{2005}]%
+        {chirita2005preventing}
+\bibfield{author}{\bibinfo{person}{Paul-Alexandru Chirita},
+  \bibinfo{person}{Wolfgang Nejdl}, {and} \bibinfo{person}{Cristian Zamfir}.}
+  \bibinfo{year}{2005}\natexlab{}.
+\newblock \showarticletitle{Preventing Shilling Attacks in Online Recommender
+  Systems}. In \bibinfo{booktitle}{\emph{Proceedings of the 3rd International
+  Workshop on Adversarial Information Retrieval on the Web (AIRWeb), WWW
+  2005}}. \bibinfo{publisher}{ACM}, \bibinfo{pages}{67--74}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Deldjoo, Anelli, Noia, Bellomarini, and
+  Zanker}{Deldjoo et~al\mbox{.}}{2024}]%
+        {deldjoo2024survey}
+\bibfield{author}{\bibinfo{person}{Yashar Deldjoo},
+  \bibinfo{person}{Vito~Walter Anelli}, \bibinfo{person}{Tommaso~Di Noia},
+  \bibinfo{person}{Luigi Bellomarini}, {and} \bibinfo{person}{Markus Zanker}.}
+  \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{A Review of Adversarial Attack and Defense Methods
+  for Recommender Systems}.
+\newblock \bibinfo{journal}{\emph{Comput. Surveys}} \bibinfo{volume}{56},
+  \bibinfo{number}{7} (\bibinfo{year}{2024}).
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Guo, Zhang, Wang, Jiang, Nie, Ding, Yue, and
+  Wu}{Guo et~al\mbox{.}}{2023}]%
+        {guo2023close}
+\bibfield{author}{\bibinfo{person}{Biyang Guo}, \bibinfo{person}{Xin Zhang},
+  \bibinfo{person}{Ziyuan Wang}, \bibinfo{person}{Minqi Jiang},
+  \bibinfo{person}{Jinran Nie}, \bibinfo{person}{Yuxuan Ding},
+  \bibinfo{person}{Jianwei Yue}, {and} \bibinfo{person}{Yupeng Wu}.}
+  \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{How Close is {ChatGPT} to Human Experts? Comparison
+  Corpus, Evaluation, and Detection}.
+\newblock \bibinfo{journal}{\emph{arXiv preprint arXiv:2301.07597}}
+  (\bibinfo{year}{2023}).
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Harper and Konstan}{Harper and
+  Konstan}{2015}]%
+        {harper2015movielens}
+\bibfield{author}{\bibinfo{person}{F.~Maxwell Harper} {and}
+  \bibinfo{person}{Joseph~A. Konstan}.} \bibinfo{year}{2015}\natexlab{}.
+\newblock \showarticletitle{The {MovieLens} Datasets: History and Context}.
+\newblock \bibinfo{journal}{\emph{ACM Transactions on Interactive Intelligent
+  Systems}} \bibinfo{volume}{5}, \bibinfo{number}{4},
+  \bibinfo{pages}{19:1--19:19}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{He, Deng, Wang, Li, Zhang, and Wang}{He
+  et~al\mbox{.}}{2020}]%
+        {he2020lightgcn}
+\bibfield{author}{\bibinfo{person}{Xiangnan He}, \bibinfo{person}{Kuan Deng},
+  \bibinfo{person}{Xiang Wang}, \bibinfo{person}{Yan Li},
+  \bibinfo{person}{Yongdong Zhang}, {and} \bibinfo{person}{Meng Wang}.}
+  \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{{LightGCN}: Simplifying and Powering Graph
+  Convolution Network for Recommendation}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 43rd International ACM SIGIR
+  Conference on Research and Development in Information Retrieval}}.
+  \bibinfo{publisher}{ACM}, \bibinfo{pages}{639--648}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Hu, Dong, Wang, and Sun}{Hu
+  et~al\mbox{.}}{2020}]%
+        {hu2020hgt}
+\bibfield{author}{\bibinfo{person}{Ziniu Hu}, \bibinfo{person}{Yuxiao Dong},
+  \bibinfo{person}{Kuansan Wang}, {and} \bibinfo{person}{Yizhou Sun}.}
+  \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Heterogeneous Graph Transformer}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the Web Conference 2020 (WWW)}}.
+  \bibinfo{publisher}{ACM}, \bibinfo{pages}{2704--2710}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Jindal and Liu}{Jindal and Liu}{2008}]%
+        {jindal2008opinion}
+\bibfield{author}{\bibinfo{person}{Nitin Jindal} {and} \bibinfo{person}{Bing
+  Liu}.} \bibinfo{year}{2008}\natexlab{}.
+\newblock \showarticletitle{Opinion Spam and Analysis}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 1st ACM International Conference
+  on Web Search and Data Mining (WSDM)}}. \bibinfo{publisher}{ACM},
+  \bibinfo{pages}{219--230}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Kirchenbauer, Geiping, Wen, Katz, Miers, and
+  Goldstein}{Kirchenbauer et~al\mbox{.}}{2023}]%
+        {kirchenbauer2023watermark}
+\bibfield{author}{\bibinfo{person}{John Kirchenbauer}, \bibinfo{person}{Jonas
+  Geiping}, \bibinfo{person}{Yuxin Wen}, \bibinfo{person}{Jonathan Katz},
+  \bibinfo{person}{Ian Miers}, {and} \bibinfo{person}{Tom Goldstein}.}
+  \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{A Watermark for Large Language Models}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 40th International Conference on
+  Machine Learning (ICML)}}. \bibinfo{publisher}{PMLR},
+  \bibinfo{pages}{17061--17084}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Lam and Riedl}{Lam and Riedl}{2004}]%
+        {lam2004shilling}
+\bibfield{author}{\bibinfo{person}{Shyong~K. Lam} {and} \bibinfo{person}{John
+  Riedl}.} \bibinfo{year}{2004}\natexlab{}.
+\newblock \showarticletitle{Shilling Recommender Systems for Fun and Profit}.
+  In \bibinfo{booktitle}{\emph{Proceedings of the 13th International World Wide
+  Web Conference (WWW)}}. \bibinfo{publisher}{ACM}, \bibinfo{pages}{393--402}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Li, Zhou, Ma, and Huang}{Li
+  et~al\mbox{.}}{2025}]%
+        {li2025semanticshield}
+\bibfield{author}{\bibinfo{person}{Kaihong Li}, \bibinfo{person}{Huichi Zhou},
+  \bibinfo{person}{Bin Ma}, {and} \bibinfo{person}{Fangjun Huang}.}
+  \bibinfo{year}{2025}\natexlab{}.
+\newblock \bibinfo{title}{{SemanticShield}: {LLM}-Powered Audits Expose
+  Shilling Attacks in Recommender Systems}.
+\newblock
+\newblock
+\showeprint[arxiv]{2509.24961}
+
+
+\bibitem[\protect\citeauthoryear{Lin, Chen, Li, Xiao, Li, and Yang}{Lin
+  et~al\mbox{.}}{2020}]%
+        {lin2020aush}
+\bibfield{author}{\bibinfo{person}{Chen Lin}, \bibinfo{person}{Si Chen},
+  \bibinfo{person}{Hui Li}, \bibinfo{person}{Yanghua Xiao},
+  \bibinfo{person}{Lianyun Li}, {and} \bibinfo{person}{Qian Yang}.}
+  \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Attacking Recommender Systems with Augmented User
+  Profiles}. In \bibinfo{booktitle}{\emph{Proceedings of the 29th ACM
+  International Conference on Information and Knowledge Management}}.
+  \bibinfo{pages}{855--864}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1145/3340531.3411884}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Lin, Goyal, Girshick, He, and
+  Doll{\'{a}}r}{Lin et~al\mbox{.}}{2017}]%
+        {lin2017focal}
+\bibfield{author}{\bibinfo{person}{Tsung-Yi Lin}, \bibinfo{person}{Priya
+  Goyal}, \bibinfo{person}{Ross Girshick}, \bibinfo{person}{Kaiming He}, {and}
+  \bibinfo{person}{Piotr Doll{\'{a}}r}.} \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{Focal Loss for Dense Object Detection}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the IEEE International Conference on
+  Computer Vision (ICCV)}}. \bibinfo{publisher}{IEEE},
+  \bibinfo{pages}{2980--2988}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Liu, Ott, Goyal, Du, Joshi, Chen, Levy, Lewis,
+  Zettlemoyer, and Stoyanov}{Liu et~al\mbox{.}}{2019}]%
+        {liu2019roberta}
+\bibfield{author}{\bibinfo{person}{Yinhan Liu}, \bibinfo{person}{Myle Ott},
+  \bibinfo{person}{Naman Goyal}, \bibinfo{person}{Jingfei Du},
+  \bibinfo{person}{Mandar Joshi}, \bibinfo{person}{Danqi Chen},
+  \bibinfo{person}{Omer Levy}, \bibinfo{person}{Mike Lewis},
+  \bibinfo{person}{Luke Zettlemoyer}, {and} \bibinfo{person}{Veselin
+  Stoyanov}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{{RoBERTa}: A Robustly Optimized {BERT} Pretraining
+  Approach}.
+\newblock \bibinfo{journal}{\emph{arXiv preprint arXiv:1907.11692}}
+  (\bibinfo{year}{2019}).
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Liu, Shen, Fang, and Xu}{Liu
+  et~al\mbox{.}}{2025}]%
+        {liu2025fraud}
+\bibfield{author}{\bibinfo{person}{Y. Liu}, \bibinfo{person}{J. Shen},
+  \bibinfo{person}{D. Fang}, {and} \bibinfo{person}{H. Xu}.}
+  \bibinfo{year}{2025}\natexlab{}.
+\newblock \showarticletitle{Fraud Detection on Multi-relational Graphs via
+  Semantic Extraction and Topological Enhancement}. In
+  \bibinfo{booktitle}{\emph{Advanced Intelligent Computing Technology and
+  Applications (ICIC 2025)}} \emph{(\bibinfo{series}{Communications in Computer
+  and Information Science})}, Vol.~\bibinfo{volume}{2565}.
+  \bibinfo{publisher}{Springer, Singapore}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1007/978-981-96-9946-9_37}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Lv, Ding, Liu, Chen, Feng, He, Zhou, Jiang,
+  Dong, and Tang}{Lv et~al\mbox{.}}{2021}]%
+        {lv2021we}
+\bibfield{author}{\bibinfo{person}{Qingsong Lv}, \bibinfo{person}{Ming Ding},
+  \bibinfo{person}{Qiang Liu}, \bibinfo{person}{Yuxiang Chen},
+  \bibinfo{person}{Wenfeng Feng}, \bibinfo{person}{Siming He},
+  \bibinfo{person}{Chang Zhou}, \bibinfo{person}{Jianguo Jiang},
+  \bibinfo{person}{Yuxiao Dong}, {and} \bibinfo{person}{Jie Tang}.}
+  \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{Are We Really Making Much Progress? Revisiting,
+  Benchmarking, and Refining Heterogeneous Graph Neural Networks}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 27th ACM SIGKDD Conference on
+  Knowledge Discovery and Data Mining}}. \bibinfo{publisher}{ACM},
+  \bibinfo{pages}{1150--1160}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Mehta and Nejdl}{Mehta and Nejdl}{2009}]%
+        {mehta2009unsupervised}
+\bibfield{author}{\bibinfo{person}{Bhaskar Mehta} {and}
+  \bibinfo{person}{Wolfgang Nejdl}.} \bibinfo{year}{2009}\natexlab{}.
+\newblock \showarticletitle{Unsupervised Strategies for Shilling Detection and
+  Robust Collaborative Filtering}.
+\newblock \bibinfo{journal}{\emph{User Modeling and User-Adapted Interaction}}
+  \bibinfo{volume}{19}, \bibinfo{number}{1--2} (\bibinfo{year}{2009}),
+  \bibinfo{pages}{65--97}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Mobasher, Burke, Bhaumik, and
+  Williams}{Mobasher et~al\mbox{.}}{2007}]%
+        {mobasher2007attacks}
+\bibfield{author}{\bibinfo{person}{Bamshad Mobasher}, \bibinfo{person}{Robin
+  Burke}, \bibinfo{person}{Runa Bhaumik}, {and} \bibinfo{person}{Chad
+  Williams}.} \bibinfo{year}{2007}\natexlab{}.
+\newblock \showarticletitle{Attacks and Remedies in Collaborative
+  Recommendation}.
+\newblock \bibinfo{journal}{\emph{IEEE Intelligent Systems}}
+  \bibinfo{volume}{22}, \bibinfo{number}{3} (\bibinfo{year}{2007}),
+  \bibinfo{pages}{56--63}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Ni, Li, and McAuley}{Ni et~al\mbox{.}}{2019}]%
+        {ni2019justifying}
+\bibfield{author}{\bibinfo{person}{Jianmo Ni}, \bibinfo{person}{Jiacheng Li},
+  {and} \bibinfo{person}{Julian McAuley}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Justifying Recommendations using Distantly-Labeled
+  Reviews and Fine-Grained Aspects}. In \bibinfo{booktitle}{\emph{Proceedings
+  of the 2019 Conference on Empirical Methods in Natural Language Processing
+  (EMNLP)}}. \bibinfo{publisher}{Association for Computational Linguistics},
+  \bibinfo{pages}{188--197}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Ott, Choi, Cardie, and Hancock}{Ott
+  et~al\mbox{.}}{2011}]%
+        {ott2011finding}
+\bibfield{author}{\bibinfo{person}{Myle Ott}, \bibinfo{person}{Yejin Choi},
+  \bibinfo{person}{Claire Cardie}, {and} \bibinfo{person}{Jeffrey~T. Hancock}.}
+  \bibinfo{year}{2011}\natexlab{}.
+\newblock \showarticletitle{Finding Deceptive Opinion Spam by Any Stretch of
+  the Imagination}. In \bibinfo{booktitle}{\emph{Proceedings of the 49th Annual
+  Meeting of the Association for Computational Linguistics (ACL)}}.
+  \bibinfo{publisher}{Association for Computational Linguistics},
+  \bibinfo{pages}{309--319}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Rossi, Chamberlain, Frasca, Eynard, Monti, and
+  Bronstein}{Rossi et~al\mbox{.}}{2020}]%
+        {rossi2020temporal}
+\bibfield{author}{\bibinfo{person}{Emanuele Rossi}, \bibinfo{person}{Ben
+  Chamberlain}, \bibinfo{person}{Fabrizio Frasca}, \bibinfo{person}{Davide
+  Eynard}, \bibinfo{person}{Federico Monti}, {and} \bibinfo{person}{Michael
+  Bronstein}.} \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Temporal Graph Networks for Deep Learning on
+  Dynamic Graphs}.
+\newblock \bibinfo{journal}{\emph{arXiv preprint arXiv:2006.10637}}
+  (\bibinfo{year}{2020}).
+\newblock
+\newblock
+\shownote{ICML 2020 Workshop on Graph Representation Learning.}
+
+
+\bibitem[\protect\citeauthoryear{Shi, Feng, He, Wang, and Chua}{Shi
+  et~al\mbox{.}}{2023}]%
+        {shi2023large}
+\bibfield{author}{\bibinfo{person}{Yupeng Shi}, \bibinfo{person}{Fuli Feng},
+  \bibinfo{person}{Xiangnan He}, \bibinfo{person}{Xiang Wang}, {and}
+  \bibinfo{person}{Tat-Seng Chua}.} \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{Exploring Large Language Model Based Intelligent
+  Agents for Adversarial Attacks on Recommender Systems}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 46th International ACM SIGIR
+  Conference on Research and Development in Information Retrieval}}.
+  \bibinfo{publisher}{ACM}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Williams, Mobasher, and Burke}{Williams
+  et~al\mbox{.}}{2007}]%
+        {williams2006detection}
+\bibfield{author}{\bibinfo{person}{Chad~A. Williams}, \bibinfo{person}{Bamshad
+  Mobasher}, {and} \bibinfo{person}{Robin Burke}.}
+  \bibinfo{year}{2007}\natexlab{}.
+\newblock \showarticletitle{Defending Recommender Systems: Detection of Profile
+  Injection Attacks}.
+\newblock \bibinfo{journal}{\emph{Service Oriented Computing and Applications}}
+  \bibinfo{volume}{1}, \bibinfo{number}{3} (\bibinfo{year}{2007}),
+  \bibinfo{pages}{157--170}.
+\newblock
+\newblock
+\shownote{Extended from ECAI 2006 Workshop version.}
+
+
+\bibitem[\protect\citeauthoryear{Wu, Chen, Zhang, Xu, and Ku}{Wu
+  et~al\mbox{.}}{2022}]%
+        {wu2022graphattack}
+\bibfield{author}{\bibinfo{person}{Binchi Wu}, \bibinfo{person}{Zhiqian Chen},
+  \bibinfo{person}{Shangbin Zhang}, \bibinfo{person}{Yao Xu}, {and}
+  \bibinfo{person}{Weili Ku}.} \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{Practical Graph-Based Attack against Recommender
+  Systems via Surrogate Gradient Estimation}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 31st ACM International
+  Conference on Information and Knowledge Management (CIKM)}}.
+  \bibinfo{publisher}{ACM}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Wu, Wu, Ge, Qi, Huang, and Xie}{Wu
+  et~al\mbox{.}}{2021}]%
+        {wu2021fight}
+\bibfield{author}{\bibinfo{person}{Chenwang Wu}, \bibinfo{person}{Fangzhao Wu},
+  \bibinfo{person}{Suyu Ge}, \bibinfo{person}{Tao Qi},
+  \bibinfo{person}{Yongfeng Huang}, {and} \bibinfo{person}{Xing Xie}.}
+  \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{Fighting Fake Reviews: Feature-Enhanced Graph
+  Auto-Encoder for Manipulation Detection}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the Web Conference 2021 (WWW)}}.
+  \bibinfo{publisher}{ACM}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Zellers, Holtzman, Rashkin, Bisk, Farhadi,
+  Roesner, and Choi}{Zellers et~al\mbox{.}}{2019}]%
+        {zellers2019defending}
+\bibfield{author}{\bibinfo{person}{Rowan Zellers}, \bibinfo{person}{Ari
+  Holtzman}, \bibinfo{person}{Hannah Rashkin}, \bibinfo{person}{Yonatan Bisk},
+  \bibinfo{person}{Ali Farhadi}, \bibinfo{person}{Franziska Roesner}, {and}
+  \bibinfo{person}{Yejin Choi}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Defending Against Neural Fake News}. In
+  \bibinfo{booktitle}{\emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}}, Vol.~\bibinfo{volume}{32}. \bibinfo{publisher}{Curran
+  Associates}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Zhang, Chen, Wang, Li, Li, and Zha}{Zhang
+  et~al\mbox{.}}{2022}]%
+        {zhang2022antifakeu}
+\bibfield{author}{\bibinfo{person}{Ge Zhang}, \bibinfo{person}{Xiaowei Chen},
+  \bibinfo{person}{Hai Wang}, \bibinfo{person}{Yu Li},
+  \bibinfo{person}{Yongdong Li}, {and} \bibinfo{person}{Zheng-Jun Zha}.}
+  \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{{Anti-FakeU}: Defending Shilling Attacks on Graph
+  Neural Network-Based Recommender Model}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the Web Conference 2022 (WWW)}}.
+  \bibinfo{publisher}{ACM}, \bibinfo{pages}{1Anti--FakeU}.
+\newblock
+\newblock
+\shownote{Page range to be confirmed.}
+
+
+\bibitem[\protect\citeauthoryear{Zhang, Feng, He, Zhang, Wang, and Chua}{Zhang
+  et~al\mbox{.}}{2024}]%
+        {zhang2024agent4sr}
+\bibfield{author}{\bibinfo{person}{Yudong Zhang}, \bibinfo{person}{Fuli Feng},
+  \bibinfo{person}{Xiangnan He}, \bibinfo{person}{Jizhi Zhang},
+  \bibinfo{person}{Xiang Wang}, {and} \bibinfo{person}{Tat-Seng Chua}.}
+  \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{{Agent4SR}: An {LLM}-Agent Framework for Shilling
+  Attack in Sequential Recommender Systems}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 47th International ACM SIGIR
+  Conference on Research and Development in Information Retrieval}}.
+  \bibinfo{publisher}{ACM}.
+\newblock
+
+
+\end{thebibliography}
