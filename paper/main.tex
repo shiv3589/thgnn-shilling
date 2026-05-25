@@ -1,40 +1,30 @@
 % ============================================================
-%  main.tex — TH-GNN paper, NeurIPS 2025
+%  main.tex — TH-GNN paper, ACM SIGCONF format
 %
-%  Requires the NeurIPS 2025 style package.
-%  Download from https://neurips.cc/Conferences/2025/PaperInformation/StyleFiles
-%  and place neurips_2025.sty in this directory before compiling.
+%  Requires the ACM LaTeX package (acmart).
+%  Install via TeX Live: tlmgr install acmart
+%  or download from https://www.acm.org/publications/proceedings-template
 %
 %  Compile with:
 %    pdflatex main && bibtex main && pdflatex main && pdflatex main
 % ============================================================
 
-\documentclass{article}
+\documentclass[sigconf,anonymous]{acmart}
 
-% ── NeurIPS style ─────────────────────────────────────────────────────────────
-% Remove 'final' to compile in anonymous/submission mode.
-% Add 'final' for the camera-ready version.
-\usepackage[final]{neurips_2025}
-
-% ── Standard packages ─────────────────────────────────────────────────────────
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage{hyperref}
-\usepackage{url}
-\usepackage{booktabs}
+% ── Packages not bundled in acmart ────────────────────────────────────────────
 \usepackage{amsmath}
-\usepackage{amssymb}
 \usepackage{mathtools}
-\usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{multirow}
 \usepackage{enumitem}
-\usepackage{microtype}
 \usepackage{xspace}
 \usepackage{bm}
 
-% ── Bibliography ──────────────────────────────────────────────────────────────
-\usepackage{natbib}
+% ── ACM metadata ──────────────────────────────────────────────────────────────
+% Remove or adjust before final submission.
+\acmConference[Conference]{ACM Conference}{Year}{Location}
+\acmYear{2026}
+\copyrightyear{2026}
 
 % ── Notation shorthands ───────────────────────────────────────────────────────
 \newcommand{\thgnn}{\textsc{TH-GNN}\xspace}
@@ -48,25 +38,52 @@
 % ============================================================
 %  Title and authors
 % ============================================================
-\title{TH-GNN: Heterogeneous Temporal Graph Neural Networks\\
+\title{TH-GNN: Heterogeneous Temporal Graph Neural Networks
        for LLM-Agent Shilling Attack Detection}
 
-% Submission mode: use \author{} below.
-% Camera-ready: replace with full author list.
-\author{%
-  % TODO: fill in before submission
-  Anonymous Authors \\
-  Anonymous Institution \\
-  \texttt{anonymous@example.com}
-}
+% Submission mode: anonymous is set above via documentclass option.
+% Camera-ready: remove 'anonymous' from documentclass and fill in below.
+\author{Anonymous Authors}
+\affiliation{\institution{Anonymous Institution}}
+\email{anonymous@example.com}
+
+% ── CCS concepts ──────────────────────────────────────────────────────────────
+\begin{CCSXML}
+<ccs2012>
+  <concept>
+    <concept_id>10010147.10010257.10010293.10010294</concept_id>
+    <concept_desc>Computing methodologies~Neural networks</concept_desc>
+    <concept_significance>500</concept_significance>
+  </concept>
+  <concept>
+    <concept_id>10002951.10003317.10003347.10003352</concept_id>
+    <concept_desc>Information systems~Recommender systems</concept_desc>
+    <concept_significance>500</concept_significance>
+  </concept>
+  <concept>
+    <concept_id>10002978.10003014.10003017</concept_id>
+    <concept_desc>Security and privacy~Intrusion detection systems</concept_desc>
+    <concept_significance>300</concept_significance>
+  </concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Computing methodologies~Neural networks}
+\ccsdesc[500]{Information systems~Recommender systems}
+\ccsdesc[300]{Security and privacy~Intrusion detection systems}
+
+\keywords{shilling attack detection, heterogeneous graph neural networks,
+          temporal encoding, LLM-generated profiles, recommender systems}
 
 % ============================================================
 \begin{document}
 
-\maketitle
-
-% ── Abstract ──────────────────────────────────────────────────────────────────
+% Abstract must appear before \maketitle in acmart
+\begin{abstract}
 \input{abstract}
+\end{abstract}
+
+\maketitle
 
 % ── 1. Introduction ───────────────────────────────────────────────────────────
 \input{sections/introduction}
@@ -86,7 +103,7 @@
 \input{sections/conclusion}
 
 % ── References ────────────────────────────────────────────────────────────────
-\bibliographystyle{abbrvnat}
+\bibliographystyle{ACM-Reference-Format}
 \bibliography{references}
 
 \end{document}

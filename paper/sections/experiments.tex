@@ -198,6 +198,16 @@ This widening occurred because graph-temporal signals—coordination timestamps 
 heterogeneous edge patterns—became proportionally more salient when the injected
 mass was too small to trigger count-based or distributional detectors.
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/budget_curves}
+  \caption{Detection F\textsubscript{1} vs.\ injection rate on ML-1M for all
+    detectors and attack families. TH-GNN's advantage over baselines
+    \emph{widens} at the lowest injection rate (0.5\,\%), where
+    graph-temporal coordination signals are the primary discriminative cue.}
+  \label{fig:budget_curves}
+\end{figure}
+
 % ── Ablation Study ────────────────────────────────────────────────────────────
 \subsection{Ablation Study}
 \label{sec:ablation}
@@ -223,3 +233,14 @@ Crucially, all three ablated variants still surpassed the best baseline in grand
 F\textsubscript{1} ($\geq$\,0.821 vs.\ Anti-FakeU 0.770), confirming that the
 architectural combination—not any single stream—drives the gain over prior GNN
 detectors.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/llm_vs_gan}
+  \caption{Per-stream ablation on LLM-agent (Agent4SR) vs.\ GAN-based (AUSH)
+    attacks (1\,\% injection rate, averaged over four datasets). Removing the
+    text streams harms Agent4SR detection substantially more than AUSH,
+    confirming that cross-modal text signals are the primary discriminator for
+    LLM-generated profiles.}
+  \label{fig:llm_vs_gan}
+\end{figure}

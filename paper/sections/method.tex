@@ -112,6 +112,18 @@ Input features of each node type are first mapped to a shared hidden dimension
 $D = 128$ by type-specific linear projections
 $\mathbf{W}_{\mathrm{in}}^{\tau} \in \mathbb{R}^{D_\tau \times D}$.
 
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/architecture}
+  \caption{TH-GNN architecture. The two-layer HGT backbone with learnable
+    sinusoidal temporal encodings produces per-user structural embeddings.
+    Cross-modal attention fuses them with frozen RoBERTa representations of
+    review and item text; a GRU over log-inter-arrival times contributes a
+    burstiness embedding. All streams are concatenated and passed to a
+    two-layer MLP classifier.}
+  \label{fig:architecture}
+\end{figure*}
+
 \textbf{Heterogeneous attention.}
 At layer $l$, for each directed edge $e = (s, d)$ of relation type $\phi(e)$,
 the per-head attention logit is
