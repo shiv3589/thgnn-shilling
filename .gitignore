@@ -60,3 +60,16 @@ runs/
 # OS
 .DS_Store
 Thumbs.db
+
+# SSH / GitHub keys
+githubkey
+githubkey.pub
+
+# Claude Code session data
+.claude/
+
+# LaTeX build artifacts
+paper/*.aux
+paper/*.blg
+paper/*.log
+paper/*.out
