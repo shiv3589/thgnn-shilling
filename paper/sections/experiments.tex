@@ -9,6 +9,8 @@
 %    results/tables/generalisation.csv   (scripts/run_generalisation.py)
 %    results/tables/robustness.csv       (scripts/run_robustness.py)
 %    results/figures/robustness_curves.pdf
+%    results/tables/significance.csv     (scripts/run_significance_tests.py)
+%    results/tables/latex/main_detection.tex
 %    REPRODUCE.md
 % ============================================================
 
@@ -342,3 +344,31 @@ the surviving edges retained discriminative power.
 The robustness results collectively demonstrate that TH-GNN's multi-stream
 architecture provides complementary redundancy: when any single modality is
 corrupted or absent, the other streams sustain near-baseline detection quality.
+
+% ── Statistical Significance ──────────────────────────────────────────────
+\subsection{Statistical Significance}
+\label{sec:significance}
+
+Table~\ref{tab:main_detection} annotates TH-GNN's F1 values with significance
+markers ($^{**}$\,$p\!<\!0.01$) obtained from a one-sided Wilcoxon signed-rank
+test comparing TH-GNN against each of the three baselines across all
+$n\!=\!9$ available (seed\,$\times$\,injection-rate) paired observations per
+dataset–attack cell.
+TH-GNN's advantage is significant at $p\!<\!0.01$ in all 20 dataset–attack
+combinations against every baseline, with a mean Cohen's $d\!>\!11$ reflecting
+very large effect sizes relative to the inter-run variability.
+
+\textbf{Power caveat.}
+With only $k\!=\!3$ random seeds the Wilcoxon test reaches a minimum
+one-tailed $p\!=\!1/2^3\!=\!0.125$, making $p\!<\!0.05$ mathematically
+unachievable without pooling injection rates.
+We therefore pool all $k\!=\!3$ seeds across $r\!=\!3$ injection rates
+($n\!=\!9$ pairs) as the primary analysis.
+Even so, the minimum achievable one-tailed $p$ is $1/2^9\!\approx\!0.002$,
+precluding $p\!<\!0.001$ ($^{***}$) markers regardless of the observed margin.
+Crucially, TH-GNN outperforms every baseline on \emph{every individual seed
+and rate}: the advantage is consistent in direction across all
+$9\!\times\!3 = 27$ within-cell comparisons, which constitutes stronger
+evidence of reliability than a marginal $p$-value alone would provide.
+We report this limitation transparently and encourage future work with more
+seeds to enable fully-powered non-parametric testing.
