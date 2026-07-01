@@ -527,6 +527,214 @@ def build_ablation_latex(df: pd.DataFrame) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Table 5: Generalisation (train on seen attacks, test on unseen attack)
+# ---------------------------------------------------------------------------
+
+# Human-readable labels for train_tag values
+_TRAIN_TAG_LABELS = {
+    "seen4":    "Random + Bandwagon + AUSH + GraphAttack",
+    "agent4sr": "Agent4SR",
+}
+_TEST_ATTACK_LABELS = {
+    "agent4sr":    "Agent4SR (unseen LLM)",
+    "graph_attack": "GraphAttack (unseen GNN)",
+}
+
+
+def load_generalisation_results(results_dir: Path) -> pd.DataFrame:
+    """Load only generalisation_*.json files from results_dir."""
+    records = []
+    for path in sorted(results_dir.glob("generalisation_*.json")):
+        try:
+            with open(path) as fh:
+                data = json.load(fh)
+        except (json.JSONDecodeError, OSError):
+            continue
+
+        if data.get("status") != "ok":
+            continue
+
+        cfg = data.get("config", {})
+        det = data.get("detection", {})
+
+        records.append({
+            "dataset":       cfg.get("dataset",      ""),
+            "scenario":      cfg.get("scenario",     ""),
+            "train_tag":     cfg.get("train_tag",    ""),
+            "train_attacks": cfg.get("train_attacks", []),
+            "test_attack":   cfg.get("test_attack",  ""),
+            "detector":      cfg.get("detector",     ""),
+            "seed":          int(cfg.get("seed", 0)),
+            "f1":            float(det.get("f1",  np.nan)),
+            "dr":            float(det.get("dr",  np.nan)),
+            "far":           float(det.get("far", np.nan)),
+        })
+
+    if not records:
+        return pd.DataFrame(columns=[
+            "dataset", "scenario", "train_tag", "train_attacks",
+            "test_attack", "detector", "seed", "f1", "dr", "far",
+        ])
+    return pd.DataFrame(records)
+
+
+def build_generalisation(df: pd.DataFrame) -> pd.DataFrame:
+    """Pivot the generalisation results into a publication-ready DataFrame.
+
+    Rows: (train_attacks, test_attack, dataset) — one row per group.
+    Columns: detector × metric (F1, DR, FAR), all as mean ± std strings.
+    """
+    if df.empty:
+        return pd.DataFrame()
+
+    col_headers = ["Train Attacks", "Test Attack", "Dataset"]
+    for det in DETECTORS:
+        lbl = DETECTOR_LABELS.get(det, det)
+        col_headers += [f"{lbl} F1", f"{lbl} DR", f"{lbl} FAR"]
+
+    # Collect raw arrays per (train_tag, test_attack, dataset, detector)
+    groups = df.groupby(["train_tag", "test_attack", "dataset", "detector"])
+    raw: Dict[Tuple, Dict[str, np.ndarray]] = {}
+    for (train_tag, test_attack, dataset, detector), grp in groups:
+        raw[(train_tag, test_attack, dataset, detector)] = {
+            "f1":  grp["f1"].values,
+            "dr":  grp["dr"].values,
+            "far": grp["far"].values,
+        }
+
+    # Build rows ordered by scenario order, then dataset, then detector
+    scenario_order = [
+        ("seen4",    "agent4sr"),
+        ("agent4sr", "graph_attack"),
+    ]
+    table_rows = []
+    for train_tag, test_attack in scenario_order:
+        train_label  = _TRAIN_TAG_LABELS.get(train_tag,    train_tag)
+        test_label   = _TEST_ATTACK_LABELS.get(test_attack, test_attack)
+        for dataset in DATASETS:
+            ds_label = DATASET_LABELS.get(dataset, dataset)
+            # Only include datasets that appear in the results
+            has_data = any(
+                (train_tag, test_attack, dataset, det) in raw
+                for det in DETECTORS
+            )
+            if not has_data:
+                continue
+
+            row = [train_label, test_label, ds_label]
+            for det in DETECTORS:
+                key = (train_tag, test_attack, dataset, det)
+                if key in raw:
+                    d = raw[key]
+                    row += [_mean_std(d["f1"]), _mean_std(d["dr"]), _mean_std(d["far"])]
+                else:
+                    row += ["—", "—", "—"]
+            table_rows.append(row)
+
+    return pd.DataFrame(table_rows, columns=col_headers)
+
+
+def build_generalisation_latex(df: pd.DataFrame) -> str:
+    """Render the generalisation table as a LaTeX booktabs table."""
+    if df.empty:
+        return r"% No generalisation data found."
+
+    n_det = len(DETECTORS)
+    col_spec = "lll" + ("rrr" * n_det)
+
+    lines = [
+        r"\begin{table*}[t]",
+        r"\centering",
+        r"\small",
+        r"\caption{Generalisation to unseen attacks."
+        r"  Detectors are trained on a graph poisoned with {\em seen} attacks only;"
+        r"  evaluated on a fresh graph poisoned solely by the {\em unseen} attack."
+        r"  Mean~$\pm$~std over three seeds at injection rate 0.01."
+        r"  \textbf{Bold} = best F1 per row.}",
+        r"\label{tab:generalisation}",
+        r"\begin{tabular}{" + col_spec + "}",
+        r"\toprule",
+    ]
+
+    # Header row 1: detector group spans
+    det_headers = " & ".join(
+        r"\multicolumn{3}{c}{" + DETECTOR_LABELS.get(d, d) + "}"
+        for d in DETECTORS
+    )
+    lines.append(r"Train Attacks & Test Attack & Dataset & " + det_headers + r" \\")
+
+    # Header row 2: F1 / DR / FAR per detector
+    sub_headers = " & ".join(r"F1 & DR & FAR" for _ in DETECTORS)
+    lines.append(r"\cmidrule(lr){4-" + str(3 + 3 * n_det) + "}")
+    lines.append(r" &  &  & " + sub_headers + r" \\")
+    lines.append(r"\midrule")
+
+    f1_col_indices = [3 + 3 * i for i in range(n_det)]  # 0-indexed within each row
+
+    prev_scenario = None
+    for _, row in df.iterrows():
+        cells = list(row.values)
+        # Bold best F1 across detectors
+        f1_cells  = [cells[i] for i in f1_col_indices]
+        f1_bolded = _bold_best_latex(f1_cells, higher_is_better=True)
+        for j, idx in enumerate(f1_col_indices):
+            cells[idx] = f1_bolded[j]
+
+        # Insert midrule between scenarios (keyed by "Train Attacks" column)
+        scenario_key = (cells[0], cells[1])
+        if scenario_key != prev_scenario:
+            if prev_scenario is not None:
+                lines.append(r"\midrule")
+            prev_scenario = scenario_key
+
+        lines.append(" & ".join(str(c) for c in cells) + r" \\")
+
+    lines += [r"\bottomrule", r"\end{tabular}", r"\end{table*}"]
+    return "\n".join(lines)
+
+
+def aggregate_generalisation(results_dir: Path, out_dir: Path) -> None:
+    """Load generalisation JSONs, build CSV + LaTeX, print a summary."""
+    latex_dir = out_dir / "latex"
+    latex_dir.mkdir(parents=True, exist_ok=True)
+
+    print("\nLoading generalisation results …")
+    df = load_generalisation_results(results_dir)
+    print(f"  Loaded {len(df)} generalisation records.")
+
+    if df.empty:
+        print("  No generalisation data found — skipping.")
+        return
+
+    print("Building generalisation table …")
+    tbl = build_generalisation(df)
+    if not tbl.empty:
+        tbl.to_csv(out_dir / "generalisation.csv", index=False)
+        try:
+            from tabulate import tabulate as _tabulate
+            print(_tabulate(tbl, headers="keys", tablefmt="simple", showindex=False))
+        except ImportError:
+            print(tbl.to_string(index=False))
+
+        latex_path = latex_dir / "generalisation.tex"
+        latex_path.write_text(build_generalisation_latex(tbl))
+        print(f"  Saved {out_dir}/generalisation.csv  and  {latex_path}")
+
+    # ── Per-detector summary ───────────────────────────────────────────────
+    print("\n  Generalisation F1 summary (mean ± std across seeds × datasets):")
+    thgnn_rows = df[df["detector"] == "thgnn"]
+    for (train_tag, test_attack), grp in df.groupby(["train_tag", "test_attack"]):
+        train_label = _TRAIN_TAG_LABELS.get(train_tag, train_tag)
+        test_label  = _TEST_ATTACK_LABELS.get(test_attack, test_attack)
+        print(f"\n  [{train_label}  →  {test_label}]")
+        for det in DETECTORS:
+            det_grp = grp[grp["detector"] == det]["f1"].values
+            if len(det_grp):
+                lbl = DETECTOR_LABELS.get(det, det)
+                print(f"    {lbl:20s}  F1={np.nanmean(det_grp):.4f} ± {np.nanstd(det_grp):.4f}")
+
+
+# ---------------------------------------------------------------------------
 # Summary statistics
 # ---------------------------------------------------------------------------
 
@@ -695,6 +903,11 @@ def main() -> None:
     else:
         (latex_dir / "ablation.tex").write_text(build_ablation_latex(t4))
         print("  No ablation results found — empty skeleton written.")
+
+    # ------------------------------------------------------------------
+    # Table 5: Generalisation
+    # ------------------------------------------------------------------
+    aggregate_generalisation(results_dir, out_dir)
 
     # ------------------------------------------------------------------
     # Summary
