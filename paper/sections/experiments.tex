@@ -6,6 +6,9 @@
 %    results/tables/downstream_ndcg.csv
 %    results/tables/budget_curves.csv
 %    results/tables/ablation.csv
+%    results/tables/generalisation.csv   (scripts/run_generalisation.py)
+%    results/tables/robustness.csv       (scripts/run_robustness.py)
+%    results/figures/robustness_curves.pdf
 %    REPRODUCE.md
 % ============================================================
 
@@ -198,15 +201,15 @@ This widening occurred because graph-temporal signals—coordination timestamps 
 heterogeneous edge patterns—became proportionally more salient when the injected
 mass was too small to trigger count-based or distributional detectors.
 
-\begin{figure}[t]
+\begin{figure*}[t]
   \centering
-  \includegraphics[width=\linewidth]{figures/budget_curves}
+  \includegraphics[width=\textwidth]{figures/budget_curves}
   \caption{Detection F\textsubscript{1} vs.\ injection rate on ML-1M for all
     detectors and attack families. TH-GNN's advantage over baselines
     \emph{widens} at the lowest injection rate (0.5\,\%), where
     graph-temporal coordination signals are the primary discriminative cue.}
   \label{fig:budget_curves}
-\end{figure}
+\end{figure*}
 
 % ── Ablation Study ────────────────────────────────────────────────────────────
 \subsection{Ablation Study}
@@ -244,3 +247,98 @@ detectors.
     LLM-generated profiles.}
   \label{fig:llm_vs_gan}
 \end{figure}
+
+% ── Generalisation ────────────────────────────────────────────────────────────
+\subsection{Generalisation to Unseen Attack Families}
+\label{sec:generalisation}
+
+\input{tables/generalisation}
+
+A practical detector must handle attack types it has not seen during training,
+since adversaries continuously develop new injection strategies.
+Table~\ref{tab:generalisation} reports a cross-attack transfer experiment run
+on ML-1M and Amazon-Books (3 seeds, injection rate 1\,\%).
+
+\textbf{Scenario~A: classic attacks $\to$ LLM-agent (unseen).}
+All detectors were trained on graphs poisoned with the four classical attack
+families (Random, Bandwagon, AUSH, GraphAttack) and then evaluated on a fresh
+graph poisoned exclusively with Agent4SR profiles not seen during training.
+TH-GNN achieved F\textsubscript{1}\,=\,0.831 on ML-1M and 0.849 on
+Amazon-Books—within 2\,pp of its fully-supervised Agent4SR score—whereas
+SemanticShield dropped to 0.712 and Anti-FakeU to 0.728, gaps of
+\textbf{$-$13\,pp} and \textbf{$-$10\,pp} below their own fully-supervised
+scores respectively.
+The result supports our central claim: TH-GNN's structural and temporal
+anomaly patterns are not attack-specific fingerprints but general
+coordination signatures shared across injection strategies.
+
+\textbf{Scenario~B: LLM-agent $\to$ GNN-targeted (unseen).}
+In the reverse direction, detectors trained on Agent4SR alone transferred to
+GraphAttack (an unseen gradient-based structural adversary).
+TH-GNN retained F\textsubscript{1}\,=\,0.812 on ML-1M versus 0.715 for
+SemanticShield and 0.739 for Anti-FakeU.
+The relatively small transfer loss for TH-GNN ($-$3.9\,pp vs.\ full training)
+confirms that the heterogeneous graph transformer captures anomalous
+neighbourhood connectivity patterns that are agnostic to whether those patterns
+arose from LLM generation or gradient-based perturbation.
+
+% ── Robustness ────────────────────────────────────────────────────────────────
+\subsection{Robustness under Missing Modalities}
+\label{sec:robustness}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/robustness_curves}
+  \caption{F\textsubscript{1} vs.\ degradation level for three missing-modality
+    conditions on Amazon-Books + Agent4SR (1\,\% injection rate,
+    mean\,$\pm$\,std over three seeds).
+    \emph{Left}: zeroing review texts for up to 50\,\% of users causes
+    TH-GNN virtually no degradation ($\Delta$F\textsubscript{1}\,$\leq$\,$-$0.013)
+    while SemanticShield collapses by 11.4\,pp, validating TH-GNN's
+    resilience to missing text already observed on ML-1M.
+    \emph{Centre}: Gaussian timestamp noise at $\sigma\!=\!0.5\!\times\!\text{std}(t)$
+    degrades TH-GNN by 4.9\,pp, less than any structural drop because temporal
+    burstiness features are robust to additive noise.
+    \emph{Right}: removing 50\,\% of edges reduces all detectors' performance;
+    TH-GNN suffers the largest absolute drop (6.7\,pp) but remains the best
+    detector at every degradation level.}
+  \label{fig:robustness_curves}
+\end{figure*}
+
+Section~\ref{sec:results} noted that TH-GNN achieves strong detection on
+ML-1M despite zero review text, raising the question of whether text streams
+add genuine value or whether the model simply over-weights graph and temporal
+signals.
+Figure~\ref{fig:robustness_curves} answers this question directly through
+a controlled modality-ablation experiment on Amazon-Books + Agent4SR:
+the model is trained once on the full poisoned graph and then scored on
+progressively degraded copies (injection rate 1\,\%, 3 seeds).
+
+\textbf{Missing text} is the most diagnostic condition.
+Zeroing review texts for 50\,\% of users reduced TH-GNN's F\textsubscript{1}
+by only 0.013, confirming that structural and temporal signals alone are
+sufficient to identify injection campaigns.
+By contrast, SemanticShield—which relies solely on TF-IDF features—lost
+11.4\,pp F\textsubscript{1}, and Anti-FakeU dropped 13.5\,pp due to the
+elimination of its text-length feature.
+This validates TH-GNN as the recommended detector for datasets with sparse
+or absent review text such as ML-1M.
+
+\textbf{Noisy timestamps} had a moderate and bounded effect on TH-GNN
+($\Delta$F\textsubscript{1}\,$=$\,$-$4.9\,pp at $\sigma\!=\!0.5\!\times\!\text{std}(t)$).
+The temporal-burstiness GRU receives inter-arrival time differences rather than
+absolute timestamps, making it robust to mean-shift noise; only high-amplitude
+noise that reorders the review sequence degrades the rank-order statistics the
+GRU relies upon.
+Anti-FakeU showed a smaller drop ($-$3.4\,pp) because its inter-arrival
+feature uses log-transformed differences, which further dampen additive noise.
+
+\textbf{Missing edges} produced the largest drop for TH-GNN ($-$6.7\,pp at
+50\,\% removal), reflecting genuine dependence on neighbourhood connectivity.
+Even so, TH-GNN remained the best-performing detector at every edge-removal level:
+at 50\,\% edge removal TH-GNN still outperformed the best baseline's
+\emph{clean}-graph score, because isolated anomalous rating patterns in
+the surviving edges retained discriminative power.
+The robustness results collectively demonstrate that TH-GNN's multi-stream
+architecture provides complementary redundancy: when any single modality is
+corrupted or absent, the other streams sustain near-baseline detection quality.
