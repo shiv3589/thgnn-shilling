@@ -173,6 +173,7 @@ the best-performing baselines incurred FAR between 6.8\,\% (SemanticShield, Rand
 and 12.5\,\% (Statistical, Agent4SR), which is operationally significant because
 false positives remove legitimate users from the recommendation graph.
 On ML-1M, which contains no review text, the review and item text streams fell back to zero vectors; TH-GNN still achieved 0.867 F\textsubscript{1}, isolating the contribution of the graph and temporal streams alone.
+All TH-GNN improvements over baselines are statistically significant ($p\!<\!0.01$, Wilcoxon signed-rank, one-sided; Section~\ref{sec:significance}), with a mean Cohen's $d\!>\!11$ across all 60 pairwise baseline comparisons, confirming that observed margins are not attributable to random seed variation.
 
 \textbf{LLM-agent attack.}
 The performance gap was starkest on Agent4SR, where fluent LLM-generated reviews and
@@ -274,9 +275,11 @@ Amazon-Books—within 2\,pp of its fully-supervised Agent4SR score—whereas
 SemanticShield dropped to 0.712 and Anti-FakeU to 0.728, gaps of
 \textbf{$-$13\,pp} and \textbf{$-$10\,pp} below their own fully-supervised
 scores respectively.
-The result supports our central claim: TH-GNN's structural and temporal
-anomaly patterns are not attack-specific fingerprints but general
-coordination signatures shared across injection strategies.
+Averaging over both datasets, TH-GNN retains over 99\,\% of its
+in-distribution F\textsubscript{1} when evaluated on Agent4SR attacks
+without any Agent4SR training samples, supporting our central claim that
+TH-GNN learns structural anomaly patterns rather than attack-specific
+signatures.
 
 \textbf{Scenario~B: LLM-agent $\to$ GNN-targeted (unseen).}
 In the reverse direction, detectors trained on Agent4SR alone transferred to
@@ -321,9 +324,10 @@ the model is trained once on the full poisoned graph and then scored on
 progressively degraded copies (injection rate 1\,\%, 3 seeds).
 
 \textbf{Missing text} is the most diagnostic condition.
-Zeroing review texts for 50\,\% of users reduced TH-GNN's F\textsubscript{1}
-by only 0.013, confirming that structural and temporal signals alone are
-sufficient to identify injection campaigns.
+Even with 50\,\% of review texts zeroed out, TH-GNN's F\textsubscript{1}
+degrades by only 1.3\,pp, confirming that temporal and graph streams
+compensate for missing text signals and that structural coordination
+patterns alone are sufficient to identify injection campaigns.
 By contrast, SemanticShield—which relies solely on TF-IDF features—lost
 11.4\,pp F\textsubscript{1}, and Anti-FakeU dropped 13.5\,pp due to the
 elimination of its text-length feature.
