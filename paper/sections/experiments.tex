@@ -548,3 +548,46 @@ on a single CPU core.
 On a single A100 GPU, training time is estimated at under 3\,minutes across
 all datasets, making TH-GNN practical for daily or hourly retraining cycles
 in production environments.
+
+% ── Cross-Dataset Transfer ─────────────────────────────────────────────────
+\subsection{Cross-Dataset Transfer}
+\label{sec:transfer}
+
+\input{tables/transfer}
+
+A practical deployment scenario often requires applying a detector trained on
+one platform or domain to a new target where labelled attack data is scarce.
+We evaluate this via a cross-dataset transfer protocol implemented in
+\texttt{scripts/run\_transfer.py}: TH-GNN is trained on a fully-poisoned
+source dataset (all five attacks, injection rate 1\,\%) and evaluated on a
+separate target dataset under three conditions—\emph{zero-shot} (no
+adaptation), \emph{5-epoch fine-tune} on 10\,\% of target labelled users
+(HGT encoder frozen, only fusion and MLP updated), and \emph{full-target
+training} from scratch—averaged over three seeds.
+All feature vectors are truncated to the five base columns common to every
+loader (degree, mean rating, rating std, span, mean inter-arrival gap) so
+that source and target models share identical input dimensions.
+
+Table~\ref{tab:transfer} reports results for four transfer pairs chosen to
+stress distinct sources of domain shift.
+\textbf{Books\,$\to$\,Yelp} and \textbf{Yelp\,$\to$\,Books} share dense
+review text and similar graph density, producing the highest zero-shot F1
+values (0.726 and 0.732, retaining 83\,\% of the respective full-target
+scores).
+\textbf{Clothing\,$\to$\,Books} introduces a size mismatch—Amazon-Clothing
+has roughly one-fifth as many users as Amazon-Books—yet zero-shot F1 of 0.720
+still retains 82\,\% of the full Books score, confirming that structural and
+temporal coordination patterns generalise across catalogue size.
+The hardest pair, \textbf{ML-1M\,$\to$\,Clothing}, crosses from a rating-only
+domain (no review text, zero-padded embeddings in source training) to a
+text-rich domain; zero-shot F1 falls to 0.692 (80\,\%), the lowest of the
+four pairs, yet remains above the baselines' in-domain scores for the same
+attack family.
+Across all pairs, zero-shot TH-GNN retains a mean of \textbf{82\,\%} of its
+full-target F1 ($>$\,70\,\% in every pair), and five-epoch fine-tuning on
+just 10\,\% of target labels recovers \textbf{94\,\%} of full-target
+performance on average.
+These results confirm that TH-GNN's learnt anomaly representations—burstiness
+fingerprints, heterogeneous neighbourhood patterns, and cross-modal
+inconsistency signals—are domain-agnostic and transfer with minimal
+supervision.
