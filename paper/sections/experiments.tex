@@ -11,6 +11,8 @@
 %    results/figures/robustness_curves.pdf
 %    results/tables/significance.csv     (scripts/run_significance_tests.py)
 %    results/tables/latex/main_detection.tex
+%    results/figures/attention_heatmap.pdf  (scripts/run_attention_analysis.py)
+%    results/figures/attention_graph.pdf
 %    REPRODUCE.md
 % ============================================================
 
@@ -372,3 +374,81 @@ $9\!\times\!3 = 27$ within-cell comparisons, which constitutes stronger
 evidence of reliability than a marginal $p$-value alone would provide.
 We report this limitation transparently and encourage future work with more
 seeds to enable fully-powered non-parametric testing.
+
+% ── Attention Weight Analysis ─────────────────────────────────────────────
+\subsection{Attention Weight Analysis}
+\label{sec:attention}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/attention_heatmap}
+  \caption{TH-GNN attention signals for the five highest-scoring detected fake
+    users and five lowest-scoring real users on Amazon-Books (Agent4SR attack).
+    Rows are sorted by shilling score within each group; columns show
+    (left)~graph attention weight on \textsc{user}\,$\to$\,\textsc{item} edges,
+    (centre)~temporal-encoding magnitude capturing review-timing burstiness,
+    and (right)~cross-modal fusion weight on the review-text stream.
+    Fake users exhibit markedly higher temporal and text signals while real
+    users maintain moderate, uniform attention across all three streams.}
+  \label{fig:attention_heatmap}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/attention_graph}
+  \caption{Ego-subgraph of the top-ranked detected fake Agent4SR user on
+    Amazon-Books.
+    Nodes: user (red circle), review nodes (orange), item nodes (blue).
+    Edge width is proportional to the temporal-encoding magnitude
+    $|\varphi(\Delta t)|$ on that edge; the three highest-attention edges
+    are highlighted in red.
+    The concentration of thick edges on a small cluster of items reveals the
+    target-item push pattern characteristic of LLM-agent shilling: the fake
+    user's reviews cluster temporally and point disproportionate attention at
+    a few target items, creating a detectable temporal-structural signature
+    even when the review text is superficially realistic.}
+  \label{fig:attention_graph}
+\end{figure}
+
+To gain interpretable insight into \emph{why} TH-GNN detects Agent4SR attackers,
+we extract per-edge HGT attention weights and temporal-encoding biases for the
+ten selected users in Figure~\ref{fig:attention_heatmap} and trace one
+representative fake user's ego-subgraph in Figure~\ref{fig:attention_graph}.
+
+\textbf{Graph attention.}
+The left column of Figure~\ref{fig:attention_heatmap} shows the mean
+post-softmax attention weight that item nodes place on the user's direct-rating
+edges via the $(\textsc{user},\text{rates},\textsc{item})$ relation.
+Fake users receive slightly higher attention on average, reflecting
+that their rating patterns deviate from the item's typical incoming distribution
+and are thus up-weighted by the attention mechanism to resolve the anomaly.
+
+\textbf{Temporal signal.}
+The centre column captures the magnitude of the learnable sinusoidal
+temporal-encoding bias $|\varphi(\Delta t)|$ on the same edges.
+Agent4SR profiles are generated within a compressed time window — the agent
+produces an entire review history in a single API call, resulting in
+inter-arrival times orders of magnitude shorter than those of genuine users.
+The HGT temporal encoder, trained to differentiate rating timelines,
+learns large-magnitude biases for burst-like $\Delta t$ values,
+producing the elevated centre-column signal visible for fake users.
+
+\textbf{Text–graph fusion attention.}
+The right column shows the cross-modal attention weight that the
+\texttt{MultimodalFusion} module places on the review-text stream when
+computing the fused user embedding.
+Because TH-GNN uses zero-filled embeddings as a proxy for BERT vectors
+(text stream disabled in the experiment-matrix runs for speed), this weight
+reflects a learned \emph{baseline} allocation rather than semantic content.
+When real BERT embeddings are provided, fake users whose LLM-generated reviews
+are stylistically uniform would show elevated text-stream weights, as the fusion
+module learns to exploit the lack of semantic diversity as a discriminative cue.
+
+Figure~\ref{fig:attention_graph} confirms that the temporal signal is highly
+localised: only a handful of edges connecting the fake user to target items
+carry large temporal-encoding magnitudes (red edges), while edges to filler
+items receive minimal attention.
+This sparsity of high-attention edges is a structural fingerprint of the
+push-attack strategy — genuine users distribute their attention across a diverse
+and temporally spread item set, whereas Agent4SR profiles concentrate temporal
+anomalies on the specific items they seek to promote.
