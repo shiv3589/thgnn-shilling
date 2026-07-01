@@ -1,9 +1,8 @@
 \begin{table*}[t]
 \centering
-\small
-\setlength{\tabcolsep}{4pt}
 \caption{Detection performance (F1\,/\,DR\,/\,FAR, mean\,$\pm$\,std over 3 seeds). Best per row in \textbf{bold}, second-best \underline{underlined}. TH-GNN is our method. $^\dag$Statistical did not converge on Agent4SR (LLM-generated profiles evade rating-pattern heuristics).}
 \label{tab:main_detection}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{llrrrrrrrrrrrr}
 \toprule
 Dataset & Attack & \multicolumn{3}{c}{TH-GNN} & \multicolumn{3}{c}{Statistical} & \multicolumn{3}{c}{SemanticShield} & \multicolumn{3}{c}{Anti-FakeU} \\
@@ -34,5 +33,5 @@ Yelp2018 & AUSH & \textbf{0.869$\pm$0.009} & \textbf{0.886$\pm$0.008} & \textbf{
 Yelp2018 & GraphAttack & \textbf{0.856$\pm$0.013} & \textbf{0.869$\pm$0.014} & \textbf{0.041$\pm$0.009} & 0.733$\pm$0.008 & 0.791$\pm$0.009 & 0.115$\pm$0.006 & 0.747$\pm$0.010 & 0.785$\pm$0.013 & \underline{0.089$\pm$0.004} & \underline{0.756$\pm$0.011} & \underline{0.804$\pm$0.013} & 0.102$\pm$0.006 \\
 Yelp2018 & Agent4SR & \textbf{0.827$\pm$0.007} & \textbf{0.836$\pm$0.010} & \textbf{0.044$\pm$0.005} & 0.676$\pm$0.010$^\dag$ & 0.730$\pm$0.008 & 0.125$\pm$0.005 & \underline{0.718$\pm$0.014} & \underline{0.752$\pm$0.009} & \underline{0.096$\pm$0.007} & 0.707$\pm$0.012 & 0.751$\pm$0.015 & 0.110$\pm$0.004 \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table*}

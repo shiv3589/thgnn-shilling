@@ -1,9 +1,8 @@
 \begin{table*}[t]
 \centering
-\small
-\setlength{\tabcolsep}{4pt}
 \caption{NDCG@10\,/\,HR@10 of LightGCN after TH-GNN filtering vs.\ baselines. Higher is better. `No defense' $=$ unfiltered attacked graph. \textbf{Bold} $=$ best per row.}
 \label{tab:downstream}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{llrrrrrrrrrr}
 \toprule
 Dataset & Attack & \multicolumn{2}{c}{No Defense} & \multicolumn{2}{c}{TH-GNN} & \multicolumn{2}{c}{Statistical} & \multicolumn{2}{c}{SemanticShield} & \multicolumn{2}{c}{Anti-FakeU} \\
@@ -37,5 +36,5 @@ Yelp2018 & Agent4SR & 0.169$\pm$0.004 & 0.300$\pm$0.010 & \textbf{0.195$\pm$0.00
 \midrule
 \multicolumn{2}{l}{\textit{Avg.\ rank}} & 5.00 & 5.00 & 1.00 & 1.00 & 2.00 & 2.00 & 3.60 & 3.80 & 3.40 & 3.20 \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table*}
