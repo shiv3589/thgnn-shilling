@@ -75,7 +75,12 @@ id_ed25519.pub
 .claude/
 
 # LaTeX build artifacts
+paper/main.pdf
+paper/main.aux
 paper/*.aux
 paper/*.blg
 paper/*.log
 paper/*.out
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
