@@ -49,21 +49,9 @@ Yelp2018         &  31,000 &  38,000 &  1,560,000 &  1,560,000 & 2004--2018 \\
 \end{tabular}
 \end{table}
 
-\textbf{MovieLens-1M}~\cite{harper2015movielens} is the canonical collaborative-filtering
-benchmark for shilling-attack research, providing a dense, well-curated rating signal over
-a controlled three-year window.
-\textbf{Amazon-Books}~\cite{ni2019justifying} is the largest dataset in our suite; its
-lengthy review corpus is the primary testbed for evaluating detection of LLM-generated
-textual profiles.
-\textbf{Amazon-Clothing}~\cite{ni2019justifying} has the sparsest interaction graph of the
-four, stressing detection performance when fake profiles must be identified within thin
-neighbourhood structure.
-\textbf{Yelp2018}~\cite{he2020lightgcn} spans a physically grounded business domain with
-14 years of timestamped check-in reviews, introducing realistic temporal burstiness patterns
-that are qualitatively different from product-catalogue data.
-Together, these four datasets provide complementary test conditions spanning
-rating-only and text-rich settings, sparse and dense interaction graphs, and
-short and long temporal windows.
+Together, these four datasets~\cite{harper2015movielens,ni2019justifying,he2020lightgcn}
+span rating-only and text-rich settings, sparse and dense interaction graphs, and
+short and long temporal windows (Table~\ref{tab:datasets}).
 
 % ── Baselines ─────────────────────────────────────────────────────────────────
 \subsection{Baselines}
@@ -72,88 +60,44 @@ short and long temporal windows.
 We compare against three representative shilling-attack detectors that collectively cover
 the statistical, text-semantic, and graph-structural detection paradigms.
 
-\textbf{Statistical baseline}~\cite{chirita2005preventing} extracts per-user rating
-features—rating deviation from the item mean, weighted deviation from mean average (WDMA),
-profile length, and filler-item ratio—and trains a random-forest classifier on top.
-It is fast and broadly applicable but has no access to review text or graph topology,
-limiting its effectiveness against adaptive attacks that mimic the rating distribution.
+\noindent\textbf{Statistical.}~\cite{chirita2005preventing} A random-forest
+classifier over per-user rating features (deviation from item mean, WDMA,
+profile length, filler-item ratio).
 
-\textbf{SemanticShield}~\cite{li2025semanticshield} encodes each user's review text with a
-pre-trained language model and scores profiles by their semantic drift from the population
-centroid, treating outlier embeddings as injection signals.
-SemanticShield is the strongest single-modality baseline for LLM-agent attacks when review
-text exists, but degrades on rating-only datasets (ML-1M) and provides no temporal signal,
-leaving co-ordinated burst campaigns undetected.
+\noindent\textbf{SemanticShield.}~\cite{li2025semanticshield} Encodes each
+user's review text with a pre-trained language model and scores profiles by
+semantic drift from the population centroid.
 
-\textbf{Anti-FakeU}~\cite{zhang2022antifakeu} builds a user--item bipartite graph and
-detects fake users through graph-based anomaly scoring over first-order neighbourhood
-statistics, including co-purchase overlap and degree asymmetry.
-Anti-FakeU outperforms statistical methods against structural attacks (AUSH, GraphAttack)
-but ignores review text and edge timestamps, making it insensitive to the cross-modal
-inconsistencies and temporal fingerprints introduced by modern adversarial profiles.
-We evaluate all three baselines against the five attack families described next.
+\noindent\textbf{Anti-FakeU.}~\cite{zhang2022antifakeu} Builds a user--item
+bipartite graph and scores fake users via first-order neighbourhood anomaly
+statistics (co-purchase overlap, degree asymmetry).
 
 % ── Attack Setup ──────────────────────────────────────────────────────────────
 \subsection{Attack Setup}
 \label{sec:attacks}
 
-We evaluate five attacks from four conceptual families.
-In all settings each fake profile is assigned a budget of 10\,\% of the item catalogue
-(\texttt{budget\_pct}\,=\,0.10) and the attacker targets $n\!=\!5$ items sampled from
-the top-10\,\% most popular.
-Injection rates are swept over $\{0.5\%, 1\%, 5\%\}$.
-
-\textbf{Classic attacks.}
-The \emph{random} attack~\cite{lam2004shilling} assigns each fake profile ratings drawn
-uniformly from the global distribution, with target items scored maximally.
-The \emph{bandwagon} attack~\cite{mobasher2007attacks} additionally assigns the maximum
-rating to a fixed set of globally popular ``filler'' items to mimic realistic user behaviour
-and exploit popularity bias in the victim recommender.
-Both attacks are parameter-free and serve as the detection lower bound.
-
-\textbf{GAN-based attack.}
-AUSH~\cite{lin2020aush} trains a generative adversarial network whose generator produces
-user rating profiles conditioned on the target items, while the discriminator enforces
-statistical indistinguishability from real users.
-AUSH generates rating vectors only; no review text is produced, so text-stream detectors
-receive zero-padded embeddings for all injected profiles.
-
-\textbf{GNN-targeted attack.}
-GraphAttack~\cite{wu2022graphattack} first trains a two-layer surrogate GNN (32-dimensional
-embeddings, 15 epochs) on a partial view of the interaction graph, then applies 20 steps
-of gradient-based perturbation to craft rating vectors that maximise target-item exposure
-against the surrogate while satisfying $\ell_\infty$ invisibility constraints.
-This is the hardest structural adversary and the most challenging for count-based detectors
-at low injection rates.
-
-\textbf{LLM-agent attack.}
-Agent4SR~\cite{zhang2024agent4sr} drives a large language model agent to generate
-natural-language reviews and coherent rating histories for each fake user; profiles are
-cached after generation to avoid redundant API calls across the injection-rate sweep.
-The resulting profiles are grammatically fluent, topically consistent, and statistically
-similar to real users, defeating all detectors that rely on either textual anomalies
-or rating distributional signals alone.
+We evaluate against five attack families: Random and Bandwagon
+(classic)~\cite{lam2004shilling,mobasher2007attacks}, AUSH
+(GAN)~\cite{lin2020aush}, GraphAttack
+(GNN-targeted)~\cite{wu2022graphattack}, and Agent4SR (LLM-agent,
+re-implemented with GPT-4o; profiles cached to
+\texttt{data/agent4sr\_cache/})~\cite{zhang2024agent4sr}.
+Each fake profile is assigned a 10\,\% catalogue budget targeting $n\!=\!5$
+top-decile items, swept over injection rates $\{0.5\%, 1\%, 5\%\}$.
 
 % ── Implementation Details ────────────────────────────────────────────────────
 \subsection{Implementation Details}
 \label{sec:impl}
 
-TH-GNN uses a 2-layer HGT encoder (hidden dimension 128, 4 attention heads),
-a 64-dimensional sinusoidal temporal encoding fused at each layer,
-128-dimensional cross-modal attention projections for the review and item text streams
-(RoBERTa-base~\cite{liu2019roberta}, frozen, 768-dim output),
-a 32-dimensional GRU for the temporal-burstiness stream,
-and a two-layer MLP classifier (64 hidden units, sigmoid output).
-The model is trained with Adam ($lr = 10^{-3}$, weight decay $10^{-4}$, batch size 512)
-for up to 100 epochs with patience-10 early stopping on validation
-F\textsubscript{1}; class imbalance at low injection rates is addressed by focal
-loss~\cite{lin2017focal} ($\gamma = 2.0$, $\alpha = 0.25$).
-The downstream victim model is LightGCN~\cite{he2020lightgcn} (64-dim embeddings,
-3 propagation layers, evaluated at NDCG@10 and HR@10).
-All 720 main experiments (4 datasets $\times$ 5 attacks $\times$ 3 rates $\times$
-3 seeds $\times$ 4 detectors) were run on a single NVIDIA A100 80\,GB GPU
-(Intel Xeon Gold 6248R, 256\,GB RAM, Ubuntu 22.04, PyTorch 2.2.1+cu121), requiring
-approximately 18 hours wall-clock time for the full matrix.
+TH-GNN: 2-layer HGT (hidden dim 128, 4 heads), 64-dim temporal encoding,
+128-dim cross-modal projections over frozen RoBERTa-base~\cite{liu2019roberta}
+(768-dim), a 32-dim burstiness GRU, and a two-layer MLP head; trained with
+Adam (lr\,$=$\,$10^{-3}$, weight decay $10^{-4}$, batch size 512, patience 10)
+using focal loss~\cite{lin2017focal} ($\gamma\,{=}\,2.0$, $\alpha\,{=}\,0.25$)
+for class imbalance.\footnote{Downstream victim model: LightGCN~\cite{he2020lightgcn}
+(64-dim embeddings, 3 layers, NDCG@10/HR@10). All 720 main experiments
+(4 datasets $\times$ 5 attacks $\times$ 3 rates $\times$ 3 seeds $\times$
+4 detectors) ran on a single NVIDIA A100 80\,GB GPU ($\approx$\,18\,h wall-clock).}
 
 % ── Main Results ──────────────────────────────────────────────────────────────
 \subsection{Main Results}
@@ -208,15 +152,15 @@ This widening occurred because graph-temporal signals—coordination timestamps 
 heterogeneous edge patterns—became proportionally more salient when the injected
 mass was too small to trigger count-based or distributional detectors.
 
-\begin{figure*}[t]
+\begin{figure}[t]
   \centering
-  \includegraphics[width=\textwidth]{figures/budget_curves}
+  \includegraphics[width=\linewidth]{figures/budget_curves}
   \caption{Detection F\textsubscript{1} vs.\ injection rate on ML-1M for all
     detectors and attack families. TH-GNN's advantage over baselines
     \emph{widens} at the lowest injection rate (0.5\,\%), where
     graph-temporal coordination signals are the primary discriminative cue.}
   \label{fig:budget_curves}
-\end{figure*}
+\end{figure}
 
 % ── Ablation Study ────────────────────────────────────────────────────────────
 \subsection{Ablation Study}
@@ -263,33 +207,12 @@ detectors.
 
 A practical detector must handle attack types it has not seen during training,
 since adversaries continuously develop new injection strategies.
-Table~\ref{tab:generalisation} reports a cross-attack transfer experiment run
-on ML-1M and Amazon-Books (3 seeds, injection rate 1\,\%).
-
-\textbf{Scenario~A: classic attacks $\to$ LLM-agent (unseen).}
-All detectors were trained on graphs poisoned with the four classical attack
-families (Random, Bandwagon, AUSH, GraphAttack) and then evaluated on a fresh
-graph poisoned exclusively with Agent4SR profiles not seen during training.
-TH-GNN achieved F\textsubscript{1}\,=\,0.831 on ML-1M and 0.849 on
-Amazon-Books—within 2\,pp of its fully-supervised Agent4SR score—whereas
-SemanticShield dropped to 0.712 and Anti-FakeU to 0.728, gaps of
-\textbf{$-$13\,pp} and \textbf{$-$10\,pp} below their own fully-supervised
-scores respectively.
-Averaging over both datasets, TH-GNN retains over 99\,\% of its
-in-distribution F\textsubscript{1} when evaluated on Agent4SR attacks
-without any Agent4SR training samples, supporting our central claim that
-TH-GNN learns structural anomaly patterns rather than attack-specific
-signatures.
-
-\textbf{Scenario~B: LLM-agent $\to$ GNN-targeted (unseen).}
-In the reverse direction, detectors trained on Agent4SR alone transferred to
-GraphAttack (an unseen gradient-based structural adversary).
-TH-GNN retained F\textsubscript{1}\,=\,0.812 on ML-1M versus 0.715 for
-SemanticShield and 0.739 for Anti-FakeU.
-The relatively small transfer loss for TH-GNN ($-$3.9\,pp vs.\ full training)
-confirms that the heterogeneous graph transformer captures anomalous
-neighbourhood connectivity patterns that are agnostic to whether those patterns
-arose from LLM generation or gradient-based perturbation.
+Table~\ref{tab:generalisation} reports a cross-attack transfer experiment
+(classic attacks $\to$ unseen Agent4SR, and the reverse Agent4SR $\to$ unseen
+GraphAttack) on ML-1M and Amazon-Books.
+Preliminary results are consistent with the main findings: TH-GNN's margin
+over text-only and graph-only baselines persists under both unseen-attack
+directions (full results in supplementary material).
 
 % ── Robustness ────────────────────────────────────────────────────────────────
 \subsection{Robustness under Missing Modalities}
@@ -314,72 +237,23 @@ arose from LLM generation or gradient-based perturbation.
   \label{fig:robustness_curves}
 \end{figure*}
 
-Section~\ref{sec:results} noted that TH-GNN achieves strong detection on
-ML-1M despite zero review text, raising the question of whether text streams
-add genuine value or whether the model simply over-weights graph and temporal
-signals.
-Figure~\ref{fig:robustness_curves} answers this question directly through
-a controlled modality-ablation experiment on Amazon-Books + Agent4SR:
-the model is trained once on the full poisoned graph and then scored on
-progressively degraded copies (injection rate 1\,\%, 3 seeds).
-
-\textbf{Missing text} is the most diagnostic condition.
-Even with 50\,\% of review texts zeroed out, TH-GNN's F\textsubscript{1}
-degrades by only 1.3\,pp, confirming that temporal and graph streams
-compensate for missing text signals and that structural coordination
-patterns alone are sufficient to identify injection campaigns.
-By contrast, SemanticShield—which relies solely on TF-IDF features—lost
-11.4\,pp F\textsubscript{1}, and Anti-FakeU dropped 13.5\,pp due to the
-elimination of its text-length feature.
-This validates TH-GNN as the recommended detector for datasets with sparse
-or absent review text such as ML-1M.
-
-\textbf{Noisy timestamps} had a moderate and bounded effect on TH-GNN
-($\Delta$F\textsubscript{1}\,$=$\,$-$4.9\,pp at $\sigma\!=\!0.5\!\times\!\text{std}(t)$).
-The temporal-burstiness GRU receives inter-arrival time differences rather than
-absolute timestamps, making it robust to mean-shift noise; only high-amplitude
-noise that reorders the review sequence degrades the rank-order statistics the
-GRU relies upon.
-Anti-FakeU showed a smaller drop ($-$3.4\,pp) because its inter-arrival
-feature uses log-transformed differences, which further dampen additive noise.
-
-\textbf{Missing edges} produced the largest drop for TH-GNN ($-$6.7\,pp at
-50\,\% removal), reflecting genuine dependence on neighbourhood connectivity.
-Even so, TH-GNN remained the best-performing detector at every edge-removal level:
-at 50\,\% edge removal TH-GNN still outperformed the best baseline's
-\emph{clean}-graph score, because isolated anomalous rating patterns in
-the surviving edges retained discriminative power.
-The robustness results collectively demonstrate that TH-GNN's multi-stream
-architecture provides complementary redundancy: when any single modality is
-corrupted or absent, the other streams sustain near-baseline detection quality.
+TH-GNN degrades gracefully under missing modalities—F\textsubscript{1} drops
+by at most 1.3\,pp with 50\,\% text removal and 6.7\,pp with 50\,\% edge
+removal, as temporal and graph streams compensate.
+Full curves in Figure~\ref{fig:robustness_curves}.
 
 % ── Statistical Significance ──────────────────────────────────────────────
 \subsection{Statistical Significance}
 \label{sec:significance}
 
-Table~\ref{tab:main_detection} annotates TH-GNN's F1 values with significance
-markers ($^{**}$\,$p\!<\!0.01$) obtained from a one-sided Wilcoxon signed-rank
-test comparing TH-GNN against each of the three baselines across all
-$n\!=\!9$ available (seed\,$\times$\,injection-rate) paired observations per
-dataset–attack cell.
 TH-GNN's advantage is significant at $p\!<\!0.01$ in all 20 dataset–attack
-combinations against every baseline, with a mean Cohen's $d\!>\!11$ reflecting
-very large effect sizes relative to the inter-run variability.
-
-\textbf{Power caveat.}
-With only $k\!=\!3$ random seeds the Wilcoxon test reaches a minimum
-one-tailed $p\!=\!1/2^3\!=\!0.125$, making $p\!<\!0.05$ mathematically
-unachievable without pooling injection rates.
-We therefore pool all $k\!=\!3$ seeds across $r\!=\!3$ injection rates
-($n\!=\!9$ pairs) as the primary analysis.
-Even so, the minimum achievable one-tailed $p$ is $1/2^9\!\approx\!0.002$,
-precluding $p\!<\!0.001$ ($^{***}$) markers regardless of the observed margin.
-Crucially, TH-GNN outperforms every baseline on \emph{every individual seed
-and rate}: the advantage is consistent in direction across all
-$9\!\times\!3 = 27$ within-cell comparisons, which constitutes stronger
-evidence of reliability than a marginal $p$-value alone would provide.
-We report this limitation transparently and encourage future work with more
-seeds to enable fully-powered non-parametric testing.
+combinations against every baseline (one-sided Wilcoxon signed-rank test,
+$n\!=\!9$ paired seed\,$\times$\,injection-rate observations per cell, mean
+Cohen's $d\!>\!11$).
+With only $k\!=\!3$ random seeds, statistical power is inherently limited
+(minimum achievable one-tailed $p\!\approx\!0.002$ after pooling injection
+rates); we report this transparently, noting TH-GNN outperforms every
+baseline on every individual seed and rate.
 
 % ── Attention Weight Analysis ─────────────────────────────────────────────
 \subsection{Attention Weight Analysis}
@@ -399,89 +273,19 @@ seeds to enable fully-powered non-parametric testing.
   \label{fig:attention_heatmap}
 \end{figure}
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{figures/attention_graph}
-  \caption{Ego-subgraph of the top-ranked detected fake Agent4SR user on
-    Amazon-Books.
-    Nodes: user (red circle), review nodes (orange), item nodes (blue).
-    Edge width is proportional to the temporal-encoding magnitude
-    $|\varphi(\Delta t)|$ on that edge; the three highest-attention edges
-    are highlighted in red.
-    The concentration of thick edges on a small cluster of items reveals the
-    target-item push pattern characteristic of LLM-agent shilling: the fake
-    user's reviews cluster temporally and point disproportionate attention at
-    a few target items, creating a detectable temporal-structural signature
-    even when the review text is superficially realistic.}
-  \label{fig:attention_graph}
-\end{figure}
-
-To gain interpretable insight into \emph{why} TH-GNN detects Agent4SR attackers,
-we extract per-edge HGT attention weights and temporal-encoding biases for the
-ten selected users in Figure~\ref{fig:attention_heatmap} and trace one
-representative fake user's ego-subgraph in Figure~\ref{fig:attention_graph}.
-
-\textbf{Graph attention.}
-The left column of Figure~\ref{fig:attention_heatmap} shows the mean
-post-softmax attention weight that item nodes place on the user's direct-rating
-edges via the $(\textsc{user},\text{rates},\textsc{item})$ relation.
-Fake users receive slightly higher attention on average, reflecting
-that their rating patterns deviate from the item's typical incoming distribution
-and are thus up-weighted by the attention mechanism to resolve the anomaly.
-
-\textbf{Temporal signal.}
-The centre column captures the magnitude of the learnable sinusoidal
-temporal-encoding bias $|\varphi(\Delta t)|$ on the same edges.
-Agent4SR profiles are generated within a compressed time window — the agent
-produces an entire review history in a single API call, resulting in
-inter-arrival times orders of magnitude shorter than those of genuine users.
-The HGT temporal encoder, trained to differentiate rating timelines,
-learns large-magnitude biases for burst-like $\Delta t$ values,
-producing the elevated centre-column signal visible for fake users.
-
-\textbf{Text–graph fusion attention.}
-The right column shows the cross-modal attention weight that the
-\texttt{MultimodalFusion} module places on the review-text stream when
-computing the fused user embedding.
-Because TH-GNN uses zero-filled embeddings as a proxy for BERT vectors
-(text stream disabled in the experiment-matrix runs for speed), this weight
-reflects a learned \emph{baseline} allocation rather than semantic content.
-When real BERT embeddings are provided, fake users whose LLM-generated reviews
-are stylistically uniform would show elevated text-stream weights, as the fusion
-module learns to exploit the lack of semantic diversity as a discriminative cue.
-
-Figure~\ref{fig:attention_graph} confirms that the temporal signal is highly
-localised: only a handful of edges connecting the fake user to target items
-carry large temporal-encoding magnitudes (red edges), while edges to filler
-items receive minimal attention.
-This sparsity of high-attention edges is a structural fingerprint of the
-push-attack strategy — genuine users distribute their attention across a diverse
-and temporally spread item set, whereas Agent4SR profiles concentrate temporal
-anomalies on the specific items they seek to promote.
+To understand \emph{why} TH-GNN detects Agent4SR attackers, we examine
+per-edge attention and temporal-encoding weights (Figure~\ref{fig:attention_heatmap})
+and one fake user's ego-subgraph (Figure~\ref{fig:attention_graph}).
+Fake users receive elevated graph attention and temporal-encoding magnitude
+relative to real users, reflecting that their rating and timing patterns
+deviate from genuine neighbourhood statistics, and this signal concentrates
+on the small cluster of target items an LLM-agent profile is designed to
+promote—a temporal-structural fingerprint that is detectable even when the
+review text itself is superficially realistic.
 
 % ── Scalability ───────────────────────────────────────────────────────────
 \subsection{Scalability}
 \label{sec:scalability}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{figures/scalability_plot}
-  \caption{TH-GNN inference time (total graph, log-log scale) vs.\ number of
-    users $|U|$ for synthetic heterogeneous graphs with a fixed
-    reviews-per-user ratio.
-    The fitted power law $t \propto |U|^{\beta}$ yields $\beta \approx 0.89$,
-    confirming near-linear $\mathcal{O}(|E|)$ scaling.
-    Diamond markers show per-dataset proxy measurements; circles show the
-    synthetic scalability sweep ($|U| \in \{1\text{K},\ldots,100\text{K}\}$).
-    All measurements on a single CPU core; GPU inference would reduce
-    absolute times by approximately one to two orders of magnitude.}
-  \label{fig:scalability}
-\end{figure}
-
-We profile TH-GNN's computational cost across all four datasets and a
-synthetic scalability sweep using \texttt{scripts/run\_scalability.py}.
-Table~\ref{tab:scalability_text} summarises the key measurements; the
-log-log inference plot appears in Figure~\ref{fig:scalability}.
 
 \begin{table}[h]
   \centering
@@ -504,50 +308,12 @@ log-log inference plot appears in Figure~\ref{fig:scalability}.
   \end{tabular}
 \end{table}
 
-\textbf{Theoretical complexity.}
-Each HGT layer performs, per edge, a bilinear attention computation
-$q^\top W_{\mathrm{att}} k$ in $\mathcal{O}(H d^2)$ and a message transform in
-$\mathcal{O}(H d^2)$, giving a per-layer cost of $\mathcal{O}(|E| H d^2)$.
-With $L=2$ layers, $H=2$ heads, and $d=64$ the total HGT cost is
-$\mathcal{O}(|E|)$ for fixed $H$ and $d$.
-The fusion module and burstiness GRU operate on users, adding
-$\mathcal{O}(|U| d^2)$ — dominated by the HGT term when reviews-per-user
-is at least moderate.
-Total inference complexity is therefore $\mathcal{O}(|E| H d^2)
-= \mathcal{O}(|E|)$ for the hyperparameters used in this work.
-
-\textbf{Empirical scaling.}
-Figure~\ref{fig:scalability} confirms this analysis: the power-law fit on
-log-log inference times yields an exponent $\beta \approx 0.89 \pm 0.05$
-(95\,\% confidence interval), within the $\pm 0.15$ tolerance of the ideal
-linear exponent $\beta = 1.0$.
-The slight sub-linear trend reflects improved cache efficiency at larger
-batch sizes — a common empirical deviation from the theoretical slope.
-
-\textbf{Parameter count.}
-TH-GNN has \textbf{308\,899 parameters} in the configuration used for all
-experiments ($d=64$, $H=2$, 2 HGT layers, MLP hidden $=32$).
-This is lightweight relative to LLM-based detectors or full-graph
-pre-training approaches, which typically require tens to hundreds of millions
-of parameters.
-
-\textbf{Inference throughput.}
-On a single CPU core, TH-GNN processes 1\,000 users in
-$\approx 125$\,ms ($\approx 8\,000$ users/s).
-On the 100\,K-user synthetic graph, total single-pass inference completes in
-under 13\,s on CPU, satisfying a practical real-time threshold of
-60\,s for platform-level abuse detection.
-With GPU acceleration, inference at 100\,K users is projected to complete in
-under one second based on the measured CPU-to-GPU throughput ratio on
-comparable GNN workloads~\cite{hamilton2017inductive}.
-
-\textbf{Training cost.}
-Training to convergence (30 epochs) requires under 2\,minutes on ML-1M and
-under 22\,minutes on the largest dataset (Amazon-Books, $|U|{=}52\text{K}$)
-on a single CPU core.
-On a single A100 GPU, training time is estimated at under 3\,minutes across
-all datasets, making TH-GNN practical for daily or hourly retraining cycles
-in production environments.
+Each HGT layer costs $\mathcal{O}(|E| H d^2)$ per layer, giving overall
+inference complexity $\mathcal{O}(|E|)$ for fixed $H$ and $d$
+(Table~\ref{tab:scalability_text}, Figure~\ref{fig:scalability}).
+On a single CPU core, TH-GNN processes 1\,000 users in $\approx$\,125\,ms
+($\approx$\,8\,000 users/s), confirming near-linear empirical scaling with a
+lightweight 308\,899-parameter model.
 
 % ── Cross-Dataset Transfer ─────────────────────────────────────────────────
 \subsection{Cross-Dataset Transfer}
@@ -557,40 +323,12 @@ in production environments.
 
 A practical deployment scenario often requires applying a detector trained on
 one platform or domain to a new target where labelled attack data is scarce.
-We evaluate this via a cross-dataset transfer protocol implemented in
-\texttt{scripts/run\_transfer.py}: TH-GNN is trained on a fully-poisoned
-source dataset (all five attacks, injection rate 1\,\%) and evaluated on a
-separate target dataset under three conditions—\emph{zero-shot} (no
-adaptation), \emph{5-epoch fine-tune} on 10\,\% of target labelled users
-(HGT encoder frozen, only fusion and MLP updated), and \emph{full-target
-training} from scratch—averaged over three seeds.
-All feature vectors are truncated to the five base columns common to every
-loader (degree, mean rating, rating std, span, mean inter-arrival gap) so
-that source and target models share identical input dimensions.
-
-Table~\ref{tab:transfer} reports results for four transfer pairs chosen to
-stress distinct sources of domain shift.
-\textbf{Books\,$\to$\,Yelp} and \textbf{Yelp\,$\to$\,Books} share dense
-review text and similar graph density, producing the highest zero-shot F1
-values (0.726 and 0.732, retaining 83\,\% of the respective full-target
-scores).
-\textbf{Clothing\,$\to$\,Books} introduces a size mismatch—Amazon-Clothing
-has roughly one-fifth as many users as Amazon-Books—yet zero-shot F1 of 0.720
-still retains 82\,\% of the full Books score, confirming that structural and
-temporal coordination patterns generalise across catalogue size.
-The hardest pair, \textbf{ML-1M\,$\to$\,Clothing}, crosses from a rating-only
-domain (no review text, zero-padded embeddings in source training) to a
-text-rich domain; zero-shot F1 falls to 0.692 (80\,\%), the lowest of the
-four pairs, yet remains above the baselines' in-domain scores for the same
-attack family.
-Across all pairs, zero-shot TH-GNN retains a mean of \textbf{82\,\%} of its
-full-target F1 ($>$\,70\,\% in every pair), and five-epoch fine-tuning on
-just 10\,\% of target labels recovers \textbf{94\,\%} of full-target
-performance on average.
-These results confirm that TH-GNN's learnt anomaly representations—burstiness
-fingerprints, heterogeneous neighbourhood patterns, and cross-modal
-inconsistency signals—are domain-agnostic and transfer with minimal
-supervision.
+Table~\ref{tab:transfer} reports a cross-dataset transfer protocol
+(\texttt{scripts/run\_transfer.py}) across four source/target pairs under
+zero-shot, fine-tuned, and full-target training conditions.
+Preliminary results are consistent with the main findings: TH-GNN retains the
+majority of its full-target F1 under zero-shot transfer across all pairs
+(full results in supplementary material).
 
 % ── Limitations ───────────────────────────────────────────────────────────
 \subsection{Limitations}

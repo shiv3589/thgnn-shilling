@@ -12,31 +12,22 @@
 Shilling attack detection has a two-decade history spanning statistical,
 supervised, and graph-based paradigms.
 The foundational statistical approach treated each user's rating profile as a
-feature vector and flagged outliers.
-Chirita et al.~\cite{chirita2005preventing} defined per-user features—rating
-deviation from the item mean, weighted deviation from mean average (WDMA),
-profile length, and filler-item ratio—that together captured the coarse
-fingerprints of injection: inflated ratings on targets, uniform filler scores,
-and unnaturally short profiles.
-Complementary work applies PCA to the user-rating matrix, treating injected
-profiles as low-rank perturbations whose principal directions separate from
-genuine user variance~\cite{williams2006detection}.
-Clustering methods extended this idea by grouping users whose rating vectors were
-suspiciously similar—a pattern induced when an attacker re-uses a fixed filler
-template across many fake accounts~\cite{mehta2009unsupervised}.
-Statistical detectors were fast and required no labelled data, but they failed
+feature vector and flagged outliers: Chirita et al.~\cite{chirita2005preventing}
+defined per-user features—rating deviation from the item mean, weighted
+deviation from mean average (WDMA), profile length, and filler-item
+ratio—capturing the coarse fingerprints of injection, PCA-based methods
+treated injected profiles as low-rank perturbations separating from genuine
+user variance~\cite{williams2006detection}, and clustering grouped users whose
+rating vectors were suspiciously similar~\cite{mehta2009unsupervised}.
+These statistical detectors were fast and needed no labelled data but failed
 against adaptive attacks calibrated to match the genuine rating distribution,
-such as the bandwagon strategy~\cite{mobasher2007attacks} and its successors.
-
+such as bandwagon~\cite{mobasher2007attacks}.
 Supervised classifiers introduced labelled shilling datasets and per-user
-feature engineering.
-Random-forest and SVM detectors trained on rating-based features achieved
-strong recall against known attack families but overfitted to the specific
-injection signature seen at training time and degraded on unseen attack
-profiles~\cite{burke2005segment}.
-Deep-learning variants replaced hand-crafted statistics with recurrent or
-convolutional encoders over rating sequences, recovering temporal patterns
-that scalar features discarded~\cite{wu2021fight}.
+feature engineering: random-forest and SVM detectors trained on rating-based
+features achieved strong recall against known attack families but overfitted
+to the training-time injection signature~\cite{burke2005segment}, and
+deep-learning variants replaced hand-crafted statistics with recurrent or
+convolutional encoders over rating sequences~\cite{wu2021fight}.
 However, all of these approaches treat users independently; they miss the
 relational anomalies produced when a group of fake profiles collectively
 targets a set of items.
@@ -63,18 +54,8 @@ fingerprints that historically distinguished synthetic from genuine profiles.
 \label{sec:rel_llm_detection}
 
 Detecting computationally generated deceptive content is a longstanding
-problem that has grown substantially harder with the advent of large language
-models.
-Ott et al.~\cite{ott2011finding} established crowdsourced deceptive hotel
-reviews as a benchmark and showed that both human judges and unigram
-classifiers perform only slightly above chance, motivating automated linguistic
-approaches.
-Subsequent work catalogued the textual fingerprints of platform-scale review
-spam—exaggerated sentiment, sparse specifics, heavy first-person framing, and
-suspiciously brief activity windows~\cite{jindal2008opinion}—and trained
-supervised classifiers to exploit them.
-These classifiers were effective against template-based generators but relied
-on distributional assumptions that neural generators easily violate.
+problem~\cite{ott2011finding,jindal2008opinion} that has grown substantially
+harder with the advent of large language models.
 
 The GPT era reset the detection landscape.
 Zellers et al.~\cite{zellers2019defending} demonstrated that neural fake-news

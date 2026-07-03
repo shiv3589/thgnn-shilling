@@ -31,8 +31,6 @@ handle structural attacks well but are blind to the cross-modal inconsistencies
 introduced when fluent LLM text accompanies plausible rating patterns, and they
 discard edge timestamps entirely, missing the synchronised burst fingerprint left
 by campaigns that inject profiles in coordinated waves.
-Neither family is equipped to detect a threat that is simultaneously
-graph-plausible, text-coherent, and temporally coordinated.
 Critically, no existing detector encodes anomaly signals directly within the
 graph attention mechanism—leaving the distinction between normal neighbourhood
 aggregation and coordinated injection aggregation implicit rather than
@@ -58,16 +56,12 @@ burstiness signal orthogonal to both graph topology and text content.
 A two-layer MLP over the concatenated streams produces the final fake-user score.
 
 TH-GNN achieves a grand-mean F\textsubscript{1} of \textbf{0.870} across all 20
-dataset--attack configurations, uniformly above every baseline on every row.
-The gap is widest against Agent4SR, where TH-GNN reaches mean
-F\textsubscript{1}\,=\,0.825 versus SemanticShield's 0.716---a margin of
-\textbf{$+$10.9\,pp}---while holding false-alarm rate below 4.5\,\% compared to
-baselines' 6.8--12.5\,\%.
-At the lowest injection rate (0.5\,\%), where only 5 fake profiles exist per
-1{,}000 genuine users, the advantage widens to $+$11.5\,pp on Agent4SR, because
-graph-temporal coordination signals become proportionally more salient as the
-injected mass shrinks below the threshold of count-based and distributional
-detectors.
+dataset--attack configurations, uniformly above every baseline on every row,
+with false-alarm rate below 4.5\,\% throughout versus baselines' 6.8--12.5\,\%.
+The gap is widest against Agent4SR (\textbf{$+$10.9\,pp} over SemanticShield)
+and widens further to $+$11.5\,pp at the lowest injection rate (0.5\,\%), as
+graph-temporal coordination signals become proportionally more salient once
+the injected mass falls below the threshold of count-based detectors.
 
 \noindent\textbf{Contributions.}
 \begin{itemize}
