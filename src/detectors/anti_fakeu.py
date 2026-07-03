@@ -142,6 +142,12 @@ class AntiFakeUBaseline(BaseDetector):
             self._degenerate   = True
             self._fallback_val = float(y.max())
             return
+        if n_pos < 2 or n_neg < 2:
+            # MLPClassifier's internal early-stopping split (train_test_split with
+            # stratify=y) requires >=2 samples per class; skip fitting otherwise.
+            self._degenerate   = True
+            self._fallback_val = 0.5
+            return
         self._degenerate = False
         self.clf.fit(Xs, y)
 
