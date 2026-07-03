@@ -195,3 +195,16 @@ class AmazonClothingLoader(AmazonBaseLoader):
 
     category = "Clothing_Shoes_and_Jewelry"
     dataset_name = "amazon-clothing"
+
+
+class AmazonVideoGamesLoader(AmazonBaseLoader):
+    """Amazon Video Games (2023 reviews, McAuley Lab).
+
+    Required files in ``<raw_dir>/amazon_2023/``::
+
+        Video_Games.jsonl.gz
+        meta_Video_Games.jsonl.gz
+    """
+
+    category = "Video_Games"
+    dataset_name = "amazon-video-games"

@@ -35,7 +35,10 @@ split 70/10/20 by timestamp, and shared across all detectors and attacks.
 \setlength{\tabcolsep}{5pt}
 \caption{Dataset statistics after 5-core filtering.
   $^\dagger$ML-1M contains no review text; text-stream inputs receive
-  zero-padded RoBERTa embeddings for all users.}
+  zero-padded RoBERTa embeddings for all users.
+  $^\ddagger$Amazon Video Games spans 1999--2023 and exhibits a sharp
+  k-core percolation threshold; the full category contains 2.77M raw
+  users but only 94,080 form a mutually 5-core-connected subgraph.}
 \label{tab:datasets}
 \begin{tabular}{lrrrrl}
 \toprule
@@ -44,14 +47,15 @@ Dataset & \#Users & \#Items & \#Reviews & \#Ratings & Span \\
 ML-1M$^\dagger$  &   6,040 &   3,706 &        --- &  1,000,209 & 2000--2003 \\
 Amazon-Books     & 294,000 & 152,000 &  2,700,000 &  2,700,000 & 1996--2018 \\
 Amazon-Clothing  &  39,000 &  23,000 &    278,000 &    278,000 & 2000--2018 \\
-Yelp2018         &  31,000 &  38,000 &  1,560,000 &  1,560,000 & 2004--2018 \\
+Amazon Video Games$^\ddagger$ &  94,080 &  31,347 &   816,608 &    816,608 & 1999--2023 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 Together, these four datasets~\cite{harper2015movielens,ni2019justifying,he2020lightgcn}
 span rating-only and text-rich settings, sparse and dense interaction graphs, and
-short and long temporal windows (Table~\ref{tab:datasets}).
+short and long temporal windows, from 2000s DVD-era catalogues to modern digital
+storefronts (Table~\ref{tab:datasets}).
 
 % ── Baselines ─────────────────────────────────────────────────────────────────
 \subsection{Baselines}
@@ -294,7 +298,9 @@ review text itself is superficially realistic.
   \caption{TH-GNN computational profile on proxy datasets (CPU, single core).
     Training time is extrapolated to 30 epochs from 5 timed epochs.
     Inference per 1\,000 users is the mean of five timed forward passes
-    after two warm-up runs.  GPU inference is $\sim$\,10$\times$ faster.}
+    after two warm-up runs.  GPU inference is $\sim$\,10$\times$ faster.
+    Video Games timing pending re-profiling after the dataset swap;
+    $|E|$ and $|U|$ reflect the actual 5-core graph.}
   \label{tab:scalability_text}
   \begin{tabular}{lrrrr}
     \toprule
@@ -303,7 +309,7 @@ review text itself is superficially realistic.
     ML-1M            &  6\,040 &  90\,600 & 0.31 & 130 \\
     Amazon-Books     & 52\,643 & 421\,144 & 2.63 & 122 \\
     Amazon-Clothing  & 18\,226 & 109\,356 & 0.91 & 125 \\
-    Yelp2018         & 31\,668 & 316\,680 & 1.58 & 124 \\
+    Video Games      & 94\,080 & 285\,540 & --   & --  \\
     \bottomrule
   \end{tabular}
 \end{table}

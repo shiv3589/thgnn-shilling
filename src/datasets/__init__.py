@@ -1,4 +1,4 @@
-from .amazon import AmazonBooksLoader, AmazonClothingLoader
+from .amazon import AmazonBooksLoader, AmazonClothingLoader, AmazonVideoGamesLoader
 from .base import EDGE_TYPES, BaseLoader, HeteroDataset
 from .movielens import MovieLens1MLoader
 from .splits import temporal_split
@@ -12,5 +12,6 @@ __all__ = [
     "MovieLens1MLoader",
     "AmazonBooksLoader",
     "AmazonClothingLoader",
+    "AmazonVideoGamesLoader",
     "Yelp2018Loader",
 ]

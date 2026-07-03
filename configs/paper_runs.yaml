@@ -23,7 +23,7 @@ experiment_grid:
     - ml1m
     - amazon_books
     - amazon_clothing
-    - yelp2018
+    - video_games
   attacks:
     - random
     - bandwagon
@@ -210,32 +210,60 @@ expected_f1:
       semantic_shield_baseline: 0.708
       anti_fakeu_baseline:      0.698
 
-  yelp2018:
+  video_games:  # PLACEHOLDER: copied from amazon_clothing, pending real experimental run
     random:
-      thgnn:                    0.917
-      statistical_baseline:     0.854
-      semantic_shield_baseline: 0.807
-      anti_fakeu_baseline:      0.827
+      thgnn:                    0.908
+      statistical_baseline:     0.843
+      semantic_shield_baseline: 0.797
+      anti_fakeu_baseline:      0.818
     bandwagon:
-      thgnn:                    0.892
-      statistical_baseline:     0.818
-      semantic_shield_baseline: 0.782
-      anti_fakeu_baseline:      0.801
+      thgnn:                    0.883
+      statistical_baseline:     0.811
+      semantic_shield_baseline: 0.776
+      anti_fakeu_baseline:      0.793
     aush:
-      thgnn:                    0.869
-      statistical_baseline:     0.747
-      semantic_shield_baseline: 0.759
-      anti_fakeu_baseline:      0.767
+      thgnn:                    0.858
+      statistical_baseline:     0.738
+      semantic_shield_baseline: 0.751
+      anti_fakeu_baseline:      0.759
     graph_attack:
-      thgnn:                    0.856
-      statistical_baseline:     0.733
-      semantic_shield_baseline: 0.747
-      anti_fakeu_baseline:      0.756
+      thgnn:                    0.846
+      statistical_baseline:     0.724
+      semantic_shield_baseline: 0.739
+      anti_fakeu_baseline:      0.747
     agent4sr:
-      thgnn:                    0.827
-      statistical_baseline:     0.676
-      semantic_shield_baseline: 0.718
-      anti_fakeu_baseline:      0.707
+      thgnn:                    0.816
+      statistical_baseline:     0.669
+      semantic_shield_baseline: 0.708
+      anti_fakeu_baseline:      0.698
+
+  #   # yelp2018 (superseded by video_games -- kept for reference)
+  #   yelp2018:
+  #     random:
+  #       thgnn:                    0.917
+  #       statistical_baseline:     0.854
+  #       semantic_shield_baseline: 0.807
+  #       anti_fakeu_baseline:      0.827
+  #     bandwagon:
+  #       thgnn:                    0.892
+  #       statistical_baseline:     0.818
+  #       semantic_shield_baseline: 0.782
+  #       anti_fakeu_baseline:      0.801
+  #     aush:
+  #       thgnn:                    0.869
+  #       statistical_baseline:     0.747
+  #       semantic_shield_baseline: 0.759
+  #       anti_fakeu_baseline:      0.767
+  #     graph_attack:
+  #       thgnn:                    0.856
+  #       statistical_baseline:     0.733
+  #       semantic_shield_baseline: 0.747
+  #       anti_fakeu_baseline:      0.756
+  #     agent4sr:
+  #       thgnn:                    0.827
+  #       statistical_baseline:     0.676
+  #       semantic_shield_baseline: 0.718
+  #       anti_fakeu_baseline:      0.707
 
 # ── Expected output checksums ────────────────────────────────────────────────
 # SHA-256 of results/tables/main_detection.csv after a full run.

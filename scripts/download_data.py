@@ -100,6 +100,27 @@ DATASETS: Dict[str, Dict] = {
         ],
         "checksums": {},
     },
+    "amazon-video-games": {
+        "description": "Amazon Video Games 2023  (McAuley Lab / UCSD)",
+        "instructions": [
+            "  mkdir -p <RAW_DIR>/amazon_2023",
+            "",
+            "  # Reviews:",
+            "  wget -P <RAW_DIR>/amazon_2023 \\",
+            "    https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/raw/review_categories/Video_Games.jsonl.gz",
+            "",
+            "  # Metadata:",
+            "  wget -P <RAW_DIR>/amazon_2023 \\",
+            "    https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/raw/meta_categories/meta_Video_Games.jsonl.gz",
+            "",
+            "  Alternatively browse: https://amazon-reviews-2023.github.io/",
+        ],
+        "required_files": [
+            "amazon_2023/Video_Games.jsonl.gz",
+            "amazon_2023/meta_Video_Games.jsonl.gz",
+        ],
+        "checksums": {},
+    },
     "yelp2018": {
         "description": "Yelp2018  (Yelp Academic Dataset, reviews ≤ 2018-12-31)",
         "instructions": [

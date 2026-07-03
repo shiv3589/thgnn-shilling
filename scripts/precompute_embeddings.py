@@ -43,6 +43,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.datasets import (
     AmazonBooksLoader,
     AmazonClothingLoader,
+    AmazonVideoGamesLoader,
     BaseLoader,
     MovieLens1MLoader,
     Yelp2018Loader,
@@ -60,6 +61,7 @@ LOADER_REGISTRY: Dict[str, Type[BaseLoader]] = {
     "ml-1m":           MovieLens1MLoader,
     "amazon-books":    AmazonBooksLoader,
     "amazon-clothing": AmazonClothingLoader,
+    "amazon-video-games": AmazonVideoGamesLoader,
     "yelp2018":        Yelp2018Loader,
 }
 
