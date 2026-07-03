@@ -59,6 +59,7 @@ from src.models import (
     HGTEncoder,
     MultimodalFusion,
     TemporalBurstiness,
+    TemporalContrastiveLoss,
     THGNNDetector,
 )
 
@@ -253,6 +254,21 @@ def _khop_subgraph(
     )
 
 
+def _first_interaction_timestamps(
+    rev_user_idx: Tensor,
+    timestamps: Tensor,
+    num_users: int,
+    device: torch.device,
+) -> Tensor:
+    """Earliest review timestamp per user → (num_users,); +inf if no reviews."""
+    first_ts = torch.full((num_users,), float("inf"), device=device)
+    if rev_user_idx.numel() > 0:
+        first_ts.scatter_reduce_(
+            0, rev_user_idx, timestamps, reduce="amin", include_self=True,
+        )
+    return first_ts
+
+
 # ---------------------------------------------------------------------------
 # Evaluation pass
 # ---------------------------------------------------------------------------
@@ -442,6 +458,16 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--focal-gamma", type=float, default=2.0)
     p.add_argument("--focal-alpha", type=float, default=0.25)
 
+    # Temporal contrastive loss
+    p.add_argument("--tc-alpha", type=float, default=0.1,
+                   help="Weight for temporal contrastive loss: L = L_focal + tc_alpha * L_TC")
+    p.add_argument("--tc-tau", type=float, default=0.07,
+                   help="Initial (learnable) temperature for temporal contrastive loss")
+    p.add_argument("--tc-window-hours", type=float, default=24.0,
+                   help="Temporal positive window W, in hours")
+    p.add_argument("--tc-n-negatives", type=int, default=8,
+                   help="Number of temporal negatives sampled per anchor")
+
     # Model
     p.add_argument("--hidden-dim",     type=int, default=128)
     p.add_argument("--num-heads",      type=int, default=4)
@@ -547,11 +573,17 @@ def main() -> None:
 
     # ── Model, optimiser, scheduler ──────────────────────────────────────────
     model = _build_model(dataset, args, device)
+    tc_loss_fn = TemporalContrastiveLoss(
+        tau=args.tc_tau,
+        window_hours=args.tc_window_hours,
+        n_negatives=args.tc_n_negatives,
+    ).to(device)
     n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     logger.info("Model parameters: %s", f"{n_params:,}")
 
     optimizer = torch.optim.AdamW(
-        model.parameters(), lr=args.lr, weight_decay=args.weight_decay,
+        list(model.parameters()) + list(tc_loss_fn.parameters()),
+        lr=args.lr, weight_decay=args.weight_decay,
     )
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
         optimizer, T_max=args.epochs, eta_min=args.lr * 1e-2,
@@ -573,7 +605,9 @@ def main() -> None:
 
     for epoch in range(1, args.epochs + 1):
         model.train()
-        epoch_loss = 0.0
+        epoch_loss  = 0.0
+        epoch_focal = 0.0
+        epoch_tc    = 0.0
         n_batches  = 0
 
         # Shuffle train users each epoch
@@ -604,7 +638,7 @@ def main() -> None:
             )
 
             optimizer.zero_grad()
-            scores, _ = model(
+            scores, embeddings = model(
                 sub_feats, sub_ei, sub_ea,
                 sub_rev_embs, sub_item_embs,
                 sub_rev_user, sub_rev_item,
@@ -613,19 +647,40 @@ def main() -> None:
             batch_scores = scores[local_seed]
             batch_labels = dataset.labels[batch_globals].to(device)
 
-            loss = focal_loss(
+            floss = focal_loss(
                 batch_scores, batch_labels,
                 gamma=args.focal_gamma, alpha=args.focal_alpha,
             )
+
+            # Temporal contrastive loss — only when the batch has ≥ 2 fake
+            # users, otherwise there is no valid positive pair to mine.
+            if int((batch_labels == 1).sum()) >= 2:
+                num_sub_users = sub_feats["user"].size(0)
+                first_ts = _first_interaction_timestamps(
+                    sub_rev_user, sub_ts, num_sub_users, device,
+                )
+                batch_embeddings = embeddings["user_fused"][local_seed]
+                batch_timestamps = first_ts[local_seed]
+                tc_loss = tc_loss_fn(batch_embeddings, batch_timestamps, batch_labels)
+            else:
+                tc_loss = batch_scores.new_zeros(())
+
+            loss = floss + args.tc_alpha * tc_loss
             loss.backward()
-            nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            nn.utils.clip_grad_norm_(
+                list(model.parameters()) + list(tc_loss_fn.parameters()), max_norm=1.0,
+            )
             optimizer.step()
 
-            epoch_loss += loss.item()
-            n_batches  += 1
+            epoch_loss  += loss.item()
+            epoch_focal += floss.item()
+            epoch_tc    += tc_loss.item()
+            n_batches   += 1
 
         scheduler.step()
-        avg_loss = epoch_loss / max(n_batches, 1)
+        avg_loss  = epoch_loss  / max(n_batches, 1)
+        avg_focal = epoch_focal / max(n_batches, 1)
+        avg_tc    = epoch_tc    / max(n_batches, 1)
 
         # ── Validation ──────────────────────────────────────────────────────
         if epoch % args.eval_every == 0:
@@ -640,8 +695,8 @@ def main() -> None:
 
             elapsed = time.perf_counter() - wall_t0
             logger.info(
-                "Epoch %3d/%d  loss=%.4f  val_F1=%.4f  DR=%.4f  FAR=%.4f  lr=%.2e  t=%ds",
-                epoch, args.epochs, avg_loss, val_f1, val_dr, val_far,
+                "Epoch %3d/%d  loss=%.4f (focal=%.4f tc=%.4f)  val_F1=%.4f  DR=%.4f  FAR=%.4f  lr=%.2e  t=%ds",
+                epoch, args.epochs, avg_loss, avg_focal, avg_tc, val_f1, val_dr, val_far,
                 scheduler.get_last_lr()[0], int(elapsed),
             )
 
@@ -649,7 +704,9 @@ def main() -> None:
                 import wandb  # noqa: F811
                 wandb.log({
                     "epoch":    epoch,
-                    "train/loss": avg_loss,
+                    "train/loss":       avg_loss,
+                    "train/focal_loss": avg_focal,
+                    "train/tc_loss":    avg_tc,
                     "val/f1":   val_f1,
                     "val/dr":   val_dr,
                     "val/far":  val_far,
