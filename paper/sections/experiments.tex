@@ -591,3 +591,13 @@ These results confirm that TH-GNN's learnt anomaly representations—burstiness
 fingerprints, heterogeneous neighbourhood patterns, and cross-modal
 inconsistency signals—are domain-agnostic and transfer with minimal
 supervision.
+
+% ── Limitations ───────────────────────────────────────────────────────────
+\subsection{Limitations}
+\label{sec:limitations}
+
+\begin{itemize}
+  \item \textbf{Statistical power:} With three random seeds, the Wilcoxon signed-rank tests have limited power; results should be interpreted alongside the consistent directional trends rather than p-values alone.
+  \item \textbf{Attack re-implementation:} Agent4SR is re-implemented rather than sourced from the original codebase; minor behavioural differences may exist.
+  \item \textbf{Online detection:} TH-GNN operates on static graph snapshots and does not support streaming inference; real-time deployment would require incremental graph update mechanisms.
+\end{itemize}
