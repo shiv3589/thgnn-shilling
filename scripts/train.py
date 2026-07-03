@@ -365,6 +365,7 @@ def _build_model(
         input_dims=input_dims,
         dropout=args.dropout,
         time_emb_dim=args.time_emb_dim,
+        use_aaa=args.use_aaa,
     )
     fusion = MultimodalFusion(
         subgraph_dim=args.hidden_dim,
@@ -537,6 +538,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--dry-run",    action="store_true",
                    help="Skip raw-data loading; train on a small in-memory "
                         "synthetic graph to sanity-check the AAA + L_TC loop.")
+    p.add_argument("--use-aaa",    action="store_true", default=False,
+                   help="Use Attack-Aware Anomaly Attention instead of standard HGT attention")
 
     # Focal loss
     p.add_argument("--focal-gamma", type=float, default=2.0)

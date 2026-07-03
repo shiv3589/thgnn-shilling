@@ -299,10 +299,18 @@ class THGNNDetector(nn.Module):
         num_items = node_feats["item"].size(0)
         device    = node_feats["user"].device
 
+        # ── 0. Ensure item_embs is a real tensor before use (incl. by AAA) ─
+        if item_embs is None:
+            item_embs = torch.zeros(num_items, review_embs.size(1), device=device)
+
         # ── 1. HGT structural embeddings ──────────────────────────────────
+        # review_embs / item_embs are only consumed when the encoder was
+        # built with use_aaa=True (AAA's f_semantic term); ignored otherwise.
         hgt_out = self.hgt(
             node_feats, edge_index_dict, edge_attr_dict,
             node_timestamps=node_timestamps,
+            review_embs=review_embs,
+            item_embs=item_embs,
         )
         user_struct = hgt_out["user"]   # (N_users, hidden_dim)
 
@@ -311,8 +319,6 @@ class THGNNDetector(nn.Module):
         user_rev_emb = _mean_pool(review_embs, review_user_idx, num_users)
 
         # Item stream: mean-pool item_embs per user via review→item link
-        if item_embs is None:
-            item_embs = torch.zeros(num_items, review_embs.size(1), device=device)
         # For each review, get item emb, then scatter-mean to users
         review_item_embs = item_embs[review_item_idx]            # (N_reviews, 768)
         user_item_emb    = _mean_pool(review_item_embs, review_user_idx, num_users)
