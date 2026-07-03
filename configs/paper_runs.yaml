@@ -82,6 +82,8 @@ thgnn:
   burst_dim:      32     # temporal burstiness GRU hidden size
   mlp_hidden:     64     # classifier MLP hidden size
   review_feat_dim: 1     # dummy review node feature (content = BERT embedding)
+  use_aaa:        true   # substitute AttackAwareAnomalyAttention for standard HGT attention
+  lambda_init:    0.1    # initial value for lambda_t / lambda_s / lambda_g anomaly weights
 
 # ── TH-GNN training ─────────────────────────────────────────────────────────
 training:
@@ -93,9 +95,9 @@ training:
   khop:         2        # k-hop subgraph sampling
   focal_gamma:  2.0      # focal loss γ
   focal_alpha:  0.25     # focal loss α (weight for positive class)
-  tc_alpha:        0.1   # weight for temporal contrastive loss: L = L_focal + tc_alpha * L_TC
+  alpha_tc:        0.1   # weight for temporal contrastive loss: L = L_focal + alpha_tc * L_TC
   tc_tau:          0.07  # initial (learnable) temperature for temporal contrastive loss
-  tc_window_hours: 24    # temporal positive window W, in hours
+  window_hours:    24    # temporal positive window W, in hours
   tc_n_negatives:  8     # temporal negatives sampled per anchor
 
 # ── LightGCN victim-model baseline ──────────────────────────────────────────

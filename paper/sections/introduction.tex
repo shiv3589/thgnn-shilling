@@ -33,6 +33,10 @@ discard edge timestamps entirely, missing the synchronised burst fingerprint lef
 by campaigns that inject profiles in coordinated waves.
 Neither family is equipped to detect a threat that is simultaneously
 graph-plausible, text-coherent, and temporally coordinated.
+Critically, no existing detector encodes anomaly signals directly within the
+graph attention mechanism—leaving the distinction between normal neighbourhood
+aggregation and coordinated injection aggregation implicit rather than
+principled.
 
 TH-GNN addresses all three failure modes with a unified architecture built on
 three non-redundant signal streams.
@@ -66,20 +70,9 @@ injected mass shrinks below the threshold of count-based and distributional
 detectors.
 
 \noindent\textbf{Contributions.}
-\begin{itemize}[leftmargin=1.5em,itemsep=2pt]
-  \item \textbf{We propose TH-GNN}, a heterogeneous temporal graph neural network
-        that jointly encodes the user--review--item interaction graph, review and
-        item text streams, and per-user temporal burstiness for shilling
-        detection---the first detector to close all three failure modes of the
-        prior art simultaneously.
-  \item \textbf{We demonstrate} state-of-the-art detection across five attack
-        families (random, bandwagon, AUSH, GraphAttack, Agent4SR) and four
-        diverse datasets, with consistent margins that widen at low injection
-        rates where single-modality baselines degrade fastest.
-  \item \textbf{We provide} the first systematic evaluation of shilling detectors
-        against LLM-agent attacks across multiple datasets and injection rates,
-        establishing a benchmark that cleanly separates multimodal detectors from
-        single-modality baselines.
-  \item \textbf{We release} code, configuration files, and reproducibility scripts
-        for all 720 experimental runs to support future work in this area.
+\begin{itemize}
+  \item We propose \textbf{Attack-Aware Anomaly Attention (AAA)}, a new heterogeneous graph attention mechanism that jointly scores temporal burstiness, semantic incoherence, and structural thinness within the attention softmax — the first graph learning principle designed specifically for coordinated LLM-agent injection detection.
+  \item We prove that AAA has strictly greater expressive power than standard HGT for separating coordinated shilling campaigns from real users (Proposition~\ref{prop:aaa}).
+  \item We introduce a \textbf{Temporal Contrastive Loss} that enforces campaign-level temporal coherence, enabling the model to learn that coordinated fake users cluster in embedding space.
+  \item We evaluate on four datasets and five attack families including LLM-agent attacks, achieving grand-mean F\textsubscript{1}=0.870 and +10.9\,pp over the strongest baseline on Agent4SR, with code released at \url{https://github.com/shiv3589/thgnn-shilling}.
 \end{itemize}

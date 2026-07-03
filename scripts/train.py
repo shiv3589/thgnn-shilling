@@ -425,6 +425,87 @@ def _load_embeddings(
 
 
 # ---------------------------------------------------------------------------
+# Synthetic dataset (for --dry-run)
+# ---------------------------------------------------------------------------
+
+def _build_synthetic_dataset(seed: int = 0) -> HeteroDataset:
+    """Small in-memory heterogeneous graph for --dry-run sanity checks.
+
+    Users 0..N_FAKE-1 are labelled fake and each write exactly one review
+    clustered within a 1-hour burst (real users' reviews are spread over
+    ~115 days), so the temporal contrastive loss's positive-pair window
+    (default 24h) actually finds a match and L_TC executes with a non-zero
+    gradient rather than silently falling back to its zero-loss branch.
+    """
+    n_users, n_items, n_reviews = 60, 40, 100
+    n_fake = 6
+    rng = np.random.default_rng(seed)
+
+    n_normal = n_reviews - n_fake
+    normal_ts = rng.uniform(0, 1e7, n_normal)
+    burst_ts  = 5e6 + rng.uniform(0, 3600, n_fake)  # 1-hour coordinated burst
+    ts_unsorted = np.concatenate([normal_ts, burst_ts])
+    order = np.argsort(ts_unsorted)
+    ts = torch.from_numpy(ts_unsorted[order])
+
+    # Only real users (id >= n_fake) write the "normal" reviews, so each
+    # fake user's sole review is its burst one — guaranteeing their
+    # first-interaction timestamp falls inside the coordinated window.
+    normal_writers = rng.integers(n_fake, n_users, n_normal)
+    burst_writers  = np.arange(n_fake)
+    writers_unsorted = np.concatenate([normal_writers, burst_writers])
+    writes_u = torch.from_numpy(writers_unsorted[order].astype(np.int64))
+
+    writes_r = torch.arange(n_reviews, dtype=torch.long)
+    about_r  = torch.arange(n_reviews, dtype=torch.long)
+    about_i  = torch.from_numpy(rng.integers(0, n_items, n_reviews).astype(np.int64))
+    n_rates  = int(n_reviews * 0.7)
+    rates_u  = torch.from_numpy(rng.integers(0, n_users, n_rates).astype(np.int64))
+    rates_i  = torch.from_numpy(rng.integers(0, n_items, n_rates).astype(np.int64))
+
+    edge_index_dict = {
+        ("user",   "writes", "review"): torch.stack([writes_u, writes_r]),
+        ("review", "about",  "item"):   torch.stack([about_r,  about_i]),
+        ("user",   "rates",  "item"):   torch.stack([rates_u,  rates_i]),
+    }
+    edge_attr_dict = {k: ts for k in edge_index_dict}
+
+    n_train = int(0.7 * n_reviews)
+    n_val   = int(0.1 * n_reviews)
+    train_mask = torch.zeros(n_reviews, dtype=torch.bool)
+    val_mask   = torch.zeros(n_reviews, dtype=torch.bool)
+    test_mask  = torch.zeros(n_reviews, dtype=torch.bool)
+    train_mask[:n_train]                = True
+    val_mask[n_train : n_train + n_val] = True
+    test_mask[n_train + n_val :]        = True
+
+    labels = torch.zeros(n_users, dtype=torch.long)
+    labels[:n_fake] = 1  # synthetic fake users (coordinated burst writers)
+
+    return HeteroDataset(
+        dataset_name    = "synthetic_dry_run",
+        num_users       = n_users,
+        num_items       = n_items,
+        num_reviews     = n_reviews,
+        edge_index_dict = edge_index_dict,
+        edge_attr_dict  = edge_attr_dict,
+        x_user          = torch.randn(n_users, 8),
+        x_item          = torch.randn(n_items, 5),
+        review_texts    = ["dry-run review"] * n_reviews,
+        ratings         = torch.from_numpy(rng.uniform(1, 5, n_reviews).astype(np.float32)),
+        timestamps      = ts,
+        review_user_idx = writes_u,
+        review_item_idx = about_i,
+        labels          = labels,
+        train_mask      = train_mask,
+        val_mask        = val_mask,
+        test_mask       = test_mask,
+        user_id_map     = {i: i for i in range(n_users)},
+        item_id_map     = {i: i for i in range(n_items)},
+    )
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -453,6 +534,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed",       type=int,   default=42)
     p.add_argument("--device",     default=None, metavar="DEVICE",
                    help="cpu | cuda | mps (autodetect if omitted)")
+    p.add_argument("--dry-run",    action="store_true",
+                   help="Skip raw-data loading; train on a small in-memory "
+                        "synthetic graph to sanity-check the AAA + L_TC loop.")
 
     # Focal loss
     p.add_argument("--focal-gamma", type=float, default=2.0)
@@ -534,12 +618,16 @@ def main() -> None:
             logger.warning("wandb not installed — logging disabled")
 
     # ── Dataset ──────────────────────────────────────────────────────────────
-    loader_cls = LOADERS[args.dataset]
-    loader = loader_cls(raw_dir=args.raw_dir)
-    dataset = loader.load(
-        min_user_interactions=args.min_interactions,
-        min_item_interactions=args.min_interactions,
-    )
+    if args.dry_run:
+        logger.info("Dry run: using synthetic in-memory dataset (skips raw-data loading)")
+        dataset = _build_synthetic_dataset(seed=args.seed)
+    else:
+        loader_cls = LOADERS[args.dataset]
+        loader = loader_cls(raw_dir=args.raw_dir)
+        dataset = loader.load(
+            min_user_interactions=args.min_interactions,
+            min_item_interactions=args.min_interactions,
+        )
     logger.info("%s", dataset.summary())
 
     # ── BERT embeddings ───────────────────────────────────────────────────────
