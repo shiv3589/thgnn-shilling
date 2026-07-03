@@ -41,8 +41,10 @@ from torch import Tensor
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.datasets import (
+    AmazonArtsCraftsLoader,
     AmazonBooksLoader,
     AmazonClothingLoader,
+    AmazonMusicalInstrumentsLoader,
     AmazonVideoGamesLoader,
     BaseLoader,
     HeteroDataset,
@@ -80,6 +82,8 @@ LOADERS: Dict[str, type] = {
     "amazon_books":     AmazonBooksLoader,
     "amazon_clothing":  AmazonClothingLoader,
     "video_games":      AmazonVideoGamesLoader,
+    "arts_crafts":      AmazonArtsCraftsLoader,
+    "musical_instruments": AmazonMusicalInstrumentsLoader,
     "yelp2018":         Yelp2018Loader,
 }
 

@@ -41,8 +41,10 @@ from typing import Dict, List, Optional, Tuple, Type
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.datasets import (
+    AmazonArtsCraftsLoader,
     AmazonBooksLoader,
     AmazonClothingLoader,
+    AmazonMusicalInstrumentsLoader,
     AmazonVideoGamesLoader,
     BaseLoader,
     MovieLens1MLoader,
@@ -62,6 +64,8 @@ LOADER_REGISTRY: Dict[str, Type[BaseLoader]] = {
     "amazon-books":    AmazonBooksLoader,
     "amazon-clothing": AmazonClothingLoader,
     "amazon-video-games": AmazonVideoGamesLoader,
+    "amazon-arts-crafts": AmazonArtsCraftsLoader,
+    "amazon-musical-instruments": AmazonMusicalInstrumentsLoader,
     "yelp2018":        Yelp2018Loader,
 }
 

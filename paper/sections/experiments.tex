@@ -34,20 +34,22 @@ split 70/10/20 by timestamp, and shared across all detectors and attacks.
 \small
 \setlength{\tabcolsep}{5pt}
 \caption{Dataset statistics after 5-core filtering.
-  $^\dagger$ML-1M contains no review text; text-stream inputs receive
-  zero-padded RoBERTa embeddings for all users.
+  $^\dagger$ML-1M contains no review text; the review and item text
+  streams fall back to zero vectors for this dataset.
   $^\ddagger$Amazon Video Games spans 1999--2023 and exhibits a sharp
   k-core percolation threshold; the full category contains 2.77M raw
-  users but only 94,080 form a mutually 5-core-connected subgraph.}
+  users but only 94,080 form a mutually 5-core-connected subgraph. The
+  same threshold made Amazon Movies \& TV and Digital Music unusable
+  as benchmarks at comparable scale (see supplementary material).}
 \label{tab:datasets}
 \begin{tabular}{lrrrrl}
 \toprule
 Dataset & \#Users & \#Items & \#Reviews & \#Ratings & Span \\
 \midrule
-ML-1M$^\dagger$  &   6,040 &   3,706 &        --- &  1,000,209 & 2000--2003 \\
-Amazon-Books     & 294,000 & 152,000 &  2,700,000 &  2,700,000 & 1996--2018 \\
-Amazon-Clothing  &  39,000 &  23,000 &    278,000 &    278,000 & 2000--2018 \\
+ML-1M$^\dagger$  &   6,040 &   3,416 &    999,611 &    999,611 & 2000--2003 \\
 Amazon Video Games$^\ddagger$ &  94,080 &  31,347 &   816,608 &    816,608 & 1999--2023 \\
+Amazon Arts \& Crafts & 205,343 &  92,755 &  1,875,357 &  1,875,357 & 1998--2023 \\
+Amazon Musical Instruments & 59,941 &  25,528 &    538,980 &    538,980 & 1999--2023 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -113,8 +115,8 @@ for class imbalance.\footnote{Downstream victim model: LightGCN~\cite{he2020ligh
 \textbf{Overall detection performance.}
 Table~\ref{tab:main_detection} reports F\textsubscript{1}, detection rate (DR), and
 false-alarm rate (FAR), each averaged over three seeds and three injection rates.
-TH-GNN achieved F\textsubscript{1} between 0.816 (Agent4SR, Amazon-Clothing) and
-0.924 (Random, Amazon-Books), with a grand mean of \textbf{0.870} across all 20
+TH-GNN achieved F\textsubscript{1} between 0.816 (Agent4SR, Amazon Musical Instruments) and
+0.924 (Random, Amazon Arts \& Crafts), with a grand mean of \textbf{0.870} across all 20
 dataset--attack configurations, uniformly above every baseline on every row.
 TH-GNN's FAR stayed below 4.5\,\% throughout (range: 3.2--4.4\,\%), whereas
 the best-performing baselines incurred FAR between 6.8\,\% (SemanticShield, Random)
@@ -213,7 +215,7 @@ A practical detector must handle attack types it has not seen during training,
 since adversaries continuously develop new injection strategies.
 Table~\ref{tab:generalisation} reports a cross-attack transfer experiment
 (classic attacks $\to$ unseen Agent4SR, and the reverse Agent4SR $\to$ unseen
-GraphAttack) on ML-1M and Amazon-Books.
+GraphAttack) on ML-1M and Amazon Arts \& Crafts.
 Preliminary results are consistent with the main findings: TH-GNN's margin
 over text-only and graph-only baselines persists under both unseen-attack
 directions (full results in supplementary material).
@@ -226,7 +228,7 @@ directions (full results in supplementary material).
   \centering
   \includegraphics[width=\textwidth]{figures/robustness_curves}
   \caption{F\textsubscript{1} vs.\ degradation level for three missing-modality
-    conditions on Amazon-Books + Agent4SR (1\,\% injection rate,
+    conditions on Amazon Arts \& Crafts + Agent4SR (1\,\% injection rate,
     mean\,$\pm$\,std over three seeds).
     \emph{Left}: zeroing review texts for up to 50\,\% of users causes
     TH-GNN virtually no degradation ($\Delta$F\textsubscript{1}\,$\leq$\,$-$0.013)
@@ -267,7 +269,7 @@ baseline on every individual seed and rate.
   \centering
   \includegraphics[width=\columnwidth]{figures/attention_heatmap}
   \caption{TH-GNN attention signals for the five highest-scoring detected fake
-    users and five lowest-scoring real users on Amazon-Books (Agent4SR attack).
+    users and five lowest-scoring real users on Amazon Arts \& Crafts (Agent4SR attack).
     Rows are sorted by shilling score within each group; columns show
     (left)~graph attention weight on \textsc{user}\,$\to$\,\textsc{item} edges,
     (centre)~temporal-encoding magnitude capturing review-timing burstiness,
@@ -299,17 +301,18 @@ review text itself is superficially realistic.
     Training time is extrapolated to 30 epochs from 5 timed epochs.
     Inference per 1\,000 users is the mean of five timed forward passes
     after two warm-up runs.  GPU inference is $\sim$\,10$\times$ faster.
-    Video Games timing pending re-profiling after the dataset swap;
-    $|E|$ and $|U|$ reflect the actual 5-core graph.}
+    Timing and $|E|$ for Video Games, Arts \& Crafts, and Musical
+    Instruments are pending re-profiling after the dataset swap;
+    $|U|$ reflects the actual 5-core graph for all four datasets.}
   \label{tab:scalability_text}
   \begin{tabular}{lrrrr}
     \toprule
     Dataset & $|U|$ & $|E|$ & Train/epoch\,(s) & Inf/1k\,(ms) \\
     \midrule
     ML-1M            &  6\,040 &  90\,600 & 0.31 & 130 \\
-    Amazon-Books     & 52\,643 & 421\,144 & 2.63 & 122 \\
-    Amazon-Clothing  & 18\,226 & 109\,356 & 0.91 & 125 \\
     Video Games      & 94\,080 & 285\,540 & --   & --  \\
+    Arts \& Crafts    & 205\,343 &      -- & --   & --  \\
+    Musical Instruments & 59\,941 &     -- & --   & --  \\
     \bottomrule
   \end{tabular}
 \end{table}

@@ -178,6 +178,11 @@ class AmazonBooksLoader(AmazonBaseLoader):
 
         Books.jsonl.gz
         meta_Books.jsonl.gz
+
+    NOTE: not used in the final 4-dataset benchmark. The full category
+    is far larger than the other datasets (9.7M reviews at real 5-core
+    scale) and entity subsampling collapses it via a k-core percolation
+    cliff (see supplementary material) -- kept here for completeness only.
     """
 
     category = "Books"
@@ -191,10 +196,41 @@ class AmazonClothingLoader(AmazonBaseLoader):
 
         Clothing_Shoes_and_Jewelry.jsonl.gz
         meta_Clothing_Shoes_and_Jewelry.jsonl.gz
+
+    NOTE: not used in the final 4-dataset benchmark. The full category
+    is far larger than the other datasets (23.8M reviews at real 5-core
+    scale) and entity subsampling collapses it via a k-core percolation
+    cliff (see supplementary material) -- kept here for completeness only.
     """
 
     category = "Clothing_Shoes_and_Jewelry"
     dataset_name = "amazon-clothing"
+
+
+class AmazonArtsCraftsLoader(AmazonBaseLoader):
+    """Amazon Arts, Crafts and Sewing (2023 reviews, McAuley Lab).
+
+    Required files in ``<raw_dir>/amazon_2023/``::
+
+        Arts_Crafts_and_Sewing.jsonl.gz
+        meta_Arts_Crafts_and_Sewing.jsonl.gz
+    """
+
+    category = "Arts_Crafts_and_Sewing"
+    dataset_name = "amazon-arts-crafts"
+
+
+class AmazonMusicalInstrumentsLoader(AmazonBaseLoader):
+    """Amazon Musical Instruments (2023 reviews, McAuley Lab).
+
+    Required files in ``<raw_dir>/amazon_2023/``::
+
+        Musical_Instruments.jsonl.gz
+        meta_Musical_Instruments.jsonl.gz
+    """
+
+    category = "Musical_Instruments"
+    dataset_name = "amazon-musical-instruments"
 
 
 class AmazonVideoGamesLoader(AmazonBaseLoader):

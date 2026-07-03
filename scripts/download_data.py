@@ -121,6 +121,48 @@ DATASETS: Dict[str, Dict] = {
         ],
         "checksums": {},
     },
+    "amazon-arts-crafts": {
+        "description": "Amazon Arts, Crafts and Sewing 2023  (McAuley Lab / UCSD)",
+        "instructions": [
+            "  mkdir -p <RAW_DIR>/amazon_2023",
+            "",
+            "  # Reviews:",
+            "  wget -P <RAW_DIR>/amazon_2023 \\",
+            "    https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/raw/review_categories/Arts_Crafts_and_Sewing.jsonl.gz",
+            "",
+            "  # Metadata:",
+            "  wget -P <RAW_DIR>/amazon_2023 \\",
+            "    https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/raw/meta_categories/meta_Arts_Crafts_and_Sewing.jsonl.gz",
+            "",
+            "  Alternatively browse: https://amazon-reviews-2023.github.io/",
+        ],
+        "required_files": [
+            "amazon_2023/Arts_Crafts_and_Sewing.jsonl.gz",
+            "amazon_2023/meta_Arts_Crafts_and_Sewing.jsonl.gz",
+        ],
+        "checksums": {},
+    },
+    "amazon-musical-instruments": {
+        "description": "Amazon Musical Instruments 2023  (McAuley Lab / UCSD)",
+        "instructions": [
+            "  mkdir -p <RAW_DIR>/amazon_2023",
+            "",
+            "  # Reviews:",
+            "  wget -P <RAW_DIR>/amazon_2023 \\",
+            "    https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/raw/review_categories/Musical_Instruments.jsonl.gz",
+            "",
+            "  # Metadata:",
+            "  wget -P <RAW_DIR>/amazon_2023 \\",
+            "    https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/raw/meta_categories/meta_Musical_Instruments.jsonl.gz",
+            "",
+            "  Alternatively browse: https://amazon-reviews-2023.github.io/",
+        ],
+        "required_files": [
+            "amazon_2023/Musical_Instruments.jsonl.gz",
+            "amazon_2023/meta_Musical_Instruments.jsonl.gz",
+        ],
+        "checksums": {},
+    },
     "yelp2018": {
         "description": "Yelp2018  (Yelp Academic Dataset, reviews ≤ 2018-12-31)",
         "instructions": [
