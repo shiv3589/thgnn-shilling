@@ -339,8 +339,12 @@ class HGTEncoder(nn.Module):
                     are already projected to hidden_dim before calling).
     dropout      : float
     time_emb_dim : int          — sinusoidal encoding internal dimension
+    use_aaa      : bool         — when True, substitute AttackAwareAnomalyAttention
+                                   (src/models/aaa.py) for the standard HGTLayer
+                                   attention in every layer
 
-    forward(node_feats, edge_index_dict, edge_attr_dict, node_timestamps=None)
+    forward(node_feats, edge_index_dict, edge_attr_dict, node_timestamps=None,
+            review_embs=None, item_embs=None)
     --------------------------------------------------------------------------
     node_feats       : Dict[str, FloatTensor(N_t, D_t)]
     edge_index_dict  : Dict[EdgeKey, LongTensor(2, E)]
@@ -348,6 +352,9 @@ class HGTEncoder(nn.Module):
     node_timestamps  : Dict[str, FloatTensor(N_t,)] or None
                          When given, Δt per edge = |ts_src − ts_dst|.
                          When None, the raw edge timestamp is used directly.
+                         Ignored when use_aaa=True (AAA uses edge Δt directly).
+    review_embs      : Optional[FloatTensor(N_review, D)] — only used when use_aaa=True
+    item_embs        : Optional[FloatTensor(N_item, D)]   — only used when use_aaa=True
 
     Returns
     -------
@@ -364,6 +371,7 @@ class HGTEncoder(nn.Module):
         input_dims: Optional[Dict[str, int]] = None,
         dropout: float = 0.1,
         time_emb_dim: int = 64,
+        use_aaa: bool = False,
     ) -> None:
         super().__init__()
         self.hidden_dim = hidden_dim
@@ -371,6 +379,7 @@ class HGTEncoder(nn.Module):
         self.num_layers = num_layers
         self.node_types = list(node_types)
         self.edge_types = list(edge_types)
+        self.use_aaa    = use_aaa
 
         _in = input_dims or {}
         self.input_projs = nn.ModuleDict({
@@ -378,10 +387,19 @@ class HGTEncoder(nn.Module):
             for nt in node_types
         })
 
-        self.layers = nn.ModuleList([
-            HGTLayer(hidden_dim, num_heads, node_types, edge_types, dropout, time_emb_dim)
-            for _ in range(num_layers)
-        ])
+        if use_aaa:
+            # Deferred import: aaa.py imports EdgeKey / _scatter_softmax from this
+            # module, so importing it at module load time would be circular.
+            from .aaa import AttackAwareAnomalyAttention
+            self.layers = nn.ModuleList([
+                AttackAwareAnomalyAttention(hidden_dim, num_heads, len(edge_types), dropout)
+                for _ in range(num_layers)
+            ])
+        else:
+            self.layers = nn.ModuleList([
+                HGTLayer(hidden_dim, num_heads, node_types, edge_types, dropout, time_emb_dim)
+                for _ in range(num_layers)
+            ])
 
     def forward(
         self,
@@ -389,6 +407,8 @@ class HGTEncoder(nn.Module):
         edge_index_dict: Dict[EdgeKey, Tensor],
         edge_attr_dict: Dict[EdgeKey, Tensor],
         node_timestamps: Optional[Dict[str, Tensor]] = None,
+        review_embs: Optional[Tensor] = None,
+        item_embs: Optional[Tensor] = None,
     ) -> Dict[str, Tensor]:
         # Project each node type from its input dim to hidden_dim
         h: Dict[str, Tensor] = {
@@ -398,6 +418,9 @@ class HGTEncoder(nn.Module):
         }
 
         for layer in self.layers:
-            h = layer(h, edge_index_dict, edge_attr_dict, node_timestamps)
+            if self.use_aaa:
+                h = layer(h, edge_index_dict, edge_attr_dict, review_embs, item_embs)
+            else:
+                h = layer(h, edge_index_dict, edge_attr_dict, node_timestamps)
 
         return h
