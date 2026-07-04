@@ -34,11 +34,18 @@ class RandomAttack(ShillingAttack):
 
     Parameters
     ----------
-    dataset     : HeteroDataset  — clean reference dataset
-    max_rating  : float          — rating assigned to target items (default 5.0)
-    rating_noise: float          — std of Gaussian noise added to mean rating for
-                                   filler items; clipped to [1, max_rating]
-    seed        : int            — RNG seed
+    dataset          : HeteroDataset  — clean reference dataset
+    max_rating       : float          — rating assigned to target items (default 5.0)
+    rating_noise     : float          — std of Gaussian noise added to mean rating for
+                                        filler items; clipped to [1, max_rating]
+    max_filler_items : Optional[int] — hard cap on filler items per fake user,
+                                        regardless of catalog size (default 200).
+                                        Without this, budget_pct alone scales
+                                        filler count linearly with num_items,
+                                        which balloons injected-review counts on
+                                        large catalogs (e.g. 5% of ~90K items is
+                                        ~4,500 fillers/user). Pass None to disable.
+    seed             : int            — RNG seed
     """
 
     injection_rates: List[float] = [0.005, 0.01, 0.05]
@@ -48,11 +55,13 @@ class RandomAttack(ShillingAttack):
         dataset: HeteroDataset,
         max_rating: float = 5.0,
         rating_noise: float = 0.5,
+        max_filler_items: Optional[int] = 200,
         seed: int = 42,
     ) -> None:
         super().__init__(dataset, seed)
-        self.max_rating   = max_rating
-        self.rating_noise = rating_noise
+        self.max_rating       = max_rating
+        self.rating_noise     = rating_noise
+        self.max_filler_items = max_filler_items
         self._mean_rating = float(dataset.ratings.mean().item())
         self._num_items   = dataset.num_items
 
@@ -72,8 +81,8 @@ class RandomAttack(ShillingAttack):
         ----------
         n_fake_users : int   — number of synthetic attackers
         budget_pct   : float — fraction of the item catalog rated per fake user;
-                               filler_size = max(0, round(budget_pct * num_items)
-                                             − len(target_items))
+                               filler_size = max(0, min(round(budget_pct * num_items),
+                                             max_filler_items) − len(target_items))
         target_items : List[int]  — item global indices to push to max rating
 
         Returns
@@ -82,7 +91,10 @@ class RandomAttack(ShillingAttack):
         """
         target_set  = set(target_items)
         filler_pool = [i for i in range(self._num_items) if i not in target_set]
-        filler_size = max(0, round(budget_pct * self._num_items) - len(target_items))
+        filler_size = round(budget_pct * self._num_items)
+        if self.max_filler_items is not None:
+            filler_size = min(filler_size, self.max_filler_items)
+        filler_size = max(0, filler_size - len(target_items))
 
         base_ts = float(self.dataset.timestamps.max().item())
         profiles: List[FakeProfile] = []
@@ -123,11 +135,15 @@ class BandwagonAttack(ShillingAttack):
 
     Parameters
     ----------
-    dataset     : HeteroDataset
-    max_rating  : float  — rating for target items (default 5.0)
-    rating_noise: float  — Gaussian noise std for filler ratings
-    top_n       : int    — size of the popular-item pool (default 50)
-    seed        : int
+    dataset          : HeteroDataset
+    max_rating       : float  — rating for target items (default 5.0)
+    rating_noise     : float  — Gaussian noise std for filler ratings
+    top_n            : int    — size of the popular-item pool (default 50)
+    max_filler_items : Optional[int] — hard cap on filler items per fake user,
+                                       regardless of catalog size (default 200).
+                                       See RandomAttack for rationale. Pass None
+                                       to disable.
+    seed             : int
     """
 
     injection_rates: List[float] = [0.005, 0.01, 0.05]
@@ -138,11 +154,13 @@ class BandwagonAttack(ShillingAttack):
         max_rating: float = 5.0,
         rating_noise: float = 0.5,
         top_n: int = 50,
+        max_filler_items: Optional[int] = 200,
         seed: int = 42,
     ) -> None:
         super().__init__(dataset, seed)
-        self.max_rating   = max_rating
-        self.rating_noise = rating_noise
+        self.max_rating       = max_rating
+        self.rating_noise     = rating_noise
+        self.max_filler_items = max_filler_items
         self._mean_rating = float(dataset.ratings.mean().item())
         self._num_items   = dataset.num_items
 
@@ -170,7 +188,10 @@ class BandwagonAttack(ShillingAttack):
         """
         target_set    = set(target_items)
         filler_pool   = [i for i in self._popular_pool if i not in target_set]
-        filler_size   = max(0, round(budget_pct * self._num_items) - len(target_items))
+        filler_size   = round(budget_pct * self._num_items)
+        if self.max_filler_items is not None:
+            filler_size = min(filler_size, self.max_filler_items)
+        filler_size = max(0, filler_size - len(target_items))
 
         base_ts = float(self.dataset.timestamps.max().item())
         profiles: List[FakeProfile] = []

@@ -66,7 +66,7 @@ class TemporalContrastiveLoss(nn.Module):
             return embeddings.new_zeros(())
 
         emb_norm = F.normalize(embeddings, dim=-1)
-        tau = self.tau.clamp(min=1e-4)
+        tau = self.tau.clamp(min=0.05, max=1.0)
 
         per_anchor_losses: List[Tensor] = []
 

@@ -410,6 +410,15 @@ def _load_embeddings(
         if arr.shape == (num_reviews, text_dim):
             rev_embs = torch.from_numpy(arr).float()
             logger.info("Loaded review embeddings from %s", rev_path)
+        elif arr.shape[0] < num_reviews and arr.shape[1] == text_dim:
+            # Injected (attacked) reviews are appended after the real ones
+            # (see src/attacks/base.py's injection contract) and have no
+            # precomputed BERT embedding — zero-pad to align indices.
+            n_injected = num_reviews - arr.shape[0]
+            pad = np.zeros((n_injected, text_dim), dtype=arr.dtype)
+            rev_embs = torch.from_numpy(np.concatenate([arr, pad], axis=0)).float()
+            logger.info("Loaded review embeddings from %s, zero-padded %d injected reviews",
+                        rev_path, n_injected)
         else:
             logger.warning("Review embedding shape mismatch: %s vs (%d, %d)",
                            arr.shape, num_reviews, text_dim)
@@ -528,6 +537,17 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--cache-dir", default="data/processed", metavar="DIR")
     p.add_argument("--ckpt-dir",  default="checkpoints",    metavar="DIR")
     p.add_argument("--min-interactions", type=int, default=5, metavar="K")
+    p.add_argument("--attacked-dir", default=None, metavar="DIR",
+                   help="If set, load a pre-attacked dataset saved by "
+                        "scripts/run_attack.py from "
+                        "<attacked-dir>/<dataset>_<attack>_<injection-rate>.pt "
+                        "instead of the clean raw data")
+    p.add_argument("--attack", default="random", choices=["random", "bandwagon"],
+                   help="Attack name used to locate the pre-attacked dataset file "
+                        "(must match what scripts/run_attack.py was run with)")
+    p.add_argument("--injection-rate", type=float, default=0.01,
+                   help="Injection rate used to locate the pre-attacked dataset file "
+                        "(must match what scripts/run_attack.py was run with)")
 
     # Training
     p.add_argument("--epochs",     type=int,   default=100)
@@ -627,7 +647,13 @@ def main() -> None:
             logger.warning("wandb not installed — logging disabled")
 
     # ── Dataset ──────────────────────────────────────────────────────────────
-    if args.dry_run:
+    if args.attacked_dir:
+        attacked_path = Path(args.attacked_dir) / (
+            f"{args.dataset}_{args.attack}_{args.injection_rate}.pt"
+        )
+        logger.info("Loading pre-attacked dataset from %s", attacked_path)
+        dataset = torch.load(attacked_path, weights_only=False)
+    elif args.dry_run:
         logger.info("Dry run: using synthetic in-memory dataset (skips raw-data loading)")
         dataset = _build_synthetic_dataset(seed=args.seed)
     else:
@@ -761,6 +787,10 @@ def main() -> None:
                 tc_loss = tc_loss_fn(batch_embeddings, batch_timestamps, batch_labels)
             else:
                 tc_loss = batch_scores.new_zeros(())
+
+            if tc_loss.isnan() or tc_loss.isinf():
+                tc_loss = torch.tensor(0.0, device=tc_loss.device)
+            tc_loss = tc_loss.clamp(min=-10.0, max=10.0)
 
             loss = floss + args.tc_alpha * tc_loss
             loss.backward()

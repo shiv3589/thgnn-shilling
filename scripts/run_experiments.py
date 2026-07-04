@@ -3,13 +3,13 @@
 
 Experiment grid
 ---------------
-    Datasets  × Attacks       × Injection rates × Detectors          × Seeds
-    ---------   ----------      ----------------   --------             ------
-    ml1m        random          0.005              thgnn                42
-    amazon_books bandwagon      0.010              statistical_baseline 123
-    amazon_clothing aush        0.050              semantic_shield_baseline 456
-    yelp2018    graph_attack                       anti_fakeu_baseline
-                agent4sr
+    Datasets            × Attacks       × Injection rates × Detectors          × Seeds
+    ---------             ----------      ----------------   --------             ------
+    ml1m                  random          0.005              thgnn                42
+    video_games           bandwagon       0.010              statistical_baseline 123
+    arts_crafts           aush            0.050              semantic_shield_baseline 456
+    musical_instruments   graph_attack                       anti_fakeu_baseline
+                          agent4sr
 
 Total full run: 4 × 5 × 3 × 4 × 3 = 720 experiments.
 
@@ -69,11 +69,11 @@ from src.attacks import (
     ShillingAttack,
 )
 from src.datasets import (
-    AmazonBooksLoader,
-    AmazonClothingLoader,
+    AmazonArtsCraftsLoader,
+    AmazonMusicalInstrumentsLoader,
+    AmazonVideoGamesLoader,
     HeteroDataset,
     MovieLens1MLoader,
-    Yelp2018Loader,
 )
 from src.detectors import (
     AntiFakeUBaseline,
@@ -95,7 +95,7 @@ logger = logging.getLogger(__name__)
 # Experiment grid constants
 # ---------------------------------------------------------------------------
 
-DATASETS:  List[str]   = ["ml1m", "amazon_books", "amazon_clothing", "yelp2018"]
+DATASETS:  List[str]   = ["ml1m", "video_games", "arts_crafts", "musical_instruments"]
 ATTACKS:   List[str]   = ["random", "bandwagon", "aush", "graph_attack", "agent4sr"]
 RATES:     List[float] = [0.005, 0.01, 0.05]
 DETECTORS: List[str]   = [
@@ -110,10 +110,10 @@ N_TARGETS  = 5      # target items per attack run
 BUDGET_PCT = 0.10   # fraction of item catalog per fake profile
 
 _LOADERS = {
-    "ml1m":            MovieLens1MLoader,
-    "amazon_books":    AmazonBooksLoader,
-    "amazon_clothing": AmazonClothingLoader,
-    "yelp2018":        Yelp2018Loader,
+    "ml1m":                MovieLens1MLoader,
+    "video_games":         AmazonVideoGamesLoader,
+    "arts_crafts":         AmazonArtsCraftsLoader,
+    "musical_instruments": AmazonMusicalInstrumentsLoader,
 }
 
 
@@ -508,6 +508,10 @@ def _parse_args() -> argparse.Namespace:
         "--detector", nargs="+", choices=DETECTORS + ["all"], default=None,
         help="Restrict to specific detectors.",
     )
+    p.add_argument(
+        "--seed", nargs="+", type=int, default=None,
+        help="Restrict to specific seeds (default: all of %s)." % SEEDS,
+    )
     return p.parse_args()
 
 
@@ -525,6 +529,8 @@ def main() -> None:
         configs = [c for c in configs if c.attack  in args.attack]
     if args.detector and "all" not in args.detector:
         configs = [c for c in configs if c.detector in args.detector]
+    if args.seed:
+        configs = [c for c in configs if c.seed in args.seed]
 
     # ── Skip already-done configs unless --overwrite ──────────────────────
     if not args.overwrite:
