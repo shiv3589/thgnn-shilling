@@ -788,6 +788,10 @@ def main() -> None:
             else:
                 tc_loss = batch_scores.new_zeros(())
 
+            if tc_loss.isnan() or tc_loss.isinf():
+                tc_loss = torch.tensor(0.0, device=tc_loss.device)
+            tc_loss = tc_loss.clamp(min=-10.0, max=10.0)
+
             loss = floss + args.tc_alpha * tc_loss
             loss.backward()
             nn.utils.clip_grad_norm_(

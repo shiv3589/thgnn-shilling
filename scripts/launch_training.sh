@@ -27,6 +27,7 @@ python scripts/train.py --dataset ml1m --seed $SEED --device cuda \
   --use-aaa --epochs 30 --batch-size 512 \
   --raw-dir /data/raw --cache-dir /data/processed \
   --attacked-dir /data/attacked \
+  --tc-alpha 0.01 \
   2>&1 | tee logs/train_ml1m_seed${SEED}.log &
 PID1=$!
 
@@ -34,6 +35,7 @@ python scripts/train.py --dataset musical_instruments --seed $SEED --device cuda
   --use-aaa --epochs 30 --batch-size 512 \
   --raw-dir /data/raw --cache-dir /data/processed \
   --attacked-dir /data/attacked \
+  --tc-alpha 0.01 \
   2>&1 | tee logs/train_musical_instruments_seed${SEED}.log &
 PID2=$!
 
@@ -45,6 +47,7 @@ python scripts/train.py --dataset video_games --seed $SEED --device cuda \
   --use-aaa --epochs 30 --batch-size 512 \
   --raw-dir /data/raw --cache-dir /data/processed \
   --attacked-dir /data/attacked \
+  --tc-alpha 0.01 \
   2>&1 | tee logs/train_video_games_seed${SEED}.log &
 PID3=$!
 
@@ -52,6 +55,7 @@ python scripts/train.py --dataset arts_crafts --seed $SEED --device cuda \
   --use-aaa --epochs 30 --batch-size 256 \
   --raw-dir /data/raw --cache-dir /data/processed \
   --attacked-dir /data/attacked \
+  --tc-alpha 0.01 \
   2>&1 | tee logs/train_arts_crafts_seed${SEED}.log &
 PID4=$!
 
