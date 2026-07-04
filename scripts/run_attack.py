@@ -46,6 +46,11 @@ def parse_args() -> argparse.Namespace:
                          help="Fraction of real users to add as fake attackers")
     parser.add_argument("--budget-pct", type=float, default=0.05,
                          help="Fraction of the item catalog each fake user rates")
+    parser.add_argument("--max-filler-items", type=int, default=200,
+                         help="Hard cap on filler items per fake user, regardless "
+                              "of catalog size (prevents budget-pct from blowing up "
+                              "injected-review counts on large catalogs). "
+                              "Pass -1 to disable the cap.")
     parser.add_argument("--n-targets", type=int, default=3,
                          help="Number of target items to push (ignored if --target-items given)")
     parser.add_argument("--target-items", type=int, nargs="*", default=None,
@@ -81,7 +86,8 @@ def main() -> None:
         target_items = rng.choice(dataset.num_items, size=n_targets, replace=False).tolist()
     print(f"Target items: {target_items}")
 
-    attack = ATTACKS[args.attack](dataset, seed=args.seed)
+    max_filler_items = None if args.max_filler_items < 0 else args.max_filler_items
+    attack = ATTACKS[args.attack](dataset, seed=args.seed, max_filler_items=max_filler_items)
     profiles = attack.generate_profiles(
         n_fake_users=n_fake,
         budget_pct=args.budget_pct,
