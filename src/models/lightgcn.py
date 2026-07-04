@@ -271,7 +271,7 @@ def _evaluate(
 
     for user, pos_items in tqdm(user_to_pos.items(), desc=desc, leave=False, dynamic_ncols=True):
         n_pos   = len(pos_items)
-        excl    = set(pos_items) | set((exclude_per_user.get(user) or np.array([], np.int64)).tolist())
+        excl    = set(pos_items) | set(exclude_per_user.get(user, np.array([], dtype=np.int64)).tolist())
         neg_pool = np.setdiff1d(all_items, np.fromiter(excl, dtype=np.int64), assume_unique=False)
 
         n_sample = min(n_neg, len(neg_pool))
@@ -393,7 +393,7 @@ def train_lightgcn(
     train_pos = {u: np.array(v, dtype=np.int64) for u, v in _tp.items()}
 
     # train_val_pos: excludes both train and val items from test negatives
-    _tvp: Dict[int, List[int]] = {u: v.tolist() for u, v in _tp.items()}
+    _tvp: Dict[int, List[int]] = {u: v.tolist() for u, v in train_pos.items()}
     for u, i in zip(val_u.tolist(), val_i.tolist()):
         _tvp.setdefault(u, []).append(i)
     train_val_pos = {u: np.array(v, dtype=np.int64) for u, v in _tvp.items()}
