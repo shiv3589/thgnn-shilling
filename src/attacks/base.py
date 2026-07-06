@@ -9,7 +9,9 @@ Injection contract
 ------------------
 * Fake users receive contiguous global indices [num_real_users, …).
 * Fake reviews receive contiguous global indices [num_real_reviews, …).
-* All fake timestamps are strictly greater than the last real timestamp.
+* Fake timestamps are anchored at a random point within the real dataset's
+  historical range (not after it), so timing alone does not trivially
+  separate fake from real users.
 * Fake user labels are set to 1; all existing labels are preserved.
 * Fake reviews are assigned to the *test* split (train_mask = val_mask = False,
   test_mask = True) so they do not contaminate the learning signal.
@@ -42,7 +44,8 @@ class FakeProfile:
     review_texts : List[str]         — one placeholder text per rated item;
                    order must match ``list(rated_items.items())``.
     timestamps   : List[float]       — Unix-second timestamp per rated item;
-                   must all be > max real timestamp and ordered within the profile.
+                   ordered within the profile; anchored within the real dataset's
+                   historical range (see ShillingAttack._realistic_base_ts).
     """
     user_id: str
     rated_items: Dict[int, float] = field(default_factory=dict)
@@ -279,6 +282,21 @@ class ShillingAttack(ABC):
         idx = int(self.rng.integers(0, len(pool)))
         return pool[idx]
 
+    def _realistic_base_ts(self, dataset: HeteroDataset) -> float:
+        """Pick a random anchor timestamp within the real dataset's historical
+        range for this attack's fake-review burst.
+
+        Previously every attack anchored its burst at ``dataset.timestamps.max()``,
+        so all fake reviews landed strictly after every real review -- a trivial,
+        attack-agnostic timing signature that let even label-free detectors
+        separate fake from real users with near-perfect accuracy. Anchoring
+        within the real range instead means fake bursts can land anywhere real
+        activity could plausibly have occurred.
+        """
+        ts_min = float(dataset.timestamps.min().item())
+        ts_max = float(dataset.timestamps.max().item())
+        return float(self.rng.uniform(ts_min, ts_max))
+
     def _spread_timestamps(
         self,
         n_reviews: int,
@@ -286,16 +304,28 @@ class ShillingAttack(ABC):
         *,
         min_gap_secs: float = 3_600.0,   # 1 hour between reviews
         start_offset: float = 86_400.0,  # first review ≥ 1 day after base
+        ts_min: Optional[float] = None,
+        ts_max: Optional[float] = None,
     ) -> List[float]:
-        """Return *n_reviews* timestamps strictly greater than *base_ts*.
+        """Return *n_reviews* timestamps spaced out from *base_ts*.
 
         Reviews are spaced *min_gap_secs* apart, with a random jitter of up to
         *min_gap_secs* added to each successive timestamp so the sequence is
         realistic but not perfectly uniform.
+
+        If *ts_min*/*ts_max* are given, each timestamp is wrapped (modulo) back
+        into ``[ts_min, ts_max]`` -- so a large batch of fake users staggered
+        far from *base_ts*, or a profile with many reviews, still can't spill
+        past the real dataset's historical range.
         """
         ts = float(base_ts) + start_offset
         result: List[float] = []
+        span = (ts_max - ts_min) if (ts_min is not None and ts_max is not None
+                                     and ts_max > ts_min) else None
         for _ in range(n_reviews):
-            result.append(ts)
+            t = ts
+            if span is not None:
+                t = ts_min + ((t - ts_min) % span)
+            result.append(t)
             ts += min_gap_secs + float(self.rng.uniform(0, min_gap_secs))
         return result

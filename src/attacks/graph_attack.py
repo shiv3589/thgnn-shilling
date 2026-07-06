@@ -229,7 +229,9 @@ class GraphAttack(ShillingAttack):
         R_final = R.detach()
         R_final[:, target_t] = self.max_rating     # guarantee max on targets
 
-        base_ts  = float(dataset.timestamps.max().item())
+        base_ts  = self._realistic_base_ts(dataset)
+        ts_min   = float(dataset.timestamps.min().item())
+        ts_max   = float(dataset.timestamps.max().item())
         profiles: List[FakeProfile] = []
 
         for uid in range(n_fake_users):
@@ -252,7 +254,8 @@ class GraphAttack(ShillingAttack):
 
             texts = [self._placeholder_text(it, r) for it, r in rated.items()]
             user_base = base_ts + uid * 1_800.0
-            tss       = self._spread_timestamps(len(rated), user_base)
+            tss       = self._spread_timestamps(len(rated), user_base,
+                                                ts_min=ts_min, ts_max=ts_max)
 
             profiles.append(FakeProfile(
                 user_id=f"graph_{uid}",

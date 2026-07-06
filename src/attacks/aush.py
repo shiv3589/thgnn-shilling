@@ -341,7 +341,9 @@ class AUSHAttack(ShillingAttack):
         # Non-target item indices available for filler selection (constant)
         non_targets = [i for i in range(num_items) if i not in target_set]
 
-        base_ts  = float(self.dataset.timestamps.max().item())
+        base_ts  = self._realistic_base_ts(self.dataset)
+        ts_min   = float(self.dataset.timestamps.min().item())
+        ts_max   = float(self.dataset.timestamps.max().item())
         profiles: List[FakeProfile] = []
 
         for uid in range(n_fake_users):
@@ -374,7 +376,8 @@ class AUSHAttack(ShillingAttack):
             texts = [""] * len(rated)
 
             user_base = base_ts + uid * 1_800.0   # stagger profiles by 30 min
-            tss = self._spread_timestamps(len(rated), user_base)
+            tss = self._spread_timestamps(len(rated), user_base,
+                                          ts_min=ts_min, ts_max=ts_max)
 
             profiles.append(FakeProfile(
                 user_id=f"aush_{uid}",

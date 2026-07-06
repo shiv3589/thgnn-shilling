@@ -453,7 +453,9 @@ class Agent4SRAttack(ShillingAttack):
         }
 
         non_target_pool = [i for i in range(num_items) if i not in target_set]
-        base_ts         = float(dataset.timestamps.max().item())
+        base_ts         = self._realistic_base_ts(dataset)
+        ts_min          = float(dataset.timestamps.min().item())
+        ts_max          = float(dataset.timestamps.max().item())
         profiles: List[FakeProfile] = []
 
         for uid in range(n_fake_users):
@@ -488,7 +490,8 @@ class Agent4SRAttack(ShillingAttack):
             )
 
             user_base = base_ts + uid * 1_800.0
-            tss       = self._spread_timestamps(len(rated), user_base)
+            tss       = self._spread_timestamps(len(rated), user_base,
+                                                ts_min=ts_min, ts_max=ts_max)
 
             profiles.append(FakeProfile(
                 user_id=f"agent4sr_{uid}",

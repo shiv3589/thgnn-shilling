@@ -96,7 +96,9 @@ class RandomAttack(ShillingAttack):
             filler_size = min(filler_size, self.max_filler_items)
         filler_size = max(0, filler_size - len(target_items))
 
-        base_ts = float(self.dataset.timestamps.max().item())
+        base_ts = self._realistic_base_ts(self.dataset)
+        ts_min  = float(self.dataset.timestamps.min().item())
+        ts_max  = float(self.dataset.timestamps.max().item())
         profiles: List[FakeProfile] = []
 
         for uid in range(n_fake_users):
@@ -111,7 +113,8 @@ class RandomAttack(ShillingAttack):
             # Stagger each fake user's start time by uid * 30 min so profiles
             # are temporally distinct even when many users share the same base.
             user_base = base_ts + uid * 1_800.0
-            tss = self._spread_timestamps(len(rated), user_base)
+            tss = self._spread_timestamps(len(rated), user_base,
+                                          ts_min=ts_min, ts_max=ts_max)
             profiles.append(FakeProfile(
                 user_id=f"fake_{uid}",
                 rated_items=rated,
@@ -193,7 +196,9 @@ class BandwagonAttack(ShillingAttack):
             filler_size = min(filler_size, self.max_filler_items)
         filler_size = max(0, filler_size - len(target_items))
 
-        base_ts = float(self.dataset.timestamps.max().item())
+        base_ts = self._realistic_base_ts(self.dataset)
+        ts_min  = float(self.dataset.timestamps.min().item())
+        ts_max  = float(self.dataset.timestamps.max().item())
         profiles: List[FakeProfile] = []
 
         for uid in range(n_fake_users):
@@ -206,7 +211,8 @@ class BandwagonAttack(ShillingAttack):
             )
             texts  = [self._placeholder_text(it, r) for it, r in rated.items()]
             user_base = base_ts + uid * 1_800.0
-            tss = self._spread_timestamps(len(rated), user_base)
+            tss = self._spread_timestamps(len(rated), user_base,
+                                          ts_min=ts_min, ts_max=ts_max)
             profiles.append(FakeProfile(
                 user_id=f"fake_{uid}",
                 rated_items=rated,
