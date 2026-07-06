@@ -65,6 +65,7 @@ from src.attacks import (
     Agent4SRAttack,
     BandwagonAttack,
     GraphAttack,
+    LocalAgent4SR,
     RandomAttack,
     ShillingAttack,
 )
@@ -249,8 +250,11 @@ def _build_attack(
         attack = GraphAttack(surrogate, dataset, n_steps=20, seed=cfg.seed)
 
     elif cfg.attack == "agent4sr":
-        cache = Path(agent_cache_dir) / "agent4sr"
-        attack = Agent4SRAttack(dataset, cache_dir=str(cache), seed=cfg.seed)
+        cache = Path(agent_cache_dir) / "agent4sr" / cfg.dataset
+        if os.environ.get("AGENT4SR_BACKEND", "openai") == "local":
+            attack = LocalAgent4SR(dataset, cache_dir=str(cache), seed=cfg.seed)
+        else:
+            attack = Agent4SRAttack(dataset, cache_dir=str(cache), seed=cfg.seed)
 
     else:
         raise ValueError(f"Unknown attack: {cfg.attack!r}")
