@@ -365,9 +365,15 @@ class AUSHAttack(ShillingAttack):
 
             rated: Dict[int, float] = {}
             for item in filler_idx:
-                # Denormalise and round to nearest 0.5 star
-                r = float(np.clip(scores[item] * self.max_rating,
-                                  1.0, self.max_rating))
+                # Denormalise. The generator's raw sigmoid outputs saturate
+                # near 1.0 for most items regardless of noise z or target
+                # conditioning (GAN mode collapse), which without correction
+                # yields identical max-rating filler profiles for every fake
+                # user. Add Gaussian noise before clipping/rounding to
+                # restore realistic rating diversity.
+                r = scores[item] * self.max_rating
+                r = r + self.rng.normal(0.0, 1.0)
+                r = float(np.clip(r, 1.0, self.max_rating))
                 rated[item] = round(r * 2) / 2
             for item in target_items:
                 rated[item] = self.max_rating
