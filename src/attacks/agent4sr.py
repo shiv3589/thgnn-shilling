@@ -51,6 +51,11 @@ from .base import FakeProfile, ShillingAttack
 
 logger = logging.getLogger(__name__)
 
+# LLM completions can realistically enumerate ratings/reviews for only a
+# small number of items; capping prevents truncated, unparseable JSON on
+# large-catalog datasets (see paper footnote in experiments.tex).
+MAX_ITEMS_PER_PROFILE = 50
+
 # Fallback personas used when the YAML file is missing or unreadable.
 _DEFAULT_PERSONAS: List[Dict] = [
     {
@@ -406,7 +411,7 @@ class Agent4SRAttack(ShillingAttack):
             model=self.model,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.9,
-            max_tokens=1024,
+            max_tokens=2048,
         )
         return resp.choices[0].message.content or ""
 
@@ -435,7 +440,7 @@ class Agent4SRAttack(ShillingAttack):
         dataset    = self.dataset
         num_items  = dataset.num_items
         target_set = set(target_items)
-        filler_size = max(0, round(budget_pct * num_items) - len(target_items))
+        filler_size = max(0, min(round(budget_pct * num_items), MAX_ITEMS_PER_PROFILE) - len(target_items))
 
         # Dataset statistics for prompt and rating fallback
         mean_r = float(dataset.ratings.mean().item())
@@ -534,8 +539,9 @@ class LocalAgent4SR(Agent4SRAttack):
         payload = {
             "model":  self.model,
             "prompt": prompt,
+            "format": "json",
             "stream": False,
-            "options": {"temperature": 0.9, "num_predict": 1024},
+            "options": {"temperature": 0.7, "num_predict": 2048},
         }
         resp = requests.post(url, json=payload, timeout=120)
         resp.raise_for_status()

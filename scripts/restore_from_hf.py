@@ -20,3 +20,24 @@ snapshot_download(
 )
 print("Datasets restored")
 print("All data restored — ready to train")
+
+os.makedirs("checkpoints", exist_ok=True)
+os.makedirs("results", exist_ok=True)
+
+print("Restoring checkpoints...")
+snapshot_download(
+    repo_id="shiv3589/thgnn-checkpoints",
+    repo_type="dataset",
+    local_dir="checkpoints",
+    token=os.environ.get("HF_TOKEN")
+)
+print("Checkpoints restored")
+
+print("Restoring results...")
+snapshot_download(
+    repo_id="shiv3589/thgnn-results",
+    repo_type="dataset",
+    local_dir="results",
+    token=os.environ.get("HF_TOKEN")
+)
+print("Results restored")
