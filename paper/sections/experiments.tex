@@ -89,7 +89,10 @@ We evaluate against five attack families: Random and Bandwagon
 re-implemented with GPT-4o; profiles cached to
 \texttt{data/agent4sr\_cache/})~\cite{zhang2024agent4sr}.
 Each fake profile is assigned a 10\,\% catalogue budget targeting $n\!=\!5$
-top-decile items, swept over injection rates $\{0.5\%, 1\%, 5\%\}$.
+top-decile items, swept over injection rates $\{0.5\%, 1\%, 5\%\}$.\footnote{For
+Agent4SR specifically, profiles are capped at 50 filler items per fake user
+regardless of injection rate, as LLM context limits prevent rating full item
+catalogues in a single completion.}
 
 % ── Implementation Details ────────────────────────────────────────────────────
 \subsection{Implementation Details}
