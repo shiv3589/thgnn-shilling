@@ -25,7 +25,7 @@ from __future__ import annotations
 from collections import defaultdict
 
 import numpy as np
-from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 
 from src.datasets.base import HeteroDataset
@@ -33,20 +33,18 @@ from .base import BaseDetector
 
 
 class AntiFakeUBaseline(BaseDetector):
-    """Graph-structural + statistical features → 2-layer MLP detector."""
+    """Graph-structural + statistical features → unsupervised outlier scoring
+    (IsolationForest).  Never sees ground-truth labels — contamination is set
+    from the known injection rate, mirroring what a deployed detector would
+    assume."""
 
-    def __init__(self, hidden: int = 64, seed: int = 42) -> None:
-        self.hidden  = hidden
-        self.seed    = seed
-        self.scaler  = StandardScaler()
-        self.clf     = MLPClassifier(
-            hidden_layer_sizes=(hidden, hidden),
-            activation="relu",
-            max_iter=300,
-            random_state=seed,
-            early_stopping=True,
-            validation_fraction=0.1,
-        )
+    def __init__(self, hidden: int = 64, seed: int = 42,
+                 injection_rate: float = 0.01) -> None:
+        self.hidden   = hidden
+        self.seed     = seed
+        self.scaler   = StandardScaler()
+        contamination = float(np.clip(injection_rate, 1e-3, 0.5))
+        self.clf      = IsolationForest(contamination=contamination, random_state=seed)
 
     # ------------------------------------------------------------------
     # Feature extraction
@@ -134,26 +132,11 @@ class AntiFakeUBaseline(BaseDetector):
         device: str = "cpu",
         seed: int = 42,
     ) -> None:
-        X = self._extract(dataset)
-        y = dataset.labels.numpy()
+        X  = self._extract(dataset)
         Xs = self.scaler.fit_transform(X)
-        n_pos, n_neg = int(y.sum()), int((y == 0).sum())
-        if n_pos == 0 or n_neg == 0:
-            self._degenerate   = True
-            self._fallback_val = float(y.max())
-            return
-        if n_pos < 2 or n_neg < 2:
-            # MLPClassifier's internal early-stopping split (train_test_split with
-            # stratify=y) requires >=2 samples per class; skip fitting otherwise.
-            self._degenerate   = True
-            self._fallback_val = 0.5
-            return
-        self._degenerate = False
-        self.clf.fit(Xs, y)
+        self.clf.fit(Xs)
 
     def score_users(self, dataset: HeteroDataset) -> np.ndarray:
-        if getattr(self, "_degenerate", False):
-            return np.full(dataset.num_users, self._fallback_val, dtype=np.float32)
         X  = self._extract(dataset)
         Xs = self.scaler.transform(X)
-        return self.clf.predict_proba(Xs)[:, 1].astype(np.float32)
+        return (-self.clf.score_samples(Xs)).astype(np.float32)

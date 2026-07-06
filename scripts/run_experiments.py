@@ -258,16 +258,16 @@ def _build_attack(
     return attack, time.perf_counter() - t0
 
 
-def _build_detector(name: str, seed: int):
+def _build_detector(name: str, seed: int, injection_rate: float):
     """Return a fresh (unfitted) detector by name."""
     if name == "thgnn":
         return THGNNWrapper(seed=seed)
     if name == "statistical_baseline":
-        return StatisticalBaseline(seed=seed)
+        return StatisticalBaseline(seed=seed, injection_rate=injection_rate)
     if name == "semantic_shield_baseline":
-        return SemanticShieldBaseline(seed=seed)
+        return SemanticShieldBaseline(seed=seed, injection_rate=injection_rate)
     if name == "anti_fakeu_baseline":
-        return AntiFakeUBaseline(seed=seed)
+        return AntiFakeUBaseline(seed=seed, injection_rate=injection_rate)
     raise ValueError(f"Unknown detector: {name!r}")
 
 
@@ -355,7 +355,7 @@ def run_single(args_tuple: Tuple[ExpConfig, Dict[str, Any]]) -> Dict[str, Any]:
         )
 
         # ── 4. Fit detector ───────────────────────────────────────────────
-        detector = _build_detector(cfg.detector, cfg.seed)
+        detector = _build_detector(cfg.detector, cfg.seed, cfg.rate)
         t0_det = time.perf_counter()
         detector.fit(poisoned, device=device, seed=cfg.seed)
         t_detect = time.perf_counter() - t0_det

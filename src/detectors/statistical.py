@@ -22,7 +22,7 @@ from typing import Optional
 
 import numpy as np
 from scipy.stats import entropy as _scipy_entropy
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 
 from src.datasets.base import HeteroDataset
@@ -30,14 +30,17 @@ from .base import BaseDetector
 
 
 class StatisticalBaseline(BaseDetector):
-    """Logistic regression on 9 per-user statistical features."""
+    """Unsupervised outlier scoring (IsolationForest) on 9 per-user statistical
+    features.  Never sees ground-truth labels — contamination is set from the
+    known injection rate, mirroring what a deployed detector would assume."""
 
-    def __init__(self, seed: int = 42) -> None:
-        self.seed    = seed
-        self.scaler  = StandardScaler()
-        self.clf     = LogisticRegression(C=1.0, max_iter=1000,
-                                          solver="lbfgs", random_state=seed)
-        self._fitted = False
+    def __init__(self, seed: int = 42, injection_rate: float = 0.01) -> None:
+        self.seed       = seed
+        self.scaler     = StandardScaler()
+        contamination   = float(np.clip(injection_rate, 1e-3, 0.5))
+        self.clf        = IsolationForest(contamination=contamination,
+                                          random_state=seed)
+        self._fitted    = False
 
     # ------------------------------------------------------------------
     # Feature extraction
@@ -98,21 +101,14 @@ class StatisticalBaseline(BaseDetector):
         device: str = "cpu",
         seed: int = 42,
     ) -> None:
-        X = self._extract(dataset)
-        y = dataset.labels.numpy()
+        X  = self._extract(dataset)
         Xs = self.scaler.fit_transform(X)
-        n_pos, n_neg = int(y.sum()), int((y == 0).sum())
-        if n_pos == 0 or n_neg == 0:
-            self._degenerate   = True
-            self._fallback_val = float(y.max())
-            return
-        self._degenerate = False
-        self.clf.fit(Xs, y)
+        self.clf.fit(Xs)
         self._fitted = True
 
     def score_users(self, dataset: HeteroDataset) -> np.ndarray:
-        if getattr(self, "_degenerate", False):
-            return np.full(dataset.num_users, self._fallback_val, dtype=np.float32)
         X  = self._extract(dataset)
         Xs = self.scaler.transform(X)
-        return self.clf.predict_proba(Xs)[:, 1].astype(np.float32)
+        # IsolationForest: lower score_samples = more anomalous; negate so
+        # higher output = more shilling-like, consistent with other detectors.
+        return (-self.clf.score_samples(Xs)).astype(np.float32)

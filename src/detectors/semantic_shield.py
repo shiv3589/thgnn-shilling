@@ -15,17 +15,21 @@ from collections import defaultdict
 from typing import List
 
 import numpy as np
+from sklearn.ensemble import IsolationForest
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
 
 from src.datasets.base import HeteroDataset
 from .base import BaseDetector
 
 
 class SemanticShieldBaseline(BaseDetector):
-    """TF-IDF user-document features + logistic regression."""
+    """TF-IDF user-document features + unsupervised outlier scoring
+    (IsolationForest).  Never sees ground-truth labels — contamination is set
+    from the known injection rate, mirroring what a deployed detector would
+    assume."""
 
-    def __init__(self, max_features: int = 500, seed: int = 42) -> None:
+    def __init__(self, max_features: int = 500, seed: int = 42,
+                 injection_rate: float = 0.01) -> None:
         self.max_features = max_features
         self.seed         = seed
         self.vectorizer   = TfidfVectorizer(
@@ -34,8 +38,8 @@ class SemanticShieldBaseline(BaseDetector):
             lowercase=True,
             min_df=1,
         )
-        self.clf = LogisticRegression(C=1.0, max_iter=1000, solver="lbfgs",
-                                      random_state=seed)
+        contamination = float(np.clip(injection_rate, 1e-3, 0.5))
+        self.clf = IsolationForest(contamination=contamination, random_state=seed)
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -62,19 +66,10 @@ class SemanticShieldBaseline(BaseDetector):
         seed: int = 42,
     ) -> None:
         docs = self._user_docs(dataset)
-        y    = dataset.labels.numpy()
         X    = self.vectorizer.fit_transform(docs)
-        n_pos, n_neg = int(y.sum()), int((y == 0).sum())
-        if n_pos == 0 or n_neg == 0:
-            self._degenerate   = True
-            self._fallback_val = float(y.max())
-            return
-        self._degenerate = False
-        self.clf.fit(X, y)
+        self.clf.fit(X)
 
     def score_users(self, dataset: HeteroDataset) -> np.ndarray:
-        if getattr(self, "_degenerate", False):
-            return np.full(dataset.num_users, self._fallback_val, dtype=np.float32)
         docs = self._user_docs(dataset)
         X    = self.vectorizer.transform(docs)
-        return self.clf.predict_proba(X)[:, 1].astype(np.float32)
+        return (-self.clf.score_samples(X)).astype(np.float32)
