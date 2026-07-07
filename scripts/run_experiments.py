@@ -405,12 +405,12 @@ def run_single(args_tuple: Tuple[ExpConfig, Dict[str, Any]]) -> Dict[str, Any]:
         else:
             lgcn_results = train_lightgcn(
                 filtered,
-                epochs     = 50,
+                epochs     = 20,
                 embed_dim  = 32,
                 n_layers   = 2,
                 batch_size = 1024,
-                eval_every = 5,
-                patience   = 5,
+                eval_every = 2,
+                patience   = 3,
                 k          = 10,
                 device     = device,
                 seed       = cfg.seed,
