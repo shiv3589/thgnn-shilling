@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{28}
+\begin{thebibliography}{56}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -37,6 +37,38 @@
 \providecommand\natexlab[1]{#1}
 \providecommand\showeprint[2][]{arXiv:#2}
 
+\bibitem[\protect\citeauthoryear{Alonso, Bobadilla, Ortega, and Moya}{Alonso
+  et~al\mbox{.}}{2019}]%
+        {alonso2019robust}
+\bibfield{author}{\bibinfo{person}{Sheila Alonso}, \bibinfo{person}{Jesus
+  Bobadilla}, \bibinfo{person}{Fernando Ortega}, {and} \bibinfo{person}{Raul
+  Moya}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Robust Model-Based Reliability Approach to Tackle
+  Shilling Attacks in Collaborative Filtering Recommender Systems}.
+\newblock \bibinfo{journal}{\emph{IEEE Access}}  \bibinfo{volume}{7}
+  (\bibinfo{year}{2019}), \bibinfo{pages}{41782--41798}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1109/access.2019.2905862}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Bansal and Baliyan}{Bansal and
+  Baliyan}{2021}]%
+        {bansal2021shilldetector}
+\bibfield{author}{\bibinfo{person}{Sourabh Bansal} {and}
+  \bibinfo{person}{Niyati Baliyan}.} \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{{ShillDetector}: a binary grey wolf optimization
+  technique for detection of shilling profiles}.
+\newblock \bibinfo{journal}{\emph{Journal of Ambient Intelligence and Humanized
+  Computing}}  \bibinfo{volume}{14} (\bibinfo{year}{2021}),
+  \bibinfo{pages}{697--710}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1007/s12652-021-03320-8}
+\showDOI{\tempurl}
+
+
 \bibitem[\protect\citeauthoryear{Burke, Mobasher, Williams, and Bhaumik}{Burke
   et~al\mbox{.}}{2005}]%
         {burke2005segment}
@@ -49,6 +81,21 @@
   Conference on Data Mining (ICDM)}}. \bibinfo{publisher}{IEEE},
   \bibinfo{pages}{577--580}.
 \newblock
+
+
+\bibitem[\protect\citeauthoryear{Cai and Zhang}{Cai and Zhang}{2021}]%
+        {cai2021bssc}
+\bibfield{author}{\bibinfo{person}{Huibing Cai} {and} \bibinfo{person}{Fuzhi
+  Zhang}.} \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{{BS-SC}: An Unsupervised Approach for Detecting
+  Shilling Profiles in Collaborative Recommender Systems}.
+\newblock \bibinfo{journal}{\emph{IEEE Transactions on Knowledge and Data
+  Engineering}}  \bibinfo{volume}{33} (\bibinfo{year}{2021}),
+  \bibinfo{pages}{1375--1388}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1109/tkde.2019.2946247}
+\showDOI{\tempurl}
 
 
 \bibitem[\protect\citeauthoryear{Chirita, Nejdl, and Zamfir}{Chirita
@@ -78,6 +125,35 @@
 \newblock
 
 
+\bibitem[\protect\citeauthoryear{Ebrahimian and Kashef}{Ebrahimian and
+  Kashef}{2020}]%
+        {ebrahimian2020detecting}
+\bibfield{author}{\bibinfo{person}{Mansoureh Ebrahimian} {and}
+  \bibinfo{person}{Rasha~F. Kashef}.} \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Detecting Shilling Attacks Using Hybrid Deep
+  Learning Models}.
+\newblock \bibinfo{journal}{\emph{Symmetry}}  \bibinfo{volume}{12}
+  (\bibinfo{year}{2020}), \bibinfo{pages}{1805}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.3390/sym12111805}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{G{\"u}ne{\c{s}}}{G{\"u}ne{\c{s}}}{2025}]%
+        {gunes2025beavar}
+\bibfield{author}{\bibinfo{person}{{\.I}brahim G{\"u}ne{\c{s}}}.}
+  \bibinfo{year}{2025}\natexlab{}.
+\newblock \showarticletitle{{BEE-VAR}: A Novel Unsupervised Method for Shilling
+  Attack Detection}.
+\newblock \bibinfo{journal}{\emph{IEEE Access}}  \bibinfo{volume}{13}
+  (\bibinfo{year}{2025}), \bibinfo{pages}{208642--208651}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1109/access.2025.3641632}
+\showDOI{\tempurl}
+
+
 \bibitem[\protect\citeauthoryear{Guo, Zhang, Wang, Jiang, Nie, Ding, Yue, and
   Wu}{Guo et~al\mbox{.}}{2023}]%
         {guo2023close}
@@ -93,6 +169,34 @@
 \newblock
 
 
+\bibitem[\protect\citeauthoryear{Hao and Zhang}{Hao and Zhang}{2018}]%
+        {hao2018detecting}
+\bibfield{author}{\bibinfo{person}{Yingying Hao} {and} \bibinfo{person}{Fuzhi
+  Zhang}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Detecting shilling profiles in collaborative
+  recommender systems via multidimensional profile temporal features}.
+\newblock \bibinfo{journal}{\emph{IET Information Security}}
+  \bibinfo{volume}{12} (\bibinfo{year}{2018}), \bibinfo{pages}{362--374}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1049/iet-ifs.2017.0012}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Hao and Zhang}{Hao and Zhang}{2020}]%
+        {hao2020unsupervised}
+\bibfield{author}{\bibinfo{person}{Yingying Hao} {and} \bibinfo{person}{Fuzhi
+  Zhang}.} \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{An unsupervised detection method for shilling
+  attacks based on deep learning and community detection}.
+\newblock \bibinfo{journal}{\emph{Soft Computing}}  \bibinfo{volume}{25}
+  (\bibinfo{year}{2020}), \bibinfo{pages}{477--494}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1007/s00500-020-05162-6}
+\showDOI{\tempurl}
+
+
 \bibitem[\protect\citeauthoryear{Harper and Konstan}{Harper and
   Konstan}{2015}]%
         {harper2015movielens}
@@ -103,6 +207,23 @@
   Systems}} \bibinfo{volume}{5}, \bibinfo{number}{4},
   \bibinfo{pages}{19:1--19:19}.
 \newblock
+
+
+\bibitem[\protect\citeauthoryear{He, Zhu, Ye, Liu, Zhou, and Yu}{He
+  et~al\mbox{.}}{2024}]%
+        {he2024security}
+\bibfield{author}{\bibinfo{person}{Fenghua He}, \bibinfo{person}{Tao Zhu},
+  \bibinfo{person}{Dong Ye}, \bibinfo{person}{Bo Liu}, \bibinfo{person}{Wanlei
+  Zhou}, {and} \bibinfo{person}{Philip~S. Yu}.}
+  \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{The Emerged Security and Privacy of {LLM} Agent: A
+  Survey with Case Studies}.
+\newblock \bibinfo{journal}{\emph{Comput. Surveys}}  \bibinfo{volume}{58}
+  (\bibinfo{year}{2024}), \bibinfo{pages}{1--36}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1145/3773080}
+\showDOI{\tempurl}
 
 
 \bibitem[\protect\citeauthoryear{He, Deng, Wang, Li, Zhang, and Wang}{He
@@ -167,6 +288,24 @@
 \newblock
 
 
+\bibitem[\protect\citeauthoryear{Li, Gao, Zhou, Wang, Fan, and Yang}{Li
+  et~al\mbox{.}}{2021}]%
+        {li2021fusing}
+\bibfield{author}{\bibinfo{person}{Hao Li}, \bibinfo{person}{Min Gao},
+  \bibinfo{person}{Fanzi Zhou}, \bibinfo{person}{Yong Wang},
+  \bibinfo{person}{Qilin Fan}, {and} \bibinfo{person}{Lin Yang}.}
+  \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{Fusing hypergraph spectral features for shilling
+  attack detection}.
+\newblock \bibinfo{journal}{\emph{Journal of Information Security and
+  Applications}}  \bibinfo{volume}{63} (\bibinfo{year}{2021}),
+  \bibinfo{pages}{103051}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1016/j.jisa.2021.103051}
+\showDOI{\tempurl}
+
+
 \bibitem[\protect\citeauthoryear{Li, Zhou, Ma, and Huang}{Li
   et~al\mbox{.}}{2025}]%
         {li2025semanticshield}
@@ -197,6 +336,43 @@
 \showDOI{\tempurl}
 
 
+\bibitem[\protect\citeauthoryear{Lin, Chen, Zeng, Zhang, Gao, and Li}{Lin
+  et~al\mbox{.}}{2022}]%
+        {lin2022shilling}
+\bibfield{author}{\bibinfo{person}{Chen Lin}, \bibinfo{person}{Si Chen},
+  \bibinfo{person}{Min Zeng}, \bibinfo{person}{Sheng Zhang},
+  \bibinfo{person}{Min Gao}, {and} \bibinfo{person}{Hui Li}.}
+  \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{Shilling Black-Box Recommender Systems by Learning
+  to Generate Fake User Profiles}.
+\newblock \bibinfo{journal}{\emph{IEEE Transactions on Neural Networks and
+  Learning Systems}}  \bibinfo{volume}{35} (\bibinfo{year}{2022}),
+  \bibinfo{pages}{1305--1319}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1109/tnnls.2022.3183210}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Lin, Dai, Xi, Liu, Chen, Li, Zhu, Guo, Yu,
+  Tang, and Zhang}{Lin et~al\mbox{.}}{2023}]%
+        {lin2023survey}
+\bibfield{author}{\bibinfo{person}{Junling Lin}, \bibinfo{person}{Xin Dai},
+  \bibinfo{person}{Yanru Xi}, \bibinfo{person}{Weiwei Liu}, \bibinfo{person}{Bo
+  Chen}, \bibinfo{person}{Xiaohan Li}, \bibinfo{person}{Chenxu Zhu},
+  \bibinfo{person}{Huifeng Guo}, \bibinfo{person}{Yong Yu},
+  \bibinfo{person}{Ruiming Tang}, {and} \bibinfo{person}{Weinan Zhang}.}
+  \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{How Can Recommender Systems Benefit from Large
+  Language Models: A Survey}.
+\newblock \bibinfo{journal}{\emph{ACM Transactions on Information Systems}}
+  \bibinfo{volume}{43} (\bibinfo{year}{2023}), \bibinfo{pages}{1--47}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1145/3678004}
+\showDOI{\tempurl}
+
+
 \bibitem[\protect\citeauthoryear{Lin, Goyal, Girshick, He, and
   Doll{\'{a}}r}{Lin et~al\mbox{.}}{2017}]%
         {lin2017focal}
@@ -208,6 +384,23 @@
   Computer Vision (ICCV)}}. \bibinfo{publisher}{IEEE},
   \bibinfo{pages}{2980--2988}.
 \newblock
+
+
+\bibitem[\protect\citeauthoryear{Liu, Yu, Li, Yang, Duan, and Liao}{Liu
+  et~al\mbox{.}}{2024}]%
+        {liu2024novel}
+\bibfield{author}{\bibinfo{person}{Shuai Liu}, \bibinfo{person}{Siyuan Yu},
+  \bibinfo{person}{Hao Li}, \bibinfo{person}{Zheng Yang},
+  \bibinfo{person}{Mengnan Duan}, {and} \bibinfo{person}{Xiao Liao}.}
+  \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{A novel shilling attack on black-box recommendation
+  systems for multiple targets}.
+\newblock \bibinfo{journal}{\emph{Neural Computing and Applications}}
+  \bibinfo{volume}{37} (\bibinfo{year}{2024}), \bibinfo{pages}{3399--3417}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1007/s00521-024-10798-8}
+\showDOI{\tempurl}
 
 
 \bibitem[\protect\citeauthoryear{Liu, Ott, Goyal, Du, Joshi, Chen, Levy, Lewis,
@@ -287,16 +480,49 @@
 \newblock
 
 
-\bibitem[\protect\citeauthoryear{Ni, Li, and McAuley}{Ni et~al\mbox{.}}{2019}]%
-        {ni2019justifying}
-\bibfield{author}{\bibinfo{person}{Jianmo Ni}, \bibinfo{person}{Jiacheng Li},
-  {and} \bibinfo{person}{Julian McAuley}.} \bibinfo{year}{2019}\natexlab{}.
-\newblock \showarticletitle{Justifying Recommendations using Distantly-Labeled
-  Reviews and Fine-Grained Aspects}. In \bibinfo{booktitle}{\emph{Proceedings
-  of the 2019 Conference on Empirical Methods in Natural Language Processing
-  (EMNLP)}}. \bibinfo{publisher}{Association for Computational Linguistics},
-  \bibinfo{pages}{188--197}.
+\bibitem[\protect\citeauthoryear{Moradi and Hamidi}{Moradi and Hamidi}{2023}]%
+        {moradi2023detecting}
+\bibfield{author}{\bibinfo{person}{Reza Moradi} {and} \bibinfo{person}{Hamid
+  Hamidi}.} \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{A New Mechanism for Detecting Shilling Attacks in
+  Recommender Systems Based on Social Network Analysis and Gaussian Rough
+  Neural Network with Emotional Learning}.
+\newblock \bibinfo{journal}{\emph{International Journal of Engineering}}
+  (\bibinfo{year}{2023}).
 \newblock
+\urldef\tempurl%
+\url{https://doi.org/10.5829/ije.2023.36.02b.12}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Nawara, Aly, and Kashef}{Nawara
+  et~al\mbox{.}}{2025}]%
+        {nawara2025shilling}
+\bibfield{author}{\bibinfo{person}{Dina Nawara}, \bibinfo{person}{Ahmed Aly},
+  {and} \bibinfo{person}{R. Kashef}.} \bibinfo{year}{2025}\natexlab{}.
+\newblock \showarticletitle{Shilling Attacks and Fake Reviews Injection:
+  Principles, Models, and Datasets}.
+\newblock \bibinfo{journal}{\emph{IEEE Transactions on Computational Social
+  Systems}}  \bibinfo{volume}{12} (\bibinfo{year}{2025}),
+  \bibinfo{pages}{362--375}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1109/tcss.2024.3465008}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Nawara and Kashef}{Nawara and Kashef}{2025}]%
+        {nawara2025penalized}
+\bibfield{author}{\bibinfo{person}{Dina Nawara} {and} \bibinfo{person}{R.
+  Kashef}.} \bibinfo{year}{2025}\natexlab{}.
+\newblock \showarticletitle{Penalized {GAN}s with latent perturbation for
+  robust shilling attack generation in recommender systems}.
+\newblock \bibinfo{journal}{\emph{Discover Computing}}  \bibinfo{volume}{28}
+  (\bibinfo{year}{2025}).
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1007/s10791-025-09702-2}
+\showDOI{\tempurl}
 
 
 \bibitem[\protect\citeauthoryear{Ott, Choi, Cardie, and Hancock}{Ott
@@ -311,6 +537,19 @@
   \bibinfo{publisher}{Association for Computational Linguistics},
   \bibinfo{pages}{309--319}.
 \newblock
+
+
+\bibitem[\protect\citeauthoryear{Plaat, Duijn, Van~Stein, Preuss, Putten, and
+  Batenburg}{Plaat et~al\mbox{.}}{2025}]%
+        {plaat2025agentic}
+\bibfield{author}{\bibinfo{person}{Aske Plaat}, \bibinfo{person}{Milan~V.
+  Duijn}, \bibinfo{person}{Nik Van~Stein}, \bibinfo{person}{Mike Preuss},
+  \bibinfo{person}{Peter~V. Putten}, {and} \bibinfo{person}{Kees~Joost
+  Batenburg}.} \bibinfo{year}{2025}\natexlab{}.
+\newblock \bibinfo{title}{Agentic Large Language Models, a survey}.
+\newblock
+\newblock
+\showeprint[arxiv]{2503.23037}
 
 
 \bibitem[\protect\citeauthoryear{Rossi, Chamberlain, Frasca, Eynard, Monti, and
@@ -341,6 +580,139 @@
   Conference on Research and Development in Information Retrieval}}.
   \bibinfo{publisher}{ACM}.
 \newblock
+
+
+\bibitem[\protect\citeauthoryear{Si and Li}{Si and Li}{2018}]%
+        {si2018shilling}
+\bibfield{author}{\bibinfo{person}{Mingdan Si} {and} \bibinfo{person}{Qingshan
+  Li}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Shilling attacks against collaborative recommender
+  systems: a review}.
+\newblock \bibinfo{journal}{\emph{Artificial Intelligence Review}}
+  \bibinfo{volume}{53} (\bibinfo{year}{2018}), \bibinfo{pages}{291--319}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1007/s10462-018-9655-x}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Sundar, Li, Zou, Gao, and Russomanno}{Sundar
+  et~al\mbox{.}}{2020}]%
+        {sundar2020understanding}
+\bibfield{author}{\bibinfo{person}{Arun Sundar}, \bibinfo{person}{Feng Li},
+  \bibinfo{person}{Xin Zou}, \bibinfo{person}{Tong Gao}, {and}
+  \bibinfo{person}{E.~D. Russomanno}.} \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Understanding Shilling Attacks and Their Detection
+  Traits: A Comprehensive Survey}.
+\newblock \bibinfo{journal}{\emph{IEEE Access}}  \bibinfo{volume}{8}
+  (\bibinfo{year}{2020}), \bibinfo{pages}{171703--171715}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1109/access.2020.3022962}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Tong, Yin, Li, Zhu, Lv, Sun, and
+  Rodrigues}{Tong et~al\mbox{.}}{2018}]%
+        {tong2018shilling}
+\bibfield{author}{\bibinfo{person}{Chao Tong}, \bibinfo{person}{Xia Yin},
+  \bibinfo{person}{Jianying Li}, \bibinfo{person}{Tianqing Zhu},
+  \bibinfo{person}{Rui Lv}, \bibinfo{person}{Lin Sun}, {and}
+  \bibinfo{person}{Joel Rodrigues}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{A shilling attack detector based on convolutional
+  neural network for collaborative recommender system in social aware network}.
+\newblock \bibinfo{journal}{\emph{Comput. J.}}  \bibinfo{volume}{61}
+  (\bibinfo{year}{2018}), \bibinfo{pages}{949--958}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1093/comjnl/bxy008}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Vivekanandan and Praveena}{Vivekanandan and
+  Praveena}{2020}]%
+        {vivekanandan2020hybrid}
+\bibfield{author}{\bibinfo{person}{K. Vivekanandan} {and} \bibinfo{person}{N.
+  Praveena}.} \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Hybrid convolutional neural network ({CNN}) and
+  long-short term memory ({LSTM}) based deep learning model for detecting
+  shilling attack in the social-aware network}.
+\newblock \bibinfo{journal}{\emph{Journal of Ambient Intelligence and Humanized
+  Computing}}  \bibinfo{volume}{12} (\bibinfo{year}{2020}),
+  \bibinfo{pages}{1197--1210}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1007/s12652-020-02164-y}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Wang, Feng, Zhang, Yang, Zhang, Chen, Tang,
+  Chen, Lin, Zhao, Wei, and Wen}{Wang et~al\mbox{.}}{2023}]%
+        {wang2023survey}
+\bibfield{author}{\bibinfo{person}{Lei Wang}, \bibinfo{person}{Xueyang Feng},
+  \bibinfo{person}{Zhen Zhang}, \bibinfo{person}{Hao-Ran Yang},
+  \bibinfo{person}{Jingsen Zhang}, \bibinfo{person}{Zhiyuan Chen},
+  \bibinfo{person}{Jiakai Tang}, \bibinfo{person}{Xu Chen},
+  \bibinfo{person}{Yankai Lin}, \bibinfo{person}{Wayne~Xin Zhao},
+  \bibinfo{person}{Zhewei Wei}, {and} \bibinfo{person}{Ji-Rong Wen}.}
+  \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{A survey on large language model based autonomous
+  agents}.
+\newblock \bibinfo{journal}{\emph{Frontiers of Computer Science}}
+  \bibinfo{volume}{18} (\bibinfo{year}{2023}).
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1007/s11704-024-40231-1}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Wang, Zhang, Wang, Yu, and Zhang}{Wang
+  et~al\mbox{.}}{2022b}]%
+        {wang2022detecting}
+\bibfield{author}{\bibinfo{person}{Sheng Wang}, \bibinfo{person}{Peng Zhang},
+  \bibinfo{person}{Han Wang}, \bibinfo{person}{Hao Yu}, {and}
+  \bibinfo{person}{Fuzhi Zhang}.} \bibinfo{year}{2022}\natexlab{b}.
+\newblock \showarticletitle{Detecting shilling groups in online recommender
+  systems based on graph convolutional network}.
+\newblock \bibinfo{journal}{\emph{Information Processing \& Management}}
+  \bibinfo{volume}{59} (\bibinfo{year}{2022}), \bibinfo{pages}{103031}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1016/j.ipm.2022.103031}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Wang, Gao, Li, Zhang, and Zhong}{Wang
+  et~al\mbox{.}}{2022a}]%
+        {wang2022graybox}
+\bibfield{author}{\bibinfo{person}{Zhen Wang}, \bibinfo{person}{Min Gao},
+  \bibinfo{person}{Jun Li}, \bibinfo{person}{Jundong Zhang}, {and}
+  \bibinfo{person}{Jianlong Zhong}.} \bibinfo{year}{2022}\natexlab{a}.
+\newblock \showarticletitle{Gray-Box Shilling Attack: An Adversarial Learning
+  Approach}.
+\newblock \bibinfo{journal}{\emph{ACM Transactions on Intelligent Systems and
+  Technology}}  \bibinfo{volume}{13} (\bibinfo{year}{2022}),
+  \bibinfo{pages}{1--21}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1145/3512352}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Wen, Xiong, Gao, and Zeng}{Wen
+  et~al\mbox{.}}{2016}]%
+        {wen2016svmtia}
+\bibfield{author}{\bibinfo{person}{Junhao Wen}, \bibinfo{person}{Qi Xiong},
+  \bibinfo{person}{Min Gao}, {and} \bibinfo{person}{Jun Zeng}.}
+  \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{{SVM-TIA} a shilling attack detection method based
+  on {SVM} and target item analysis in recommender systems}.
+\newblock \bibinfo{journal}{\emph{Neurocomputing}}  \bibinfo{volume}{210}
+  (\bibinfo{year}{2016}), \bibinfo{pages}{197--205}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1016/j.neucom.2015.12.137}
+\showDOI{\tempurl}
 
 
 \bibitem[\protect\citeauthoryear{Williams, Mobasher, and Burke}{Williams
@@ -387,6 +759,38 @@
 \newblock
 
 
+\bibitem[\protect\citeauthoryear{Yu, Duan, Wang, and Yang}{Yu
+  et~al\mbox{.}}{2025}]%
+        {yu2025rupgan}
+\bibfield{author}{\bibinfo{person}{Siyuan Yu}, \bibinfo{person}{Mengnan Duan},
+  \bibinfo{person}{Kai Wang}, {and} \bibinfo{person}{Shuai Yang}.}
+  \bibinfo{year}{2025}\natexlab{}.
+\newblock \showarticletitle{{RUP-GAN}: A Black-Box Attack Method for Social
+  Intelligence Recommendation Systems Based on Adversarial Learning}.
+\newblock \bibinfo{journal}{\emph{Big Data Mining and Analytics}}
+  \bibinfo{volume}{8} (\bibinfo{year}{2025}), \bibinfo{pages}{820--836}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.26599/bdma.2025.9020002}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Zayed, Ibrahim, Hefny, Salman, and
+  Almohimeed}{Zayed et~al\mbox{.}}{2023}]%
+        {zayed2023experimental}
+\bibfield{author}{\bibinfo{person}{R.~A. Zayed}, \bibinfo{person}{L.~F.
+  Ibrahim}, \bibinfo{person}{H. Hefny}, \bibinfo{person}{H.~A. Salman}, {and}
+  \bibinfo{person}{A. Almohimeed}.} \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{Experimental and Theoretical Study for the Popular
+  Shilling Attacks Detection Methods in Collaborative Recommender System}.
+\newblock \bibinfo{journal}{\emph{IEEE Access}}  \bibinfo{volume}{11}
+  (\bibinfo{year}{2023}), \bibinfo{pages}{79358--79369}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1109/access.2023.3289404}
+\showDOI{\tempurl}
+
+
 \bibitem[\protect\citeauthoryear{Zellers, Holtzman, Rashkin, Bisk, Farhadi,
   Roesner, and Choi}{Zellers et~al\mbox{.}}{2019}]%
         {zellers2019defending}
@@ -399,6 +803,21 @@
   (NeurIPS)}}, Vol.~\bibinfo{volume}{32}. \bibinfo{publisher}{Curran
   Associates}.
 \newblock
+
+
+\bibitem[\protect\citeauthoryear{Zhang and Wang}{Zhang and Wang}{2020}]%
+        {zhang2020detecting}
+\bibfield{author}{\bibinfo{person}{Fuzhi Zhang} {and} \bibinfo{person}{Sheng
+  Wang}.} \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Detecting Group Shilling Attacks in Online
+  Recommender Systems Based on Bisecting {K}-Means Clustering}.
+\newblock \bibinfo{journal}{\emph{IEEE Transactions on Computational Social
+  Systems}}  \bibinfo{volume}{7} (\bibinfo{year}{2020}),
+  \bibinfo{pages}{1189--1199}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1109/tcss.2020.3013878}
+\showDOI{\tempurl}
 
 
 \bibitem[\protect\citeauthoryear{Zhang, Chen, Wang, Li, Li, and Zha}{Zhang
@@ -430,6 +849,36 @@
   Conference on Research and Development in Information Retrieval}}.
   \bibinfo{publisher}{ACM}.
 \newblock
+
+
+\bibitem[\protect\citeauthoryear{Zhou, Zhang, and Zhao}{Zhou
+  et~al\mbox{.}}{2026}]%
+        {zhou2026mdmgansa}
+\bibfield{author}{\bibinfo{person}{Qin Zhou}, \bibinfo{person}{Xin Zhang},
+  {and} \bibinfo{person}{Xin Zhao}.} \bibinfo{year}{2026}\natexlab{}.
+\newblock \showarticletitle{{MDM-GANSA}: A Multi-Distribution Generative
+  Shilling Attack for Recommender Systems}.
+\newblock \bibinfo{journal}{\emph{Information}} (\bibinfo{year}{2026}).
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.3390/info17010077}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Zhou, Wen, Qu, Zeng, and Cheng}{Zhou
+  et~al\mbox{.}}{2018}]%
+        {zhou2018shilling}
+\bibfield{author}{\bibinfo{person}{Wei Zhou}, \bibinfo{person}{Junhao Wen},
+  \bibinfo{person}{Qiang Qu}, \bibinfo{person}{Jun Zeng}, {and}
+  \bibinfo{person}{Tao Cheng}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Shilling attack detection for recommender systems
+  based on credibility of group users and rating time series}.
+\newblock \bibinfo{journal}{\emph{PLoS ONE}}  \bibinfo{volume}{13}
+  (\bibinfo{year}{2018}).
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1371/journal.pone.0196533}
+\showDOI{\tempurl}
 
 
 \end{thebibliography}

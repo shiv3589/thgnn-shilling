@@ -76,6 +76,20 @@ ran with a single random seed (seed\,$=$\,42) on a single NVIDIA RTX PRO 4000
 \input{tables/main_detection}
 \input{tables/downstream_ndcg}
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/budget_curves}
+  \caption{Detection $F_1$ vs.\ injection rate on ML-1M for Random, Bandwagon,
+    and AUSH. TH-GNN's $F_1$ rises sharply from near-zero at low injection
+    rates to $\approx$\,0.97 at 5\,\%, even though its detection rate (DR)
+    stays $\geq$\,0.98 throughout (Table~\ref{tab:main_detection}) — the swing
+    reflects precision (FAR) improving as fake-user density increases, not a
+    change in recall. Statistical and Anti-FakeU remain comparatively flat on
+    Random/Bandwagon but vary non-monotonically on AUSH, indicating that no
+    detector's precision is stable across the injection-rate spectrum.}
+  \label{fig:budget_curves}
+\end{figure}
+
 \paragraph{Heuristic attacks.}
 Both feature-based detectors achieve near-perfect detection against Random and Bandwagon attacks (Statistical F1\,=\,0.930 and 0.878 respectively; Anti-FakeU F1\,=\,0.937 and 0.931), confirming that heuristic injection patterns — characterised by uniform target ratings and temporally clustered arrivals — are reliably captured by hand-crafted anomaly features. TH-GNN achieves DR\,$\geq$\,0.99 on both attacks but incurs high false alarm rates (FAR\,$\approx$\,0.31), resulting in F1\,$\approx$\,0.35. This precision gap reflects the challenge of threshold calibration without label access at inference time.
 
