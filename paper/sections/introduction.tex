@@ -5,39 +5,13 @@
 \section{Introduction}
 \label{sec:intro}
 
-When an LLM agent constructs a fake recommender-system profile, it does not
-simply assign random ratings.
-Given a target item and a procedurally generated persona, Agent4SR~\cite{zhang2024agent4sr}
-writes 10--20 natural-language reviews of plausible filler items, assigns ratings
-consistent with the persona's stated preferences, and maximally rates the target.
-The resulting profile is grammatically fluent, topically coherent, and statistically
-indistinguishable from genuine users: it matches the global rating distribution,
-interleaves popular filler items naturally, and produces review text whose semantic
-embedding sits comfortably within the genuine-user manifold.
-When a campaign injects many such profiles in a coordinated burst, no single
-anomaly signal---rating statistics, textual outlier scores, or neighbourhood
-structure---is individually sufficient to flag any one of them.
+As recommender systems become critical infrastructure for e-commerce and content platforms, the sophistication of shilling attacks has escalated dramatically. Early heuristic attacks — injecting users with uniform high ratings on target items — are now trivially detected by statistical anomaly scoring. Generative Adversarial Networks (GANs) subsequently raised the bar by producing profiles that mimic real user rating distributions. Most recently, LLM-agent frameworks such as Agent4SR can generate entire user personas with coherent review histories, interaction patterns, and rating sequences indistinguishable from genuine users. This escalating arms race raises a fundamental empirical question: which attack families genuinely defeat which detection paradigms, and why?
 
-Existing detectors split into two families, each blind to one of the dimensions
-that agent-generated profiles exploit simultaneously.
-Text-only detectors such as SemanticShield~\cite{li2025semanticshield} compare
-each user's aggregated review embedding against the genuine-user centroid; they
-are the strongest single-modality baseline against LLM-generated text but collapse
-on rating-only datasets, ignore the interaction graph entirely, and detect nothing
-when profiles are injected across days rather than seconds.
-Graph-only detectors such as Anti-FakeU~\cite{zhang2022antifakeu} score users by
-degree asymmetry and co-purchase overlap in the user--item bipartite graph; they
-handle structural attacks well but are blind to the cross-modal inconsistencies
-introduced when fluent LLM text accompanies plausible rating patterns, and they
-discard edge timestamps entirely, missing the synchronised burst fingerprint left
-by campaigns that inject profiles in coordinated waves.
-Critically, no existing detector encodes anomaly signals directly within the
-graph attention mechanism—leaving the distinction between normal neighbourhood
-aggregation and coordinated injection aggregation implicit rather than
-principled.
+We identify a critical gap in the literature: no systematic study has evaluated the full spectrum from heuristic to LLM-agent attacks against both feature-based and graph-based detectors under a unified experimental protocol. Existing work evaluates detectors against a narrow slice of attack types, making it impossible to characterise how detection difficulty scales with attack sophistication.
 
-TH-GNN addresses all three failure modes with a unified architecture built on
-three non-redundant signal streams.
+TH-GNN is a unified architecture built on three non-redundant signal streams,
+designed to probe which of these streams remains informative as attack
+sophistication increases.
 The structural backbone is a two-layer Heterogeneous Graph Transformer that
 represents users, reviews, and items as distinct node types connected by typed
 \texttt{writes}, \texttt{about}, and \texttt{rates} edges, learning per-type and
@@ -55,18 +29,19 @@ A lightweight GRU over each user's log-inter-arrival sequence provides an explic
 burstiness signal orthogonal to both graph topology and text content.
 A two-layer MLP over the concatenated streams produces the final fake-user score.
 
-TH-GNN achieves a grand-mean F\textsubscript{1} of \textbf{0.870} across all 20
-dataset--attack configurations, uniformly above every baseline on every row,
-with false-alarm rate below 4.5\,\% throughout versus baselines' 6.8--12.5\,\%.
-The gap is widest against Agent4SR (\textbf{$+$10.9\,pp} over SemanticShield)
-and widens further to $+$11.5\,pp at the lowest injection rate (0.5\,\%), as
-graph-temporal coordination signals become proportionally more salient once
-the injected mass falls below the threshold of count-based detectors.
+Used this way, TH-GNN's results are revealing rather than uniformly favourable:
+it maintains detection rate (DR) above 0.99 across every attack family we
+study, but its false alarm rate rises sharply on both heuristic and
+LLM-agent attacks, so its F\textsubscript{1} trails feature-based baselines
+on three of the four families. The one attack where TH-GNN is competitive is
+AUSH, the GAN-based attack that instead defeats the feature-based baselines —
+a pattern we analyse in detail in Section~\ref{sec:results}.
 
 \noindent\textbf{Contributions.}
 \begin{itemize}
-  \item We propose \textbf{Attack-Aware Anomaly Attention (AAA)}, a new heterogeneous graph attention mechanism that jointly scores temporal burstiness, semantic incoherence, and structural thinness within the attention softmax — the first graph learning principle designed specifically for coordinated LLM-agent injection detection.
-  \item We prove that AAA has strictly greater expressive power than standard HGT for separating coordinated shilling campaigns from real users (Proposition~\ref{prop:aaa}).
-  \item We introduce a \textbf{Temporal Contrastive Loss} that enforces campaign-level temporal coherence, enabling the model to learn that coordinated fake users cluster in embedding space.
-  \item We evaluate on four datasets and five attack families including LLM-agent attacks, achieving grand-mean F\textsubscript{1}=0.870 and +10.9\,pp over the strongest baseline on Agent4SR, with code released at \url{https://github.com/shiv3589/thgnn-shilling}.
+  \item We propose \textbf{TH-GNN}, a Temporal Heterogeneous Graph Neural Network combining heterogeneous graph attention (AAA mechanism), relative temporal encoding, and multimodal review-text fusion — the first detector to jointly model all three signal types for shilling detection.
+  \item We conduct the \textbf{first systematic empirical study} evaluating four attack families of increasing sophistication (heuristic, GAN-based, LLM-agent) against both feature-based and graph-based detectors under a unified protocol.
+  \item We reveal a \textbf{critical asymmetry}: feature-based detectors collapse against GAN-based AUSH profiles (Anti-FakeU F1 drops from 0.937 to 0.313) while maintaining high recall, whereas TH-GNN maintains consistent DR\,$>$\,0.99 across all attacks but suffers precision degradation — suggesting the two paradigms capture orthogonal anomaly signals.
+  \item We demonstrate that \textbf{LLM-agent attacks represent an open frontier}: no current detector achieves satisfactory F1 against Agent4SR profiles, with the best baseline achieving F1\,=\,0.862 and TH-GNN achieving F1\,=\,0.035 — motivating future work on precision-recall calibration for graph-based detectors.
+  \item We release a \textbf{reproducible benchmark} covering 33 experimental configurations across 4 attack families, with code at \url{https://github.com/shiv3589/thgnn-shilling}.
 \end{itemize}

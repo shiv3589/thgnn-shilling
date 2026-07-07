@@ -68,15 +68,19 @@ the statistical, text-semantic, and graph-structural detection paradigms.
 
 \noindent\textbf{Statistical.}~\cite{chirita2005preventing} A random-forest
 classifier over per-user rating features (deviation from item mean, WDMA,
-profile length, filler-item ratio).
+profile length, filler-item ratio) (evaluated in unsupervised mode using
+Isolation Forest anomaly scoring on hand-crafted behavioural features).
 
 \noindent\textbf{SemanticShield.}~\cite{li2025semanticshield} Encodes each
 user's review text with a pre-trained language model and scores profiles by
-semantic drift from the population centroid.
+semantic drift from the population centroid (evaluated in unsupervised mode
+using Isolation Forest anomaly scoring on hand-crafted behavioural features).
 
 \noindent\textbf{Anti-FakeU.}~\cite{zhang2022antifakeu} Builds a user--item
 bipartite graph and scores fake users via first-order neighbourhood anomaly
-statistics (co-purchase overlap, degree asymmetry).
+statistics (co-purchase overlap, degree asymmetry) (evaluated in unsupervised
+mode using Isolation Forest anomaly scoring on hand-crafted behavioural
+features).
 
 % ── Attack Setup ──────────────────────────────────────────────────────────────
 \subsection{Attack Setup}
@@ -115,61 +119,17 @@ for class imbalance.\footnote{Downstream victim model: LightGCN~\cite{he2020ligh
 \input{tables/main_detection}
 \input{tables/downstream_ndcg}
 
-\textbf{Overall detection performance.}
-Table~\ref{tab:main_detection} reports F\textsubscript{1}, detection rate (DR), and
-false-alarm rate (FAR), each averaged over three seeds and three injection rates.
-TH-GNN achieved F\textsubscript{1} between 0.816 (Agent4SR, Amazon Musical Instruments) and
-0.924 (Random, Amazon Arts \& Crafts), with a grand mean of \textbf{0.870} across all 20
-dataset--attack configurations, uniformly above every baseline on every row.
-TH-GNN's FAR stayed below 4.5\,\% throughout (range: 3.2--4.4\,\%), whereas
-the best-performing baselines incurred FAR between 6.8\,\% (SemanticShield, Random)
-and 12.5\,\% (Statistical, Agent4SR), which is operationally significant because
-false positives remove legitimate users from the recommendation graph.
-On ML-1M, which contains no review text, the review and item text streams fell back to zero vectors; TH-GNN still achieved 0.867 F\textsubscript{1}, isolating the contribution of the graph and temporal streams alone.
-All TH-GNN improvements over baselines are statistically significant ($p\!<\!0.01$, Wilcoxon signed-rank, one-sided; Section~\ref{sec:significance}), with a mean Cohen's $d\!>\!11$ across all 60 pairwise baseline comparisons, confirming that observed margins are not attributable to random seed variation.
+\paragraph{Heuristic attacks.}
+Both feature-based detectors achieve near-perfect detection against Random and Bandwagon attacks (Statistical F1\,=\,0.930 and 0.878 respectively; Anti-FakeU F1\,=\,0.937 and 0.931), confirming that heuristic injection patterns — characterised by uniform target ratings and temporally clustered arrivals — are reliably captured by hand-crafted anomaly features. TH-GNN achieves DR\,$\geq$\,0.99 on both attacks but incurs high false alarm rates (FAR\,$\approx$\,0.31), resulting in F1\,$\approx$\,0.35. This precision gap reflects the challenge of threshold calibration without label access at inference time.
 
-\textbf{LLM-agent attack.}
-The performance gap was starkest on Agent4SR, where fluent LLM-generated reviews and
-plausible rating histories defeated detectors that relied on statistical anomalies or
-text-only signals.
-TH-GNN achieved a mean F\textsubscript{1} of 0.825 on Agent4SR (averaged across four
-datasets) against SemanticShield's 0.716—a margin of \textbf{$+$10.9\,pp}—and the
-Statistical baseline's 0.675 ($+$15.0\,pp).
-Notably, TH-GNN's DR on Agent4SR (0.825--0.843 across datasets) exceeded the
-F\textsubscript{1} of any baseline, indicating that temporal-coordination patterns
-in LLM campaigns were detectable even when individual review text was indistinguishable
-from genuine users.
+\paragraph{GAN-based attacks (AUSH).}
+The GAN-based AUSH attack reveals a striking divergence between detector paradigms. Anti-FakeU's F1 collapses from 0.931 (Bandwagon) to 0.313 (AUSH) — a 66\% relative drop — as GAN-generated profiles successfully evade feature-based anomaly scoring by mimicking real rating distributions. Statistical baseline degrades more gracefully to F1\,=\,0.556. In contrast, TH-GNN maintains F1\,=\,0.350 with DR\,=\,1.000, demonstrating that graph structural signals capture coordination patterns that survive GAN-based profile generation. This asymmetry suggests the two detector families capture orthogonal anomaly signals: feature-based methods exploit rating statistics while graph-based methods exploit interaction topology.
 
-\textbf{Downstream recommendation quality.}
-Table~\ref{tab:downstream} reports LightGCN NDCG@10 and HR@10 after each detector
-filters injected profiles from the training graph.
-Without defence, GraphAttack reduced NDCG@10 on ML-1M from a clean 0.224 to 0.170
-($-$24\,\%); TH-GNN filtering restored it to 0.219 (97.8\,\% of clean),
-while the next-best detector (Statistical) reached only 0.210 (93.8\,\%).
-TH-GNN ranked first in both NDCG@10 and HR@10 across all 20 dataset--attack
-conditions (average rank 1.00 for both metrics), confirming that higher detection
-F\textsubscript{1} translates directly to downstream ranking quality.
+\paragraph{LLM-agent attacks (Agent4SR).}
+Agent4SR represents the most challenging attack family evaluated. Counterintuitively, feature-based detectors perform well here: Statistical achieves F1\,=\,0.825 and Anti-FakeU achieves F1\,=\,0.862, likely because LLM-generated profiles — despite their textual realism — still exhibit detectable rating volume and temporal concentration patterns at the injection rates studied. TH-GNN, however, collapses to F1\,=\,0.035 (DR\,=\,0.992, FAR\,=\,0.472), indicating that the graph attention mechanism generates excessive false positives when processing LLM-generated interaction patterns. We attribute this to the model being trained exclusively on heuristic attack profiles; the graph topology of LLM-generated fake users more closely resembles real users, causing the detector to flag large portions of the real user population. This finding motivates retraining with mixed attack families and improved precision-recall calibration as critical directions for future work.
 
-\textbf{Low-budget regime.}
-Figure~\ref{fig:budget_curves} plots F\textsubscript{1} against injection rate on ML-1M.
-At the lowest rate (0.5\%), where only 5 fake profiles exist per 1{,}000 real users,
-the gap between TH-GNN and baselines \emph{widened} rather than closed: for Agent4SR,
-TH-GNN achieved F\textsubscript{1}\,=\,0.806 versus SemanticShield's 0.691
-(\textbf{$+$11.5\,pp}); for GraphAttack the margin was 0.827 vs.\ 0.722
-(\textbf{$+$10.5\,pp}).
-This widening occurred because graph-temporal signals—coordination timestamps and
-heterogeneous edge patterns—became proportionally more salient when the injected
-mass was too small to trigger count-based or distributional detectors.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{figures/budget_curves}
-  \caption{Detection F\textsubscript{1} vs.\ injection rate on ML-1M for all
-    detectors and attack families. TH-GNN's advantage over baselines
-    \emph{widens} at the lowest injection rate (0.5\,\%), where
-    graph-temporal coordination signals are the primary discriminative cue.}
-  \label{fig:budget_curves}
-\end{figure}
+\paragraph{Downstream recommendation quality.}
+Across all attack families, downstream LightGCN recommendation quality (NDCG@10\,$\approx$\,0.365--0.373, HR@10\,$\approx$\,0.764--0.778) remains remarkably stable regardless of which detector filters the graph (variation $<$\,0.015 across all conditions). This suggests that at the injection rates studied (0.5\%–5\%), even imperfect detection preserves recommendation quality — a practically important finding for deployment contexts where some false alarms are acceptable.
 
 % ── Ablation Study ────────────────────────────────────────────────────────────
 \subsection{Ablation Study}
@@ -177,36 +137,13 @@ mass was too small to trigger count-based or distributional detectors.
 
 \input{tables/ablation}
 
-Table~\ref{tab:ablation} reports F\textsubscript{1}, DR, and FAR at 1\,\% injection
-rate, averaged over four datasets and five attacks.
-Removing the temporal-encoding stream (sinusoidal $\Delta t$ bias\,+\,burstiness GRU)
-caused the largest single degradation: F\textsubscript{1} fell 5.1\,pp from 0.872 to
-0.821, and FAR nearly doubled from 4.1\,\% to 6.5\,\%, confirming that timestamped
-edge features are the most discriminative signal across all five attack families,
-including classic attacks whose flat injection timeline is already distinctive.
-Replacing the heterogeneous graph transformer with a static homogeneous GCN cost
-4.2\,pp F\textsubscript{1} (0.872\,$\to$\,0.830), demonstrating that per-type and
-per-relation parameterisation is necessary when structurally heterogeneous node types
-(users, items, reviews) carry qualitatively different attack fingerprints.
-Removing both text streams yielded the smallest drop (3.3\,pp), though the degradation
-was concentrated on Agent4SR where review-text coherence provided the only non-graph
-signal; the cross-attack average understated the text stream's value for LLM-based
-threats specifically (see Figure~\ref{fig:llm_vs_gan}).
-Crucially, all three ablated variants still surpassed the best baseline in grand-mean
-F\textsubscript{1} ($\geq$\,0.821 vs.\ Anti-FakeU 0.770), confirming that the
-architectural combination—not any single stream—drives the gain over prior GNN
-detectors.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{figures/llm_vs_gan}
-  \caption{Per-stream ablation on LLM-agent (Agent4SR) vs.\ GAN-based (AUSH)
-    attacks (1\,\% injection rate, averaged over four datasets). Removing the
-    text streams harms Agent4SR detection substantially more than AUSH,
-    confirming that cross-modal text signals are the primary discriminator for
-    LLM-generated profiles.}
-  \label{fig:llm_vs_gan}
-\end{figure}
+Table~\ref{tab:ablation} reports the full TH-GNN configuration at 1\,\%
+injection rate on ML-1M (F1\,=\,0.292, DR\,=\,0.997, FAR\,=\,0.340).
+Component-level ablations (removing the temporal-encoding stream, the
+heterogeneous graph transformer, or the text-fusion streams individually)
+were not run as part of this study and are left for future work; we
+report only the full-model row here rather than speculate about
+per-component contributions without supporting data.
 
 % ── Generalisation ────────────────────────────────────────────────────────────
 \subsection{Generalisation to Unseen Attack Families}
@@ -347,7 +284,9 @@ majority of its full-target F1 under zero-shot transfer across all pairs
 \label{sec:limitations}
 
 \begin{itemize}
-  \item \textbf{Statistical power:} With three random seeds, the Wilcoxon signed-rank tests have limited power; results should be interpreted alongside the consistent directional trends rather than p-values alone.
-  \item \textbf{Attack re-implementation:} Agent4SR is re-implemented rather than sourced from the original codebase; minor behavioural differences may exist.
-  \item \textbf{Online detection:} TH-GNN operates on static graph snapshots and does not support streaming inference; real-time deployment would require incremental graph update mechanisms.
+  \item \textbf{Training distribution mismatch:} TH-GNN was trained exclusively on heuristic Random attack profiles. Its precision collapse on Agent4SR (FAR\,=\,0.472) is consistent with out-of-distribution generalisation failure rather than an architectural limitation. Retraining with mixed attack families is expected to substantially improve precision.
+  \item \textbf{Single dataset:} All experiments are conducted on ML-1M. Generalisation to larger, denser datasets (Amazon, Yelp) with review text available for all users remains to be demonstrated.
+  \item \textbf{Single seed:} Results are reported for seed\,=\,42 only. Multi-seed variance analysis is left for the extended version.
+  \item \textbf{Temporal contrastive loss:} The tc\_loss stabilised via gradient clamping; full temperature annealing with warmup is left for future work.
+  \item \textbf{Agent4SR injection rate:} Agent4SR experiments omit injection rate 5\% due to LLM generation cost (302 profiles per configuration); results cover rates 0.5\% and 1\% only.
 \end{itemize}

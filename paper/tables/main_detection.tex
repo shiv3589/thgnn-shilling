@@ -1,37 +1,18 @@
 \begin{table*}[t]
 \centering
-\caption{Detection performance (F1\,/\,DR\,/\,FAR, mean\,$\pm$\,std over 3 seeds). Best per row in \textbf{bold}, second-best \underline{underlined}. TH-GNN is our method. $^\dag$Statistical did not converge on Agent4SR (LLM-generated profiles evade rating-pattern heuristics).}
+\small
+\caption{Detection performance (F1 / DR / FAR) across datasets and attack types. Single seed (42). Mean~$\pm$~std over injection rates $\{0.5\%, 1\%, 5\%\}$ for Random/Bandwagon/AUSH; Agent4SR averaged over $\{0.5\%, 1\%\}$ only (rate 5\% omitted, see Limitations). \textbf{Bold} = best F1 per row.}
 \label{tab:main_detection}
-\resizebox{\textwidth}{!}{%
 \begin{tabular}{llrrrrrrrrrrrr}
 \toprule
 Dataset & Attack & \multicolumn{3}{c}{TH-GNN} & \multicolumn{3}{c}{Statistical} & \multicolumn{3}{c}{SemanticShield} & \multicolumn{3}{c}{Anti-FakeU} \\
-\cmidrule(lr){3-5} \cmidrule(lr){6-8} \cmidrule(lr){9-11} \cmidrule(lr){12-14}
- & & F1 & DR & FAR & F1 & DR & FAR & F1 & DR & FAR & F1 & DR & FAR \\
+\cmidrule(lr){3-14}
+ &  & F1 & DR & FAR & F1 & DR & FAR & F1 & DR & FAR & F1 & DR & FAR \\
 \midrule
-ML-1M & Random & \textbf{0.912$\pm$0.006} & \textbf{0.937$\pm$0.013} & \textbf{0.032$\pm$0.006} & \underline{0.847$\pm$0.013} & \underline{0.917$\pm$0.008} & 0.085$\pm$0.004 & 0.801$\pm$0.010 & 0.851$\pm$0.013 & \underline{0.068$\pm$0.008} & 0.823$\pm$0.010 & 0.883$\pm$0.015 & 0.078$\pm$0.008 \\
-ML-1M & Bandwagon & \textbf{0.887$\pm$0.012} & \textbf{0.908$\pm$0.013} & \textbf{0.035$\pm$0.004} & \underline{0.814$\pm$0.011} & \underline{0.880$\pm$0.008} & 0.095$\pm$0.008 & 0.779$\pm$0.009 & 0.825$\pm$0.016 & \underline{0.075$\pm$0.007} & 0.798$\pm$0.011 & 0.854$\pm$0.009 & 0.086$\pm$0.005 \\
-ML-1M & AUSH & \textbf{0.863$\pm$0.014} & \textbf{0.880$\pm$0.017} & \textbf{0.038$\pm$0.008} & 0.741$\pm$0.014 & 0.803$\pm$0.013 & 0.105$\pm$0.003 & 0.756$\pm$0.008 & 0.798$\pm$0.013 & \underline{0.082$\pm$0.005} & \underline{0.762$\pm$0.009} & \underline{0.814$\pm$0.017} & 0.094$\pm$0.007 \\
-ML-1M & GraphAttack & \textbf{0.851$\pm$0.010} & \textbf{0.864$\pm$0.007} & \textbf{0.041$\pm$0.007} & 0.728$\pm$0.008 & 0.786$\pm$0.012 & 0.115$\pm$0.005 & 0.743$\pm$0.010 & 0.781$\pm$0.012 & \underline{0.089$\pm$0.004} & \underline{0.751$\pm$0.010} & \underline{0.799$\pm$0.015} & 0.102$\pm$0.007 \\
-ML-1M & Agent4SR & \textbf{0.821$\pm$0.009} & \textbf{0.830$\pm$0.017} & \textbf{0.044$\pm$0.005} & 0.673$\pm$0.009$^\dag$ & 0.727$\pm$0.017 & 0.125$\pm$0.006 & \underline{0.714$\pm$0.010} & \underline{0.748$\pm$0.007} & \underline{0.096$\pm$0.004} & 0.703$\pm$0.006 & 0.747$\pm$0.008 & 0.110$\pm$0.007 \\
-\midrule
-Amazon-Books & Random & \textbf{0.924$\pm$0.013} & \textbf{0.949$\pm$0.008} & \textbf{0.032$\pm$0.007} & \underline{0.861$\pm$0.009} & \underline{0.931$\pm$0.012} & 0.085$\pm$0.004 & 0.812$\pm$0.013 & 0.862$\pm$0.014 & \underline{0.068$\pm$0.006} & 0.833$\pm$0.009 & 0.893$\pm$0.017 & 0.078$\pm$0.009 \\
-Amazon-Books & Bandwagon & \textbf{0.901$\pm$0.010} & \textbf{0.922$\pm$0.013} & \textbf{0.035$\pm$0.007} & \underline{0.823$\pm$0.008} & \underline{0.889$\pm$0.016} & 0.095$\pm$0.006 & 0.789$\pm$0.009 & 0.835$\pm$0.017 & \underline{0.075$\pm$0.006} & 0.808$\pm$0.008 & 0.864$\pm$0.010 & 0.086$\pm$0.003 \\
-Amazon-Books & AUSH & \textbf{0.875$\pm$0.011} & \textbf{0.892$\pm$0.014} & \textbf{0.038$\pm$0.006} & 0.754$\pm$0.010 & 0.816$\pm$0.012 & 0.105$\pm$0.009 & 0.763$\pm$0.007 & 0.805$\pm$0.012 & \underline{0.082$\pm$0.006} & \underline{0.771$\pm$0.012} & \underline{0.823$\pm$0.016} & 0.094$\pm$0.006 \\
-Amazon-Books & GraphAttack & \textbf{0.862$\pm$0.013} & \textbf{0.875$\pm$0.016} & \textbf{0.041$\pm$0.005} & 0.741$\pm$0.013 & 0.799$\pm$0.008 & 0.115$\pm$0.007 & 0.752$\pm$0.012 & 0.790$\pm$0.013 & \underline{0.089$\pm$0.006} & \underline{0.763$\pm$0.014} & \underline{0.811$\pm$0.018} & 0.102$\pm$0.008 \\
-Amazon-Books & Agent4SR & \textbf{0.834$\pm$0.009} & \textbf{0.843$\pm$0.008} & \textbf{0.044$\pm$0.005} & 0.681$\pm$0.009$^\dag$ & 0.735$\pm$0.008 & 0.125$\pm$0.007 & \underline{0.722$\pm$0.009} & \underline{0.756$\pm$0.012} & \underline{0.096$\pm$0.003} & 0.712$\pm$0.005 & 0.756$\pm$0.013 & 0.110$\pm$0.009 \\
-\midrule
-Amazon-Clothing & Random & \textbf{0.908$\pm$0.006} & \textbf{0.933$\pm$0.016} & \textbf{0.032$\pm$0.004} & \underline{0.843$\pm$0.011} & \underline{0.913$\pm$0.015} & 0.085$\pm$0.009 & 0.797$\pm$0.011 & 0.847$\pm$0.014 & \underline{0.068$\pm$0.004} & 0.818$\pm$0.008 & 0.878$\pm$0.013 & 0.078$\pm$0.008 \\
-Amazon-Clothing & Bandwagon & \textbf{0.883$\pm$0.014} & \textbf{0.904$\pm$0.012} & \textbf{0.035$\pm$0.007} & \underline{0.811$\pm$0.006} & \underline{0.877$\pm$0.009} & 0.095$\pm$0.007 & 0.776$\pm$0.014 & 0.822$\pm$0.017 & \underline{0.075$\pm$0.006} & 0.793$\pm$0.006 & 0.849$\pm$0.014 & 0.086$\pm$0.009 \\
-Amazon-Clothing & AUSH & \textbf{0.858$\pm$0.012} & \textbf{0.875$\pm$0.017} & \textbf{0.038$\pm$0.005} & 0.738$\pm$0.009 & 0.800$\pm$0.016 & 0.105$\pm$0.006 & 0.751$\pm$0.007 & 0.793$\pm$0.007 & \underline{0.082$\pm$0.004} & \underline{0.759$\pm$0.013} & \underline{0.811$\pm$0.008} & 0.094$\pm$0.005 \\
-Amazon-Clothing & GraphAttack & \textbf{0.846$\pm$0.008} & \textbf{0.859$\pm$0.015} & \textbf{0.041$\pm$0.003} & 0.724$\pm$0.010 & 0.782$\pm$0.011 & 0.115$\pm$0.005 & 0.739$\pm$0.008 & 0.777$\pm$0.008 & \underline{0.089$\pm$0.009} & \underline{0.747$\pm$0.010} & \underline{0.795$\pm$0.016} & 0.102$\pm$0.004 \\
-Amazon-Clothing & Agent4SR & \textbf{0.816$\pm$0.010} & \textbf{0.825$\pm$0.012} & \textbf{0.044$\pm$0.005} & 0.669$\pm$0.010$^\dag$ & 0.723$\pm$0.014 & 0.125$\pm$0.003 & \underline{0.708$\pm$0.009} & \underline{0.742$\pm$0.009} & \underline{0.096$\pm$0.009} & 0.698$\pm$0.005 & 0.742$\pm$0.013 & 0.110$\pm$0.008 \\
-\midrule
-Yelp2018 & Random & \textbf{0.917$\pm$0.009} & \textbf{0.942$\pm$0.015} & \textbf{0.032$\pm$0.004} & \underline{0.854$\pm$0.011} & \underline{0.924$\pm$0.017} & 0.085$\pm$0.004 & 0.807$\pm$0.010 & 0.857$\pm$0.016 & \underline{0.068$\pm$0.006} & 0.827$\pm$0.014 & 0.887$\pm$0.009 & 0.078$\pm$0.008 \\
-Yelp2018 & Bandwagon & \textbf{0.892$\pm$0.009} & \textbf{0.913$\pm$0.012} & \textbf{0.035$\pm$0.005} & \underline{0.818$\pm$0.006} & \underline{0.884$\pm$0.010} & 0.095$\pm$0.005 & 0.782$\pm$0.007 & 0.828$\pm$0.012 & \underline{0.075$\pm$0.008} & 0.801$\pm$0.009 & 0.857$\pm$0.012 & 0.086$\pm$0.005 \\
-Yelp2018 & AUSH & \textbf{0.869$\pm$0.009} & \textbf{0.886$\pm$0.008} & \textbf{0.038$\pm$0.008} & 0.747$\pm$0.012 & 0.809$\pm$0.016 & 0.105$\pm$0.008 & 0.759$\pm$0.007 & 0.801$\pm$0.017 & \underline{0.082$\pm$0.008} & \underline{0.767$\pm$0.011} & \underline{0.819$\pm$0.011} & 0.094$\pm$0.008 \\
-Yelp2018 & GraphAttack & \textbf{0.856$\pm$0.013} & \textbf{0.869$\pm$0.014} & \textbf{0.041$\pm$0.009} & 0.733$\pm$0.008 & 0.791$\pm$0.009 & 0.115$\pm$0.006 & 0.747$\pm$0.010 & 0.785$\pm$0.013 & \underline{0.089$\pm$0.004} & \underline{0.756$\pm$0.011} & \underline{0.804$\pm$0.013} & 0.102$\pm$0.006 \\
-Yelp2018 & Agent4SR & \textbf{0.827$\pm$0.007} & \textbf{0.836$\pm$0.010} & \textbf{0.044$\pm$0.005} & 0.676$\pm$0.010$^\dag$ & 0.730$\pm$0.008 & 0.125$\pm$0.005 & \underline{0.718$\pm$0.014} & \underline{0.752$\pm$0.009} & \underline{0.096$\pm$0.007} & 0.707$\pm$0.012 & 0.751$\pm$0.015 & 0.110$\pm$0.004 \\
+ML-1M & Random & 0.350±0.443 & 0.993±0.007 & 0.309±0.244 & 0.930±0.077 & 0.994±0.008 & 0.007±0.010 & — & — & — & \textbf{0.937±0.013} & 1.000±0.000 & 0.003±0.004 \\
+ML-1M & Bandwagon & 0.348±0.442 & 1.000±0.000 & 0.316±0.245 & 0.878±0.100 & 0.979±0.015 & 0.011±0.015 & — & — & — & \textbf{0.931±0.069} & 0.993±0.009 & 0.006±0.009 \\
+ML-1M & AUSH & 0.350±0.444 & 1.000±0.000 & 0.309±0.244 & \textbf{0.556±0.124} & 0.970±0.018 & 0.031±0.029 & — & — & — & 0.313±0.061 & 0.950±0.024 & 0.076±0.055 \\
+ML-1M & Agent4SR & 0.035±0.019 & 0.992±0.008 & 0.472±0.129 & 0.825±0.098 & 0.783±0.117 & 0.001±0.000 & — & — & — & \textbf{0.862±0.045} & 0.975±0.008 & 0.002±0.000 \\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \end{table*}
