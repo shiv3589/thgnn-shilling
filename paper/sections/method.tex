@@ -209,10 +209,10 @@ Our Attack-Aware Anomaly Attention (AAA) module addresses this gap by folding
 three anomaly priors directly into the pre-softmax logit,
 \begin{align}
   \mathrm{ATT}_{\mathrm{AAA}}(s, e, d)
-  = \mathrm{ATT}_{\mathrm{base}}(s, e, d)
+  &= \mathrm{ATT}_{\mathrm{base}}(s, e, d)
   + \lambda_t\, f_{\mathrm{temporal}}(\Delta t_{sd})
-  + \lambda_s\, f_{\mathrm{semantic}}(r_{sd})
-  + \lambda_g\, f_{\mathrm{structural}}(d_s),
+  + \lambda_s\, f_{\mathrm{semantic}}(r_{sd}) \notag \\
+  &\quad + \lambda_g\, f_{\mathrm{structural}}(d_s),
   \label{eq:aaa}
 \end{align}
 where $f_{\mathrm{temporal}}(\Delta t) = -\log(\Delta t / \mu_{\Delta t} + \epsilon)$
