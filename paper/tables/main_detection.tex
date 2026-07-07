@@ -3,16 +3,16 @@
 \small
 \caption{Detection performance (F1 / DR / FAR) across datasets and attack types. Single seed (42). Mean~$\pm$~std over injection rates $\{0.5\%, 1\%, 5\%\}$ for Random/Bandwagon/AUSH; Agent4SR averaged over $\{0.5\%, 1\%\}$ only (rate 5\% omitted, see Limitations). \textbf{Bold} = best F1 per row.}
 \label{tab:main_detection}
-\begin{tabular}{llrrrrrrrrrrrr}
+\begin{tabular}{llrrrrrrrrr}
 \toprule
-Dataset & Attack & \multicolumn{3}{c}{TH-GNN} & \multicolumn{3}{c}{Statistical} & \multicolumn{3}{c}{SemanticShield} & \multicolumn{3}{c}{Anti-FakeU} \\
-\cmidrule(lr){3-14}
- &  & F1 & DR & FAR & F1 & DR & FAR & F1 & DR & FAR & F1 & DR & FAR \\
+Dataset & Attack & \multicolumn{3}{c}{TH-GNN} & \multicolumn{3}{c}{Statistical} & \multicolumn{3}{c}{Anti-FakeU} \\
+\cmidrule(lr){3-11}
+ &  & F1 & DR & FAR & F1 & DR & FAR & F1 & DR & FAR \\
 \midrule
-ML-1M & Random & 0.350±0.443 & 0.993±0.007 & 0.309±0.244 & 0.930±0.077 & 0.994±0.008 & 0.007±0.010 & — & — & — & \textbf{0.937±0.013} & 1.000±0.000 & 0.003±0.004 \\
-ML-1M & Bandwagon & 0.348±0.442 & 1.000±0.000 & 0.316±0.245 & 0.878±0.100 & 0.979±0.015 & 0.011±0.015 & — & — & — & \textbf{0.931±0.069} & 0.993±0.009 & 0.006±0.009 \\
-ML-1M & AUSH & 0.350±0.444 & 1.000±0.000 & 0.309±0.244 & \textbf{0.556±0.124} & 0.970±0.018 & 0.031±0.029 & — & — & — & 0.313±0.061 & 0.950±0.024 & 0.076±0.055 \\
-ML-1M & Agent4SR & 0.035±0.019 & 0.992±0.008 & 0.472±0.129 & 0.825±0.098 & 0.783±0.117 & 0.001±0.000 & — & — & — & \textbf{0.862±0.045} & 0.975±0.008 & 0.002±0.000 \\
+ML-1M & Random & 0.350±0.443 & 0.993±0.007 & 0.309±0.244 & 0.930±0.077 & 0.994±0.008 & 0.007±0.010 & \textbf{0.937±0.013} & 1.000±0.000 & 0.003±0.004 \\
+ML-1M & Bandwagon & 0.348±0.442 & 1.000±0.000 & 0.316±0.245 & 0.878±0.100 & 0.979±0.015 & 0.011±0.015 & \textbf{0.931±0.069} & 0.993±0.009 & 0.006±0.009 \\
+ML-1M & AUSH & 0.350±0.444 & 1.000±0.000 & 0.309±0.244 & \textbf{0.556±0.124} & 0.970±0.018 & 0.031±0.029 & 0.313±0.061 & 0.950±0.024 & 0.076±0.055 \\
+ML-1M & Agent4SR & 0.035±0.019 & 0.992±0.008 & 0.472±0.129 & 0.825±0.098 & 0.783±0.117 & 0.001±0.000 & \textbf{0.862±0.045} & 0.975±0.008 & 0.002±0.000 \\
 \bottomrule
 \end{tabular}
 \end{table*}

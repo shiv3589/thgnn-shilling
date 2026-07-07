@@ -3,16 +3,16 @@
 \small
 \caption{Downstream recommendation quality (NDCG@10 / HR@10) after detection and filtering.  \textbf{Bold} = best NDCG@10 per row.}
 \label{tab:downstream_ndcg}
-\begin{tabular}{llrrrrrrrr}
+\begin{tabular}{llrrrrrr}
 \toprule
-Dataset & Attack & \multicolumn{2}{c}{TH-GNN} & \multicolumn{2}{c}{Statistical} & \multicolumn{2}{c}{SemanticShield} & \multicolumn{2}{c}{Anti-FakeU} \\
-\cmidrule(lr){3-10}
- &  & N@10 & H@10 & N@10 & H@10 & N@10 & H@10 & N@10 & H@10 \\
+Dataset & Attack & \multicolumn{2}{c}{TH-GNN} & \multicolumn{2}{c}{Statistical} & \multicolumn{2}{c}{Anti-FakeU} \\
+\cmidrule(lr){3-8}
+ &  & N@10 & H@10 & N@10 & H@10 & N@10 & H@10 \\
 \midrule
-ML-1M & Random & \textbf{0.370±0.004} & 0.777±0.015 & 0.366±0.000 & 0.775±0.008 & — & — & 0.365±0.002 & 0.770±0.008 \\
-ML-1M & Bandwagon & \textbf{0.372±0.007} & 0.774±0.009 & 0.365±0.002 & 0.772±0.004 & — & — & 0.365±0.001 & 0.773±0.002 \\
-ML-1M & AUSH & \textbf{0.370±0.004} & 0.770±0.012 & 0.359±0.010 & 0.767±0.014 & — & — & 0.368±0.005 & 0.778±0.002 \\
-ML-1M & Agent4SR & \textbf{0.373±0.004} & 0.770±0.013 & 0.363±0.002 & 0.764±0.001 & — & — & 0.364±0.002 & 0.767±0.010 \\
+ML-1M & Random & \textbf{0.370±0.004} & 0.777±0.015 & 0.366±0.000 & 0.775±0.008 & 0.365±0.002 & 0.770±0.008 \\
+ML-1M & Bandwagon & \textbf{0.372±0.007} & 0.774±0.009 & 0.365±0.002 & 0.772±0.004 & 0.365±0.001 & 0.773±0.002 \\
+ML-1M & AUSH & \textbf{0.370±0.004} & 0.770±0.012 & 0.359±0.010 & 0.767±0.014 & 0.368±0.005 & 0.778±0.002 \\
+ML-1M & Agent4SR & \textbf{0.373±0.004} & 0.770±0.013 & 0.363±0.002 & 0.764±0.001 & 0.364±0.002 & 0.767±0.010 \\
 \bottomrule
 \end{tabular}
 \end{table*}
