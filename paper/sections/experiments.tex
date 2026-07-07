@@ -24,76 +24,33 @@
 \subsection{Datasets}
 \label{sec:datasets}
 
-We evaluate on four publicly available benchmarks spanning diverse domains,
-review densities, and temporal extents (Table~\ref{tab:datasets}).
-All datasets are filtered to the 5-core (users and items with at least five interactions),
-split 70/10/20 by timestamp, and shared across all detectors and attacks.
-
-\begin{table}[t]
-\centering
-\small
-\setlength{\tabcolsep}{5pt}
-\caption{Dataset statistics after 5-core filtering.
-  $^\dagger$ML-1M contains no review text; the review and item text
-  streams fall back to zero vectors for this dataset.
-  $^\ddagger$Amazon Video Games spans 1999--2023 and exhibits a sharp
-  k-core percolation threshold; the full category contains 2.77M raw
-  users but only 94,080 form a mutually 5-core-connected subgraph. The
-  same threshold made Amazon Movies \& TV and Digital Music unusable
-  as benchmarks at comparable scale (see supplementary material).}
-\label{tab:datasets}
-\begin{tabular}{lrrrrl}
-\toprule
-Dataset & \#Users & \#Items & \#Reviews & \#Ratings & Span \\
-\midrule
-ML-1M$^\dagger$  &   6,040 &   3,416 &    999,611 &    999,611 & 2000--2003 \\
-Amazon Video Games$^\ddagger$ &  94,080 &  31,347 &   816,608 &    816,608 & 1999--2023 \\
-Amazon Arts \& Crafts & 205,343 &  92,755 &  1,875,357 &  1,875,357 & 1998--2023 \\
-Amazon Musical Instruments & 59,941 &  25,528 &    538,980 &    538,980 & 1999--2023 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Together, these four datasets~\cite{harper2015movielens,ni2019justifying,he2020lightgcn}
-span rating-only and text-rich settings, sparse and dense interaction graphs, and
-short and long temporal windows, from 2000s DVD-era catalogues to modern digital
-storefronts (Table~\ref{tab:datasets}).
+All experiments are conducted on MovieLens-1M (ML-1M)~\cite{harper2015movielens}, a widely-used benchmark containing 1,000,209 ratings from 6,040 users on 3,416 movies with timestamps. ML-1M contains no review text; the review and item text streams in TH-GNN fall back to zero vectors for this dataset, isolating the contribution of graph structure and temporal signals. We apply a 70/10/20 temporal split. Evaluation on datasets with review text (Amazon, Yelp) is left for future work.
 
 % ── Baselines ─────────────────────────────────────────────────────────────────
 \subsection{Baselines}
 \label{sec:baselines}
 
-We compare against three representative shilling-attack detectors that collectively cover
-the statistical, text-semantic, and graph-structural detection paradigms.
+We compare against two unsupervised baselines evaluated via Isolation Forest anomaly scoring on hand-crafted behavioural features — representing a realistic deployment scenario where ground-truth labels are unavailable:
 
-\noindent\textbf{Statistical.}~\cite{chirita2005preventing} A random-forest
-classifier over per-user rating features (deviation from item mean, WDMA,
-profile length, filler-item ratio) (evaluated in unsupervised mode using
-Isolation Forest anomaly scoring on hand-crafted behavioural features).
+\noindent\textbf{Statistical}~\cite{chirita2005preventing} extracts rating statistics (mean, variance, entropy, filler ratio) per user.
 
-\noindent\textbf{SemanticShield.}~\cite{li2025semanticshield} Encodes each
-user's review text with a pre-trained language model and scores profiles by
-semantic drift from the population centroid (evaluated in unsupervised mode
-using Isolation Forest anomaly scoring on hand-crafted behavioural features).
+\noindent\textbf{Anti-FakeU}~\cite{zhang2022antifakeu} constructs a bipartite user-item graph and extracts structural anomaly features.
 
-\noindent\textbf{Anti-FakeU.}~\cite{zhang2022antifakeu} Builds a user--item
-bipartite graph and scores fake users via first-order neighbourhood anomaly
-statistics (co-purchase overlap, degree asymmetry) (evaluated in unsupervised
-mode using Isolation Forest anomaly scoring on hand-crafted behavioural
-features).
+SemanticShield~\cite{li2025semanticshield} was excluded from the evaluation matrix due to its dependency on a fine-tuned LLM auditor not available in our experimental environment.
 
 % ── Attack Setup ──────────────────────────────────────────────────────────────
 \subsection{Attack Setup}
 \label{sec:attacks}
 
-We evaluate against five attack families: Random and Bandwagon
+We evaluate against four attack families: Random and Bandwagon
 (classic)~\cite{lam2004shilling,mobasher2007attacks}, AUSH
-(GAN)~\cite{lin2020aush}, GraphAttack
-(GNN-targeted)~\cite{wu2022graphattack}, and Agent4SR (LLM-agent,
-re-implemented with GPT-4o; profiles cached to
-\texttt{data/agent4sr\_cache/})~\cite{zhang2024agent4sr}.
+(GAN)~\cite{lin2020aush}, and Agent4SR (LLM-agent,
+re-implemented with a locally-hosted LLM via Ollama; profiles cached to
+\texttt{data/agent4sr\_cache/})~\cite{zhang2024agent4sr}. GraphAttack, a
+GNN-targeted attack~\cite{wu2022graphattack}, was implemented but not
+included in this evaluation matrix; we leave it for future work.
 Each fake profile is assigned a 10\,\% catalogue budget targeting $n\!=\!5$
-top-decile items, swept over injection rates $\{0.5\%, 1\%, 5\%\}$.\footnote{For
+top-decile items, swept over three injection rates (0.5\%, 1\%, 5\%) for heuristic and GAN attacks; rates 0.5\% and 1\% only for Agent4SR due to LLM generation cost at higher injection volumes.\footnote{For
 Agent4SR specifically, profiles are capped at 50 filler items per fake user
 regardless of injection rate, as LLM context limits prevent rating full item
 catalogues in a single completion.}
@@ -108,9 +65,9 @@ TH-GNN: 2-layer HGT (hidden dim 128, 4 heads), 64-dim temporal encoding,
 Adam (lr\,$=$\,$10^{-3}$, weight decay $10^{-4}$, batch size 512, patience 10)
 using focal loss~\cite{lin2017focal} ($\gamma\,{=}\,2.0$, $\alpha\,{=}\,0.25$)
 for class imbalance.\footnote{Downstream victim model: LightGCN~\cite{he2020lightgcn}
-(64-dim embeddings, 3 layers, NDCG@10/HR@10). All 720 main experiments
-(4 datasets $\times$ 5 attacks $\times$ 3 rates $\times$ 3 seeds $\times$
-4 detectors) ran on a single NVIDIA A100 80\,GB GPU ($\approx$\,18\,h wall-clock).}
+(64-dim embeddings, 3 layers, NDCG@10/HR@10). All 33 experimental configurations
+ran with a single random seed (seed\,$=$\,42) on a single NVIDIA RTX PRO 4000
+(24GB VRAM) GPU (approximately 2 hours wall-clock).}
 
 % ── Main Results ──────────────────────────────────────────────────────────────
 \subsection{Main Results}
@@ -144,140 +101,6 @@ heterogeneous graph transformer, or the text-fusion streams individually)
 were not run as part of this study and are left for future work; we
 report only the full-model row here rather than speculate about
 per-component contributions without supporting data.
-
-% ── Generalisation ────────────────────────────────────────────────────────────
-\subsection{Generalisation to Unseen Attack Families}
-\label{sec:generalisation}
-
-\input{tables/generalisation}
-
-A practical detector must handle attack types it has not seen during training,
-since adversaries continuously develop new injection strategies.
-Table~\ref{tab:generalisation} reports a cross-attack transfer experiment
-(classic attacks $\to$ unseen Agent4SR, and the reverse Agent4SR $\to$ unseen
-GraphAttack) on ML-1M and Amazon Arts \& Crafts.
-Preliminary results are consistent with the main findings: TH-GNN's margin
-over text-only and graph-only baselines persists under both unseen-attack
-directions (full results in supplementary material).
-
-% ── Robustness ────────────────────────────────────────────────────────────────
-\subsection{Robustness under Missing Modalities}
-\label{sec:robustness}
-
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\textwidth]{figures/robustness_curves}
-  \caption{F\textsubscript{1} vs.\ degradation level for three missing-modality
-    conditions on Amazon Arts \& Crafts + Agent4SR (1\,\% injection rate,
-    mean\,$\pm$\,std over three seeds).
-    \emph{Left}: zeroing review texts for up to 50\,\% of users causes
-    TH-GNN virtually no degradation ($\Delta$F\textsubscript{1}\,$\leq$\,$-$0.013)
-    while SemanticShield collapses by 11.4\,pp, validating TH-GNN's
-    resilience to missing text already observed on ML-1M.
-    \emph{Centre}: Gaussian timestamp noise at $\sigma\!=\!0.5\!\times\!\text{std}(t)$
-    degrades TH-GNN by 4.9\,pp, less than any structural drop because temporal
-    burstiness features are robust to additive noise.
-    \emph{Right}: removing 50\,\% of edges reduces all detectors' performance;
-    TH-GNN suffers the largest absolute drop (6.7\,pp) but remains the best
-    detector at every degradation level.}
-  \label{fig:robustness_curves}
-\end{figure*}
-
-TH-GNN degrades gracefully under missing modalities—F\textsubscript{1} drops
-by at most 1.3\,pp with 50\,\% text removal and 6.7\,pp with 50\,\% edge
-removal, as temporal and graph streams compensate.
-Full curves in Figure~\ref{fig:robustness_curves}.
-
-% ── Statistical Significance ──────────────────────────────────────────────
-\subsection{Statistical Significance}
-\label{sec:significance}
-
-TH-GNN's advantage is significant at $p\!<\!0.01$ in all 20 dataset–attack
-combinations against every baseline (one-sided Wilcoxon signed-rank test,
-$n\!=\!9$ paired seed\,$\times$\,injection-rate observations per cell, mean
-Cohen's $d\!>\!11$).
-With only $k\!=\!3$ random seeds, statistical power is inherently limited
-(minimum achievable one-tailed $p\!\approx\!0.002$ after pooling injection
-rates); we report this transparently, noting TH-GNN outperforms every
-baseline on every individual seed and rate.
-
-% ── Attention Weight Analysis ─────────────────────────────────────────────
-\subsection{Attention Weight Analysis}
-\label{sec:attention}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{figures/attention_heatmap}
-  \caption{TH-GNN attention signals for the five highest-scoring detected fake
-    users and five lowest-scoring real users on Amazon Arts \& Crafts (Agent4SR attack).
-    Rows are sorted by shilling score within each group; columns show
-    (left)~graph attention weight on \textsc{user}\,$\to$\,\textsc{item} edges,
-    (centre)~temporal-encoding magnitude capturing review-timing burstiness,
-    and (right)~cross-modal fusion weight on the review-text stream.
-    Fake users exhibit markedly higher temporal and text signals while real
-    users maintain moderate, uniform attention across all three streams.}
-  \label{fig:attention_heatmap}
-\end{figure}
-
-To understand \emph{why} TH-GNN detects Agent4SR attackers, we examine
-per-edge attention and temporal-encoding weights (Figure~\ref{fig:attention_heatmap})
-and one fake user's ego-subgraph (Figure~\ref{fig:attention_graph}).
-Fake users receive elevated graph attention and temporal-encoding magnitude
-relative to real users, reflecting that their rating and timing patterns
-deviate from genuine neighbourhood statistics, and this signal concentrates
-on the small cluster of target items an LLM-agent profile is designed to
-promote—a temporal-structural fingerprint that is detectable even when the
-review text itself is superficially realistic.
-
-% ── Scalability ───────────────────────────────────────────────────────────
-\subsection{Scalability}
-\label{sec:scalability}
-
-\begin{table}[h]
-  \centering
-  \small
-  \setlength{\tabcolsep}{4pt}
-  \caption{TH-GNN computational profile on proxy datasets (CPU, single core).
-    Training time is extrapolated to 30 epochs from 5 timed epochs.
-    Inference per 1\,000 users is the mean of five timed forward passes
-    after two warm-up runs.  GPU inference is $\sim$\,10$\times$ faster.
-    Timing and $|E|$ for Video Games, Arts \& Crafts, and Musical
-    Instruments are pending re-profiling after the dataset swap;
-    $|U|$ reflects the actual 5-core graph for all four datasets.}
-  \label{tab:scalability_text}
-  \begin{tabular}{lrrrr}
-    \toprule
-    Dataset & $|U|$ & $|E|$ & Train/epoch\,(s) & Inf/1k\,(ms) \\
-    \midrule
-    ML-1M            &  6\,040 &  90\,600 & 0.31 & 130 \\
-    Video Games      & 94\,080 & 285\,540 & --   & --  \\
-    Arts \& Crafts    & 205\,343 &      -- & --   & --  \\
-    Musical Instruments & 59\,941 &     -- & --   & --  \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-Each HGT layer costs $\mathcal{O}(|E| H d^2)$ per layer, giving overall
-inference complexity $\mathcal{O}(|E|)$ for fixed $H$ and $d$
-(Table~\ref{tab:scalability_text}, Figure~\ref{fig:scalability}).
-On a single CPU core, TH-GNN processes 1\,000 users in $\approx$\,125\,ms
-($\approx$\,8\,000 users/s), confirming near-linear empirical scaling with a
-lightweight 308\,899-parameter model.
-
-% ── Cross-Dataset Transfer ─────────────────────────────────────────────────
-\subsection{Cross-Dataset Transfer}
-\label{sec:transfer}
-
-\input{tables/transfer}
-
-A practical deployment scenario often requires applying a detector trained on
-one platform or domain to a new target where labelled attack data is scarce.
-Table~\ref{tab:transfer} reports a cross-dataset transfer protocol
-(\texttt{scripts/run\_transfer.py}) across four source/target pairs under
-zero-shot, fine-tuned, and full-target training conditions.
-Preliminary results are consistent with the main findings: TH-GNN retains the
-majority of its full-target F1 under zero-shot transfer across all pairs
-(full results in supplementary material).
 
 % ── Limitations ───────────────────────────────────────────────────────────
 \subsection{Limitations}
