@@ -245,7 +245,7 @@ txt(SX + 0.225, Y_GR - 0.10, "log1p Δt", fs=6, color=C_ORG)
 
 rbox(SX + 0.55, Y_GR - 0.20, 0.65, 0.40,
      fc="#FEF0E5", ec=C_ORG, lw=0.9, zorder=3, pad=0.04)
-txt(SX + 0.55 + 0.325, Y_GR + 0.05, "Burstiness GRU", fs=6.8, color=C_ORG, bold=True)
+txt(SX + 0.55 + 0.325, Y_GR + 0.05, "Burstiness GRU", fs=5.2, color=C_ORG, bold=True)
 txt(SX + 0.55 + 0.325, Y_GR - 0.10, "32-dim burst", fs=6, color=C_ORG)
 
 arrow(SX + 0.45, Y_GR, SX + 0.55, Y_GR,
