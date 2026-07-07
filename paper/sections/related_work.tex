@@ -10,24 +10,27 @@
 \label{sec:rel_shilling}
 
 Shilling attack detection has a two-decade history spanning statistical,
-supervised, and graph-based paradigms.
+supervised, and graph-based paradigms, surveyed extensively
+elsewhere~\cite{si2018shilling,sundar2020understanding,zayed2023experimental,nawara2025shilling}.
 The foundational statistical approach treated each user's rating profile as a
 feature vector and flagged outliers: Chirita et al.~\cite{chirita2005preventing}
 defined per-user features—rating deviation from the item mean, weighted
 deviation from mean average (WDMA), profile length, and filler-item
 ratio—capturing the coarse fingerprints of injection, PCA-based methods
 treated injected profiles as low-rank perturbations separating from genuine
-user variance~\cite{williams2006detection}, and clustering grouped users whose
-rating vectors were suspiciously similar~\cite{mehta2009unsupervised}.
+user variance~\cite{williams2006detection}, and clustering or reliability-based
+methods grouped users whose rating vectors were suspiciously
+similar~\cite{mehta2009unsupervised,zhang2020detecting,cai2021bssc,gunes2025beavar,alonso2019robust}.
 These statistical detectors were fast and needed no labelled data but failed
 against adaptive attacks calibrated to match the genuine rating distribution,
 such as bandwagon~\cite{mobasher2007attacks}.
 Supervised classifiers introduced labelled shilling datasets and per-user
 feature engineering: random-forest and SVM detectors trained on rating-based
 features achieved strong recall against known attack families but overfitted
-to the training-time injection signature~\cite{burke2005segment}, and
+to the training-time injection signature~\cite{burke2005segment,wen2016svmtia,bansal2021shilldetector}, and
 deep-learning variants replaced hand-crafted statistics with recurrent or
-convolutional encoders over rating sequences~\cite{wu2021fight}.
+convolutional encoders over rating
+sequences~\cite{wu2021fight,tong2018shilling,vivekanandan2020hybrid,ebrahimian2020detecting,hao2020unsupervised,hao2018detecting,moradi2023detecting}.
 However, all of these approaches treat users independently; they miss the
 relational anomalies produced when a group of fake profiles collectively
 targets a set of items.
@@ -36,7 +39,18 @@ Graph-based detectors exploited this relational signal.
 Methods that built user-item bipartite graphs and scored nodes by structural
 anomaly measures—degree asymmetry, neighbourhood overlap, co-purchase
 concentration—substantially outperformed single-user statistics against
-structurally coherent attack families such as AUSH~\cite{lin2020aush}.
+structurally coherent attack families such as AUSH~\cite{lin2020aush}, whose
+GAN-based profile generation was subsequently extended by gray-box and
+black-box adversarial variants~\cite{wang2022graybox,lin2022shilling,liu2024novel},
+penalized latent-perturbation GANs~\cite{nawara2025penalized}, and
+multi-distribution generative attacks~\cite{zhou2026mdmgansa,yu2025rupgan}, each
+further narrowing the statistical gap between fake and genuine rating
+distributions.
+On the detection side, group-level and structural methods further exploited
+this relational signal via graph convolutional
+scoring~\cite{wang2022detecting}, hypergraph spectral
+features~\cite{li2021fusing}, and rating-time-series credibility
+measures~\cite{zhou2018shilling}.
 Anti-FakeU~\cite{zhang2022antifakeu} is the most directly comparable prior
 work: it constructs a bipartite user-item graph and detects fake users through
 graph-based anomaly scoring over first-order neighbourhood statistics including
@@ -136,6 +150,11 @@ The resulting profiles were grammatically fluent, topically coherent, and
 statistically similar to genuine users, systematically evading detectors
 that relied on either distributional rating anomalies or linguistic
 outlier detection.
+This capability builds on the broader emergence of LLM-based and agentic
+recommendation~\cite{lin2023survey,wang2023survey,plaat2025agentic}, which has
+made such attacks increasingly practical to mount at scale, and raises
+security concerns that extend beyond recommender systems to LLM agents
+generally~\cite{he2024security}.
 Related work has explored LLM-based poisoning in broader adversarial
 recommendation settings~\cite{deldjoo2024survey}, and prompt-injection attacks
 against retrieval-augmented recommenders~\cite{shi2023large}, but systematic
