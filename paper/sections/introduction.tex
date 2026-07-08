@@ -1,4 +1,4 @@
-% ============================================================
+﻿% ============================================================
 %  introduction.tex — TH-GNN paper, NeurIPS 2025
 % ============================================================
 
@@ -39,9 +39,9 @@ a pattern we analyse in detail in Section~\ref{sec:results}.
 
 \noindent\textbf{Contributions.}
 \begin{itemize}
-  \item We propose \textbf{TH-GNN}, a Temporal Heterogeneous Graph Neural Network combining heterogeneous graph attention (AAA mechanism), relative temporal encoding, and multimodal review-text fusion — the first detector to jointly model all three signal types for shilling detection.
+  \item We propose \textbf{TH-GNN}, a Temporal Heterogeneous Graph Neural Network combining heterogeneous graph attention, relative temporal encoding, and multimodal review-text fusion — to our knowledge, the first detector to jointly model all three signal types for shilling detection.
   \item We conduct the \textbf{first systematic empirical study} evaluating four attack families of increasing sophistication (heuristic, GAN-based, LLM-agent) against both feature-based and graph-based detectors under a unified protocol.
   \item We reveal a \textbf{critical asymmetry}: feature-based detectors collapse against GAN-based AUSH profiles (Anti-FakeU F1 drops from 0.937 to 0.313) while maintaining high recall, whereas TH-GNN maintains consistent DR\,$>$\,0.99 across all attacks but suffers precision degradation — suggesting the two paradigms capture orthogonal anomaly signals.
-  \item We demonstrate that \textbf{LLM-agent attacks represent an open frontier}: no current detector achieves satisfactory F1 against Agent4SR profiles, with the best baseline achieving F1\,=\,0.862 and TH-GNN achieving F1\,=\,0.035 — motivating future work on precision-recall calibration for graph-based detectors.
+  \item We reveal that \textbf{feature-based detectors remain effective against the current Agent4SR implementation} (best F1\,=\,0.862), primarily because LLM-generated profiles still exhibit detectable volume and temporal-concentration artifacts under the experimental setup (50-filler cap, injection-window clustering); graph-based TH-GNN suffers precision collapse under the resulting distribution shift (F1\,=\,0.035). The open frontier is detection when these incidental artifacts are removed and when graph-based detectors can be calibrated without label access.
   \item We release a \textbf{reproducible benchmark} covering 33 experimental configurations across 4 attack families, with code at \url{https://github.com/shiv3589/thgnn-shilling}.
 \end{itemize}
