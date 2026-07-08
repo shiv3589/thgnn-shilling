@@ -1,6 +1,70 @@
 % ============================================================
 %  appendix.tex — TH-GNN paper
-%  No appendix content — the figures previously here (attention-graph
-%  ego-subgraph, scalability sweep) depicted experiments never run in
-%  this study's scope and were removed. Not \input from main.tex.
+%  Contains: intuitive motivation for AAA attention (moved from
+%  Section 3.4 to avoid overstating a formal guarantee).
 % ============================================================
+
+\appendix
+
+\section{Intuitive Motivation for AAA Expressiveness}
+\label{app:theory}
+
+The following proposition and sketch are offered as \emph{design intuition}
+rather than a guarantee: they show that a parameter setting \emph{exists} that
+produces the desired separation under idealised conditions, not that gradient
+descent reliably finds it.
+
+\begin{proposition}[Expressiveness of AAA over bilinear-only HGT]
+\label{prop:aaa}
+Let $\mathcal{G}$ be a heterogeneous temporal graph containing a coordinated
+shilling campaign $\mathcal{C}$ injected at rate $\varepsilon$ with temporal
+burstiness $\beta > \beta_0$, semantic incoherence $\delta > \delta_0$, and
+structural thinness $\gamma < \gamma_0$.
+Denote by $\mathrm{ATT}_{\mathrm{base}}$ the pure bilinear attention logit
+$\mathbf{q}(d)^{\!\top}\mathbf{W}_{\mathrm{att}}^{\phi(e)}\mathbf{k}(s)/\sqrt{d_h}$
+(i.e.\ Equation~\eqref{eq:att} with the temporal bias $\varphi(\Delta t)$
+removed).
+Then for any $\eta > 0$, there exists a parameter setting of AAA
+(Equation~\eqref{eq:aaa}) such that:
+$$\| h_u^{\text{AAA}} - h_v^{\text{AAA}} \|_2 > \eta \quad \forall u \in \mathcal{C},\ v \notin \mathcal{C}$$
+whereas $\mathrm{ATT}_{\mathrm{base}}$ alone does not guarantee this separation
+under the same conditions.
+\end{proposition}
+
+\begin{proof}[Sketch]
+For any edge into a campaign member $u \in \mathcal{C}$ with inter-arrival gap
+$\Delta t < \mu_{\Delta t}$ (bursty by definition of $\beta > \beta_0$),
+$f_{\mathrm{temporal}}(\Delta t) = -\log(\Delta t/\mu_{\Delta t} + \epsilon)$ is
+bounded below by a strictly positive constant, so the temporal term shifts
+attention mass away from $u$'s bursty neighbours and toward genuine ones,
+giving campaign members a systematically different aggregated message than
+real users receive.
+The bilinear baseline $\mathrm{ATT}_{\mathrm{base}}$ depends only on projected
+node features $\mathbf{h}_s^{(l)}, \mathbf{h}_d^{(l)}$; LLM-generated profiles
+are explicitly optimised to mimic real user features, so no setting of
+$\mathbf{W}_{\mathrm{att}}^{\phi(e)}$ can reliably separate $\mathcal{C}$ from
+genuine users on feature similarity alone.
+The semantic term $f_{\mathrm{semantic}}(r) = 1 - \cos(\mathbf{e}_r,
+\mathbf{e}_{i(r)})$ supplies an independent signal: even a persona-consistent
+LLM profile exhibits review--item incoherence once it is redirected to rate
+target items that its generated reviews were not written for.
+Because $f_{\mathrm{temporal}}$, $f_{\mathrm{semantic}}$, and
+$f_{\mathrm{structural}}$ enter the same softmax logit additively, their
+combined separating effect grows with the number of anomaly dimensions a
+campaign exhibits simultaneously.
+Choosing $\lambda_t, \lambda_s, \lambda_g$ large enough that
+$\lambda_t f_{\mathrm{temporal}} + \lambda_s f_{\mathrm{semantic}} +
+\lambda_g f_{\mathrm{structural}}$ dominates $\mathrm{ATT}_{\mathrm{base}}$
+in magnitude for any campaign satisfying $\beta > \beta_0$, $\delta > \delta_0$,
+$\gamma < \gamma_0$ forces the post-softmax weights---and hence the embeddings
+$h_u^{\mathrm{AAA}}$ for $u \in \mathcal{C}$---to diverge from those of genuine
+users by at least $\eta$; $\mathrm{ATT}_{\mathrm{base}}$ has no such coupling to
+anomaly evidence.
+\end{proof}
+
+The threshold values $\beta_0$, $\delta_0$, $\gamma_0$ are not fixed a priori
+but are implicitly learned during training through $\lambda_t$, $\lambda_s$, and
+$\lambda_g$.
+Whether the learnt values satisfy the conditions in practice depends on the
+training distribution and is an empirical question orthogonal to the
+existential argument above.
