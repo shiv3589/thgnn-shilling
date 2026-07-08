@@ -1,4 +1,4 @@
-% ============================================================
+﻿% ============================================================
 %  experiments.tex — TH-GNN paper, NeurIPS 2025
 %  Generated from:
 %    configs/paper_runs.yaml
@@ -34,7 +34,7 @@ We compare against two unsupervised baselines evaluated via Isolation Forest ano
 
 \noindent\textbf{Statistical}~\cite{chirita2005preventing} extracts rating statistics (mean, variance, entropy, filler ratio) per user.
 
-\noindent\textbf{Anti-FakeU}~\cite{zhang2022antifakeu} constructs a bipartite user-item graph and extracts structural anomaly features.
+\noindent\textbf{Anti-FakeU}~\cite{you2023antifakeu} constructs a bipartite user-item graph and extracts structural anomaly features.
 
 SemanticShield~\cite{li2025semanticshield} was excluded from the evaluation matrix due to its dependency on a fine-tuned LLM auditor not available in our experimental environment.
 
@@ -124,6 +124,5 @@ per-component contributions without supporting data.
   \item \textbf{Training distribution mismatch:} TH-GNN was trained exclusively on heuristic Random attack profiles. Its precision collapse on Agent4SR (FAR\,=\,0.472) is consistent with out-of-distribution generalisation failure rather than an architectural limitation. Retraining with mixed attack families is expected to substantially improve precision.
   \item \textbf{Single dataset:} All experiments are conducted on ML-1M. Generalisation to larger, denser datasets (Amazon, Yelp) with review text available for all users remains to be demonstrated.
   \item \textbf{Single seed:} Results are reported for seed\,=\,42 only. Multi-seed variance analysis is left for the extended version.
-  \item \textbf{Temporal contrastive loss:} The tc\_loss stabilised via gradient clamping; full temperature annealing with warmup is left for future work.
   \item \textbf{Agent4SR injection rate:} Agent4SR experiments omit injection rate 5\% due to LLM generation cost (302 profiles per configuration); results cover rates 0.5\% and 1\% only.
 \end{itemize}
