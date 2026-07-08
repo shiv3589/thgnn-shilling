@@ -1,4 +1,4 @@
-% ============================================================
+﻿% ============================================================
 %  method.tex — TH-GNN paper, NeurIPS 2025
 %  Source files consulted:
 %    src/models/hgt.py, src/models/fusion.py
@@ -76,6 +76,9 @@ in days, and $\bar{\delta}_u$ is the mean inter-review gap in days.
 Dataset-specific demographics are appended when available: ML-1M adds gender,
 normalised age-group, and normalised occupation (8 dimensions total).
 
+% TODO PENDING-PHASE-8: Update this section if Amazon/Yelp results land;
+% the feature extraction pipeline is fully defined here but currently
+% evaluated on ML-1M only (see Section~\ref{sec:datasets}).
 \textbf{Item node features.}
 Items share the same five base statistics plus catalogue-level features:
 ML-1M appends a normalised release year and an 18-dimensional genre multi-hot
@@ -83,6 +86,10 @@ ML-1M appends a normalised release year and an 18-dimensional genre multi-hot
 average rating, and $\log(1{+}\text{review count})$ (8 dimensions); Yelp2018
 appends business star rating, $\log(1{+}\text{review count})$, and an
 is-open indicator (8 dimensions).
+Note: this paper reports results on ML-1M only; the Amazon and Yelp
+feature specifications are provided here for the released pipeline, with
+evaluation on those datasets deferred to future work
+(Section~\ref{sec:datasets}).
 
 \textbf{Review node features.}
 Each review node $r$ is assigned a scalar placeholder $x_r = 0$; its semantic
@@ -198,15 +205,23 @@ term starts at zero and grows only as the loss demands.
 \subsection{Theoretical Analysis}
 \label{sec:theory}
 
-Standard HGT attention (Equation~\eqref{eq:att}) aggregates neighbours through a
-relation-specific bilinear form of node features alone: coordinated fake
-profiles that share timing, phrasing, and target items are, by construction,
-built to look feature-similar to genuine neighbours, so the softmax in
-Equation~\eqref{eq:agg} distributes weight over a campaign's members exactly
-as it would over any other homogeneous neighbourhood---coordination itself
-carries no signal.
-Our Attack-Aware Anomaly Attention (AAA) module addresses this gap by folding
-three anomaly priors directly into the pre-softmax logit,
+% NOTE ON EXPERIMENTAL VARIANTS: the architecture described in this paper
+% defines two attention options:
+%   (a) Eq.~\eqref{eq:att}  — base HGT with learnable temporal bias φ(Δt);
+%       implemented in src/models/hgt.py as HGTLayer (use_aaa=False).
+%   (b) Eq.~\eqref{eq:aaa}  — AAA: base bilinear + three anomaly priors;
+%       implemented in src/models/aaa.py as AttackAwareAnomalyAttention (use_aaa=True).
+% configs/paper_runs.yaml specifies use_aaa=true; however src/detectors/thgnn_wrapper.py
+% (the experiment-runner path) instantiates HGTEncoder without use_aaa, defaulting
+% to base HGT (a). This discrepancy must be resolved before the camera-ready version.
+% The experiments section should explicitly state which variant produced the
+% reported numbers (Section~\ref{sec:impl}).
+
+The attention logit in Equation~\eqref{eq:att} already injects temporal
+information $\varphi(\Delta t)$ into every edge, giving the model a signal
+that feature-only detectors miss.
+Our Attack-Aware Anomaly Attention (AAA) module extends this further by folding
+three domain-specific anomaly priors directly into the pre-softmax logit:
 \begin{align}
   \mathrm{ATT}_{\mathrm{AAA}}(s, e, d)
   &= \mathrm{ATT}_{\mathrm{base}}(s, e, d)
@@ -215,67 +230,21 @@ three anomaly priors directly into the pre-softmax logit,
   &\quad + \lambda_g\, f_{\mathrm{structural}}(d_s),
   \label{eq:aaa}
 \end{align}
-where $f_{\mathrm{temporal}}(\Delta t) = -\log(\Delta t / \mu_{\Delta t} + \epsilon)$
-scores bursty edges highly, $f_{\mathrm{semantic}}(r) = 1 - \cos(\mathbf{e}_r,
-\mathbf{e}_{i(r)})$ scores review--item incoherence, $f_{\mathrm{structural}}(d_s)
-= \exp(-d_s / \bar{d})$ scores thin neighbourhoods, and $\lambda_t, \lambda_s,
-\lambda_g$ are learnable, initialised to $0.1$.
-Because these terms are summed \emph{inside} the softmax rather than fused
-afterwards, they directly reshape which neighbours receive attention mass,
-explicitly separating coordinated injection patterns that standard HGT
-attention has no mechanism to isolate.
+where $\mathrm{ATT}_{\mathrm{base}}$ is the pure bilinear form
+$\mathbf{q}(d)^{\!\top}\mathbf{W}_{\mathrm{att}}^{\phi(e)}\mathbf{k}(s)/\sqrt{d_h}$
+\emph{without} the temporal bias $\varphi(\Delta t)$;
+$f_{\mathrm{temporal}}(\Delta t) = -\log(\Delta t / \mu_{\Delta t} + \epsilon)$
+scores bursty edges highly; $f_{\mathrm{semantic}}(r) = 1 - \cos(\mathbf{e}_r,
+\mathbf{e}_{i(r)})$ scores review--item incoherence; $f_{\mathrm{structural}}(d_s)
+= \exp(-d_s / \bar{d})$ scores thin neighbourhoods; and $\lambda_t, \lambda_s,
+\lambda_g$ are learnable scalars, initialised to $0.1$.
+Because the anomaly terms are summed \emph{inside} the softmax they directly
+reshape the attention distribution, explicitly separating coordinated injection
+patterns that the bilinear form alone cannot isolate.
 
-\begin{proposition}[Expressiveness of AAA over HGT]
-\label{prop:aaa}
-Let $\mathcal{G}$ be a heterogeneous temporal graph containing a coordinated
-shilling campaign $\mathcal{C}$ injected at rate $\varepsilon$ with temporal
-burstiness $\beta > \beta_0$, semantic incoherence $\delta > \delta_0$, and
-structural thinness $\gamma < \gamma_0$. Then for any $\eta > 0$, there exists
-a parameter setting of AAA such that:
-$$\| h_u^{\text{AAA}} - h_v^{\text{AAA}} \|_2 > \eta \quad \forall u \in \mathcal{C},\ v \notin \mathcal{C}$$
-whereas standard HGT does not guarantee this separation under the same
-conditions.
-\end{proposition}
-
-\begin{proof}[Proof sketch]
-For any edge into a campaign member $u \in \mathcal{C}$ with inter-arrival gap
-$\Delta t < \mu_{\Delta t}$ (bursty by definition of $\beta > \beta_0$),
-$f_{\mathrm{temporal}}(\Delta t) = -\log(\Delta t/\mu_{\Delta t} + \epsilon)$ is
-bounded below by a strictly positive constant, so the temporal term shifts
-attention mass away from $u$'s bursty neighbours and toward its genuine
-ones, giving campaign members a systematically different aggregated message
-than real users receive.
-Standard HGT attention $\mathrm{ATT}_{\mathrm{base}}(s,e,d) = \mathbf{q}(d)^\top
-\mathbf{W}_{\mathrm{att}}^{\phi(e)} \mathbf{k}(s) / \sqrt{d_h}$ depends only on
-node features $\mathbf{h}_s^{(l)}, \mathbf{h}_d^{(l)}$, which LLM-generated
-profiles are explicitly optimised to mimic, so no setting of
-$\mathbf{W}_{\mathrm{att}}^{\phi(e)}$ can separate $\mathcal{C}$ from genuine
-users on feature similarity alone.
-The semantic term $f_{\mathrm{semantic}}(r) = 1 - \cos(\mathbf{e}_r,
-\mathbf{e}_{i(r)})$ supplies an independent signal: even a persona-consistent
-LLM profile exhibits review--item incoherence once it is redirected to rate
-the attacker's target items, which its generated reviews were not written
-for.
-Because $f_{\mathrm{temporal}}$, $f_{\mathrm{semantic}}$, and
-$f_{\mathrm{structural}}$ enter the same softmax logit additively, their
-combined separating effect on the post-softmax attention distribution grows
-with the number of anomaly dimensions a campaign exhibits simultaneously,
-rather than saturating at the strongest single signal.
-The construction is completed by choosing $\lambda_t, \lambda_s, \lambda_g$
-large enough that $\lambda_t f_{\mathrm{temporal}} + \lambda_s
-f_{\mathrm{semantic}} + \lambda_g f_{\mathrm{structural}}$ dominates
-$\mathrm{ATT}_{\mathrm{base}}$ in magnitude for any campaign satisfying
-$\beta > \beta_0$, $\delta > \delta_0$, $\gamma < \gamma_0$, which forces the
-post-softmax weights---and hence the aggregated embeddings $h_u^{\mathrm{AAA}}$
-for $u \in \mathcal{C}$---to diverge from those of genuine users by at least
-$\eta$ for a suitable choice of the $\lambda$'s; standard HGT has no such
-free parameters coupling attention to anomaly evidence, so no analogous
-construction exists for $h^{\mathrm{HGT}}$.
-\end{proof}
-
-The proposition presumes the threshold values $\beta_0$, $\delta_0$, and
-$\gamma_0$ are known; in practice they are not fixed a priori but implicitly
-learned during training through $\lambda_t$, $\lambda_s$, and $\lambda_g$.
+An intuitive motivation for why the bilinear-only baseline cannot provide this
+separation, and why the anomaly terms jointly overcome the limitation, is
+presented in Appendix~\ref{app:theory} as Proposition~\ref{prop:aaa}.
 
 % ── Multimodal Fusion ─────────────────────────────────────────────────────────
 \subsection{Multimodal Fusion}
