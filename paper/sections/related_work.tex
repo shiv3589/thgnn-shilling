@@ -1,4 +1,4 @@
-% ============================================================
+﻿% ============================================================
 %  related_work.tex — TH-GNN paper, NeurIPS 2025
 % ============================================================
 
@@ -51,7 +51,7 @@ this relational signal via graph convolutional
 scoring~\cite{wang2022detecting}, hypergraph spectral
 features~\cite{li2021fusing}, and rating-time-series credibility
 measures~\cite{zhou2018shilling}.
-Anti-FakeU~\cite{zhang2022antifakeu} is the most directly comparable prior
+Anti-FakeU~\cite{you2023antifakeu} is the most directly comparable prior
 work: it constructs a bipartite user-item graph and detects fake users through
 graph-based anomaly scoring over first-order neighbourhood statistics including
 co-purchase overlap and degree asymmetry.
@@ -176,7 +176,7 @@ parameterisation, the cross-modal attention fusion integrates review and item
 text streams with the structural embedding, and the sinusoidal temporal
 encoding together with the burstiness GRU capture the edge-timestamp patterns
 that betray injection campaigns at both the per-edge and per-user level.
-The result is a detector that is strictly more informative than any
-single-modality baseline and, as the ablation study confirms, degrades
-gracefully when any individual stream is absent rather than failing
-catastrophically.
+TH-GNN is designed so that each stream contributes a complementary
+signal targeting an orthogonal aspect of the detection problem; to our
+knowledge, no prior single-modality detector addresses all three
+simultaneously.
