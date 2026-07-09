@@ -9,3 +9,4 @@ wandb
 tqdm
 scipy
 tabulate>=0.8.10
+huggingface_hub

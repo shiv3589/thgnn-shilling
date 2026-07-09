@@ -64,6 +64,11 @@ class THGNNWrapper(BaseDetector):
     hidden_dim  : int   — HGT hidden/output dim (default 64)
     text_dim    : int   — BERT embedding dim; zeros used if embeddings absent (768)
     seed        : int
+    use_aaa     : bool  — substitute AttackAwareAnomalyAttention (Eq. 10: base +
+                  λ_t·f_temporal + λ_s·f_semantic + λ_g·f_structural) for the
+                  standard HGT attention (Eq. 5: base + temporal bias only) in
+                  every HGT layer. Forwarded to HGTEncoder(use_aaa=...); see
+                  ``configs/paper_runs.yaml``'s ``thgnn.use_aaa``.
     """
 
     def __init__(
@@ -73,14 +78,56 @@ class THGNNWrapper(BaseDetector):
         hidden_dim: int   = 64,
         text_dim:   int   = 768,
         seed:       int   = 42,
+        use_aaa:    bool  = False,
     ) -> None:
         self.epochs     = epochs
         self.lr         = lr
         self.hidden_dim = hidden_dim
         self.text_dim   = text_dim
         self.seed       = seed
+        self.use_aaa    = use_aaa
         self.model: Optional[THGNNDetector] = None
         self._dataset: Optional[HeteroDataset] = None
+
+    # ------------------------------------------------------------------
+    # Variant provenance
+    # ------------------------------------------------------------------
+
+    def _log_variant_assertion(self, hgt: HGTEncoder) -> None:
+        """Log + assert which attention variant is active, for run provenance.
+
+        Must run every time a model is built so the active variant is
+        unambiguous from the training log alone (see Phase 0 issue: prior
+        runs could not confirm whether Table 1 used AAA or base HGT
+        attention because this line did not exist and use_aaa was silently
+        dropped before reaching HGTEncoder).
+        """
+        lambda_names = sorted(
+            n for n, _ in hgt.named_parameters() if n.split(".")[-1] in
+            ("lambda_t", "lambda_s", "lambda_g")
+        )
+        if self.use_aaa:
+            assert lambda_names, (
+                "use_aaa=True but no lambda_t/lambda_s/lambda_g parameters "
+                "found in HGTEncoder — AAA attention was not constructed."
+            )
+            for n in lambda_names:
+                p = dict(hgt.named_parameters())[n]
+                assert p.requires_grad, f"{n} is present but requires_grad=False"
+            logger.info(
+                "THGNNWrapper variant=AAA (Attack-Aware Anomaly Attention, Eq. 10) "
+                "— %d learnable lambda params confirmed requires_grad=True: %s",
+                len(lambda_names), lambda_names,
+            )
+        else:
+            assert not lambda_names, (
+                f"use_aaa=False but found lambda params {lambda_names} — "
+                "base HGT attention was not constructed."
+            )
+            logger.info(
+                "THGNNWrapper variant=BASE (standard HGT attention + temporal "
+                "bias only, Eq. 5) — no lambda_t/lambda_s/lambda_g params present."
+            )
 
     # ------------------------------------------------------------------
     # Model construction
@@ -101,7 +148,9 @@ class THGNNWrapper(BaseDetector):
             input_dims=input_dims,
             dropout=0.1,
             time_emb_dim=32,
+            use_aaa=self.use_aaa,
         )
+        self._log_variant_assertion(hgt)
         fusion = MultimodalFusion(
             subgraph_dim=self.hidden_dim,
             text_dim=self.text_dim,

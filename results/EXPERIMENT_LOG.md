@@ -48,3 +48,11 @@
 - Resolve use_aaa discrepancy in 	hgnn_wrapper.py vs paper_runs.yaml
 - Reproduction check (Phase 0 item 2) on RunPod — run Random@1%/seed=42 and verify F1/DR/FAR match Table 1
 - Phase 2 requires reruns (no cached per-user scores)
+---
+
+## run_session1.py — dry_run — 2026-07-09T13:52:56Z
+
+| timestamp | stage | dataset | attack | rate | detector | variant | seed | status | f1 | dr | far | git_commit | notes |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-07-09T13:52:58Z | dry_run | synthetic_dry_run | random | 0.01 | thgnn | base | 42 | OK | 0.0678 | 1.0 | 0.3667 | d087ba6 |  |
+| 2026-07-09T13:52:59Z | dry_run | synthetic_dry_run | random | 0.01 | statistical_baseline | na | 42 | OK | 1.0 | 1.0 | 0.0 | d087ba6 |  |
