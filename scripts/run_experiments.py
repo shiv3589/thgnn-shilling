@@ -56,6 +56,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+import yaml
 
 # ── Project root on sys.path ──────────────────────────────────────────────────
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -116,6 +117,27 @@ _LOADERS = {
     "arts_crafts":         AmazonArtsCraftsLoader,
     "musical_instruments": AmazonMusicalInstrumentsLoader,
 }
+
+_PAPER_RUNS_YAML = Path(__file__).resolve().parent.parent / "configs" / "paper_runs.yaml"
+
+
+def _load_use_aaa() -> bool:
+    """Read thgnn.use_aaa from configs/paper_runs.yaml.
+
+    This is the same value THGNNWrapper's use_aaa param controls (see
+    src/detectors/thgnn_wrapper.py) — previously never read anywhere in this
+    script, so every thgnn run here silently used base HGT attention
+    regardless of what this file said. Defaults to False (HGTEncoder's own
+    default) if the key is absent, matching prior behaviour for anyone who
+    hasn't set it explicitly.
+    """
+    try:
+        with open(_PAPER_RUNS_YAML, encoding="utf-8") as f:
+            cfg = yaml.safe_load(f)
+        return bool(cfg.get("thgnn", {}).get("use_aaa", False))
+    except FileNotFoundError:
+        logger.warning("configs/paper_runs.yaml not found — defaulting use_aaa=False.")
+        return False
 
 
 # ---------------------------------------------------------------------------
@@ -262,10 +284,16 @@ def _build_attack(
     return attack, time.perf_counter() - t0
 
 
-def _build_detector(name: str, seed: int, injection_rate: float):
-    """Return a fresh (unfitted) detector by name."""
+def _build_detector(name: str, seed: int, injection_rate: float, use_aaa: bool = False):
+    """Return a fresh (unfitted) detector by name.
+
+    use_aaa is forwarded to THGNNWrapper (see configs/paper_runs.yaml's
+    thgnn.use_aaa); THGNNWrapper itself logs+asserts which attention variant
+    was actually constructed on every build (src/detectors/thgnn_wrapper.py's
+    _log_variant_assertion), so no separate provenance logging is needed here.
+    """
     if name == "thgnn":
-        return THGNNWrapper(seed=seed)
+        return THGNNWrapper(seed=seed, use_aaa=use_aaa)
     if name == "statistical_baseline":
         return StatisticalBaseline(seed=seed, injection_rate=injection_rate)
     if name == "semantic_shield_baseline":
@@ -326,6 +354,7 @@ def run_single(args_tuple: Tuple[ExpConfig, Dict[str, Any]]) -> Dict[str, Any]:
     results_dir = kwargs["results_dir"]
     cache_dir   = kwargs["cache_dir"]
     device      = kwargs.get("device") or _auto_device()
+    use_aaa     = kwargs.get("use_aaa", False)
 
     result: Dict[str, Any] = {"config": asdict(cfg), "status": "running"}
     path = _result_path(cfg, results_dir)
@@ -359,7 +388,7 @@ def run_single(args_tuple: Tuple[ExpConfig, Dict[str, Any]]) -> Dict[str, Any]:
         )
 
         # ── 4. Fit detector ───────────────────────────────────────────────
-        detector = _build_detector(cfg.detector, cfg.seed, cfg.rate)
+        detector = _build_detector(cfg.detector, cfg.seed, cfg.rate, use_aaa=use_aaa)
         t0_det = time.perf_counter()
         detector.fit(poisoned, device=device, seed=cfg.seed)
         t_detect = time.perf_counter() - t0_det
@@ -520,9 +549,13 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    args   = _parse_args()
-    device = args.device or _auto_device()
-    logger.info("Device: %s  Workers: %d", device, args.workers)
+    args    = _parse_args()
+    device  = args.device or _auto_device()
+    use_aaa = _load_use_aaa()
+    logger.info(
+        "Device: %s  Workers: %d  thgnn.use_aaa (from paper_runs.yaml): %s",
+        device, args.workers, use_aaa,
+    )
 
     configs = _build_configs(args)
 
@@ -561,6 +594,7 @@ def main() -> None:
         "cache_dir":   args.cache_dir,
         "results_dir": args.results_dir,
         "device":      device,
+        "use_aaa":     use_aaa,
     }
     tasks = [(cfg, run_kwargs) for cfg in configs]
 
