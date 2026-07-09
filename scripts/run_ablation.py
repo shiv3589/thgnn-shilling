@@ -41,6 +41,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+import yaml
 
 # ── Project root on sys.path ──────────────────────────────────────────────────
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -89,6 +90,27 @@ ABLATION_VARIANTS: List[str] = [
 
 N_TARGETS  = 5
 BUDGET_PCT = 0.10
+
+_PAPER_RUNS_YAML = Path(__file__).resolve().parent.parent / "configs" / "paper_runs.yaml"
+
+
+def _load_use_aaa() -> bool:
+    """Read thgnn.use_aaa from configs/paper_runs.yaml.
+
+    Same gap as run_experiments.py (fixed in 54676ed): the "thgnn" ablation
+    variant (full model, the baseline row within the ablation study) built
+    THGNNWrapper(seed=seed) with no use_aaa, so it silently used base HGT
+    attention regardless of this config. Mirrors _load_use_aaa() in
+    run_experiments.py exactly.
+    """
+    try:
+        with open(_PAPER_RUNS_YAML, encoding="utf-8") as f:
+            cfg = yaml.safe_load(f)
+        return bool(cfg.get("thgnn", {}).get("use_aaa", False))
+    except FileNotFoundError:
+        logger.warning("configs/paper_runs.yaml not found — defaulting use_aaa=False.")
+        return False
+
 
 _LOADERS = {
     "ml1m":            MovieLens1MLoader,
@@ -237,10 +259,18 @@ def _build_attack(
     return attack, time.perf_counter() - t0
 
 
-def _build_detector(variant: str, seed: int):
-    """Return a fresh (unfitted) ablation detector."""
+def _build_detector(variant: str, seed: int, use_aaa: bool = False):
+    """Return a fresh (unfitted) ablation detector.
+
+    use_aaa only applies to the "thgnn" (full model) variant — it is the
+    baseline row this ablation study compares the no_text/no_temporal/
+    static_gcn variants against, and must use the same attention variant
+    paper_runs.yaml specifies as everywhere else. THGNNWrapper logs+asserts
+    which variant it actually built on every call (see
+    src/detectors/thgnn_wrapper.py), so no separate check is needed here.
+    """
     if variant == "thgnn":
-        return THGNNWrapper(seed=seed)
+        return THGNNWrapper(seed=seed, use_aaa=use_aaa)
     # Strip the "thgnn_" prefix to get the AblationWrapper variant key
     inner = variant[len("thgnn_"):]   # "no_text", "no_temporal", "static_gcn"
     return AblationWrapper(inner, seed=seed)
@@ -295,6 +325,7 @@ def run_ablation_single(args_tuple: Tuple[AblationConfig, Dict[str, Any]]) -> Di
     results_dir = kwargs["results_dir"]
     cache_dir   = kwargs["cache_dir"]
     device      = kwargs.get("device") or _auto_device()
+    use_aaa     = kwargs.get("use_aaa", False)
 
     result: Dict[str, Any] = {
         "config": {**asdict(cfg), "detector": cfg.variant},
@@ -325,7 +356,7 @@ def run_ablation_single(args_tuple: Tuple[AblationConfig, Dict[str, Any]]) -> Di
         logger.info("  injected %d fake users (attack_secs=%.1f)", len(profiles), t_attack)
 
         # ── 4. Fit ablation detector ──────────────────────────────────────
-        detector = _build_detector(cfg.variant, cfg.seed)
+        detector = _build_detector(cfg.variant, cfg.seed, use_aaa=use_aaa)
         t0_det = time.perf_counter()
         detector.fit(poisoned, device=device, seed=cfg.seed)
         t_detect = time.perf_counter() - t0_det
@@ -479,9 +510,13 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    args   = _parse_args()
-    device = args.device or _auto_device()
-    logger.info("Device: %s  Workers: %d", device, args.workers)
+    args    = _parse_args()
+    device  = args.device or _auto_device()
+    use_aaa = _load_use_aaa()
+    logger.info(
+        "Device: %s  Workers: %d  thgnn.use_aaa (from paper_runs.yaml): %s",
+        device, args.workers, use_aaa,
+    )
 
     configs = _build_configs(args)
 
@@ -515,6 +550,7 @@ def main() -> None:
         "cache_dir":   args.cache_dir,
         "results_dir": args.results_dir,
         "device":      device,
+        "use_aaa":     use_aaa,
     }
     tasks = [(cfg, run_kwargs) for cfg in configs]
 
