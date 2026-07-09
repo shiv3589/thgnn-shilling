@@ -1,3 +1,18 @@
+> **Raw-results-in-git policy, effective 2026-07-09 (commit range starting
+> at the fabrication-audit entry below):** all real experimental run output
+> (`results/raw/*.json`) MUST be committed to git going forward — not just
+> uploaded to HuggingFace. HF is for large artifacts (checkpoints); git is
+> for the small per-config JSON result files, because git history is what
+> makes provenance provable after the fact, which is the exact capability
+> that was missing when a fabricated table reached a compiled PDF (see the
+> fabrication-audit entry below). `scripts/check_table_provenance.py`
+> enforces this mechanically for every table `paper/sections/experiments.tex`
+> actually compiles. **Any compiled table without a traceable, committed,
+> `status=="ok"` raw-result commit predating it should be treated as
+> unverified** — the three currently-compiled tables
+> (`main_detection.tex`, `ablation.tex`, `downstream_ndcg.tex`) are in
+> exactly that state right now and carry a `% PROVENANCE UNVERIFIED`
+> comment as of this commit.
 
 ---
 
@@ -106,3 +121,56 @@ Of the four canonical-pipeline entrypoints named in scripts/reproduce_paper.sh,
 only run_experiments.py and run_ablation.py are invoked there (both now
 fixed); run_transfer.py, run_scalability.py, and run_attention_analysis.py
 are standalone scripts not part of that pipeline.
+
+---
+
+## Fabrication audit — 2026-07-09
+
+Independent git-archaeology audit, triggered by discovering `paper/gen_main_detection_table.py`
+unconditionally fabricates data (hardcoded `EXPECTED_F1` + seeded RNG, no
+real-data code path at all).
+
+**Finding: fabricated numbers reached a compiled, committed PDF.**
+`paper/main.pdf` was committed at `d34ac1e` (2026-05-25) and recompiled/
+recommitted at `16a1012` (2026-07-01, commit message: "paper/main.pdf:
+recompiled with updated author block and table sizing", binary confirmed
+747904→750997 bytes) — still fully recoverable from git history right now
+(`git show 16a1012:paper/main.pdf`). At `16a1012` the compiled document
+contained: a fully fabricated Table 1 (`main_detection.tex`, matching
+`gen_main_detection_table.py`'s hardcoded `EXPECTED_F1` exactly), a fully
+fabricated Table 2 (`downstream_ndcg.tex`, matching `gen_downstream_table.py`'s
+`CLEAN`/`RECOVERY` formula exactly — verified by hand-computing
+`0.209 + 0.912×(0.224−0.209) = 0.2227` against the committed `0.223±0.005`
+cell), a fully fabricated Table 4 (`ablation.tex`), and fabricated prose
+in two whole subsections (Generalisation, Robustness) citing specific
+F1/ΔF1 percentages for experiments that never ran — `run_generalisation.py`
+and `run_robustness.py` did not exist yet or had never been run at that
+point; `scripts/gen_robustness_placeholder.py`'s docstring still confirms
+`run_robustness.py` "has not been run" today.
+
+This was caught and the `.tex` sources corrected 6 days later
+(`bf6fe40`/`958bb14`/`9ed8887`, 2026-07-07), but the PDF was untracked
+4 days before that (`b8c95ab`, 2026-07-03) — no clean PDF was ever
+recompiled and committed after the fix.
+
+**Root cause, not just this instance:** `gen_main_detection_table.py`,
+`gen_ablation_table.py`, and `gen_downstream_table.py` had zero code path
+that reads real data — fabrication was the *only* thing they could ever
+produce, silently, with no flag and no warning beyond a docstring comment.
+Fixed today: all three now raise `SystemExit` with a clear message unless
+`results/raw/` contains at least one committed, `status=="ok"` real result
+file, or `--placeholder-explicit-i-know-this-is-fake` is passed explicitly
+(which visibly labels the output as fake in both a LaTeX comment and the
+rendered caption). See `scripts/check_table_provenance.py` and the
+raw-results-in-git policy note at the top of this file.
+
+**What this audit could NOT determine:** whether the numbers *currently*
+sitting in `main_detection.tex`/`ablation.tex`/`downstream_ndcg.tex` (as
+opposed to the historically-fabricated `16a1012` version) are real
+transcribed results or hand-fabricated — `results/raw/` has never had a
+single file committed to git at any point in this repository's history, so
+there is nothing to mechanically check the current numbers against. This
+question was investigated and found unprovable from git history; it is not
+being pursued further. The three files carry a `% PROVENANCE UNVERIFIED`
+comment as of this commit and will be regenerated from committed
+`results/raw/` output once Session 1 (and the ablation rerun) produce it.

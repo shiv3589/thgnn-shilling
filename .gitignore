@@ -45,6 +45,14 @@ wandb/
 # JSON files in data directories (keep results/ and configs/ unaffected)
 data/**/*.json
 
+# NOTE: results/raw/*.json is intentionally NOT ignored and MUST be
+# committed to git for every real experimental run, going forward. Raw
+# results were never gitignored, but were also never committed in practice
+# — that workflow gap, not a technical exclusion, is what let a compiled
+# table's provenance become unverifiable (see results/EXPERIMENT_LOG.md).
+# git history is what makes provenance provable later; HF/checkpoints are
+# for large artifacts, not for the small per-config raw JSON files.
+
 # Experiment outputs
 outputs/
 logs/
