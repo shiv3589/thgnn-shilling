@@ -57,6 +57,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -82,6 +83,27 @@ ATTACK    = "agent4sr"
 RATE      = 0.01
 N_TARGETS = 5
 BUDGET_PCT = 0.10
+
+_PAPER_RUNS_YAML = Path(__file__).resolve().parent.parent / "configs" / "paper_runs.yaml"
+
+
+def _load_use_aaa() -> bool:
+    """Read thgnn.use_aaa from configs/paper_runs.yaml.
+
+    Same gap as the other three entrypoints (54676ed, 1569877, eca7aa1):
+    _build_detector() built THGNNWrapper(seed=seed) with no use_aaa. Purely
+    preventative — scripts/gen_robustness_placeholder.py's own docstring
+    confirms this script "has not been run" yet, so no real number anywhere
+    is affected. Fixing before it ever produces one.
+    """
+    try:
+        with open(_PAPER_RUNS_YAML, encoding="utf-8") as f:
+            cfg = yaml.safe_load(f)
+        return bool(cfg.get("thgnn", {}).get("use_aaa", False))
+    except FileNotFoundError:
+        logger.warning("configs/paper_runs.yaml not found — defaulting use_aaa=False.")
+        return False
+
 
 DETECTORS: List[str] = [
     "thgnn",
@@ -310,9 +332,9 @@ def _select_targets(dataset: HeteroDataset, n: int, seed: int) -> List[int]:
     return rng.choice(pool, size=min(n, len(pool)), replace=False).tolist()
 
 
-def _build_detector(name: str, seed: int):
+def _build_detector(name: str, seed: int, use_aaa: bool = False):
     if name == "thgnn":
-        return THGNNWrapper(seed=seed)
+        return THGNNWrapper(seed=seed, use_aaa=use_aaa)
     if name == "semantic_shield_baseline":
         return SemanticShieldBaseline(seed=seed)
     if name == "anti_fakeu_baseline":
@@ -335,6 +357,7 @@ def run_robustness_single(args_tuple: Tuple[RobustnessRun, Dict[str, Any]]) -> L
     results_dir    = kwargs["results_dir"]
     cache_dir      = kwargs["cache_dir"]
     device         = kwargs.get("device") or _auto_device()
+    use_aaa        = kwargs.get("use_aaa", False)
 
     all_results: List[Dict] = []
     t_total = time.perf_counter()
@@ -370,7 +393,7 @@ def run_robustness_single(args_tuple: Tuple[RobustnessRun, Dict[str, Any]]) -> L
         logger.info("  injected %d fake users", len(profiles))
 
         # ── 2. Fit detector on full (unperturbed) poisoned graph ──────────
-        detector = _build_detector(run.detector, run.seed)
+        detector = _build_detector(run.detector, run.seed, use_aaa=use_aaa)
         t0_fit   = time.perf_counter()
         detector.fit(poisoned, device=device, seed=run.seed)
         t_fit = time.perf_counter() - t0_fit
@@ -762,6 +785,11 @@ def main() -> None:
         aggregate_and_plot(results_dir, out_dir, fig_dir)
         return
 
+    use_aaa = _load_use_aaa()
+    logger.info(
+        "Device: %s  thgnn.use_aaa (from paper_runs.yaml): %s", device, use_aaa,
+    )
+
     # ── Build run list ────────────────────────────────────────────────────
     detectors = DETECTORS if args.dry_run else DETECTORS
     seeds     = SEEDS[:1]  if args.dry_run else SEEDS
@@ -798,6 +826,7 @@ def main() -> None:
         "cache_dir":   args.cache_dir,
         "results_dir": args.results_dir,
         "device":      device,
+        "use_aaa":     use_aaa,
     }
     tasks = [(r, run_kwargs) for r in runs]
 
