@@ -54,6 +54,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+import yaml
 
 # ── Project root on sys.path ──────────────────────────────────────────────────
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -102,6 +103,28 @@ SEEDS: List[int] = [42, 123, 456]
 RATE: float = 0.01
 N_TARGETS = 5
 BUDGET_PCT = 0.10
+
+_PAPER_RUNS_YAML = Path(__file__).resolve().parent.parent / "configs" / "paper_runs.yaml"
+
+
+def _load_use_aaa() -> bool:
+    """Read thgnn.use_aaa from configs/paper_runs.yaml.
+
+    Same gap as run_experiments.py (54676ed) and run_ablation.py: this
+    script's _build_detector() built THGNNWrapper(seed=seed) with no
+    use_aaa, so it would have silently used base HGT attention regardless of
+    this config. No real numbers from this script are in the paper draft
+    yet (paper/tables/generalisation.tex says "Results pending"), so fixing
+    this now is preventative, before Phase 4 runs.
+    """
+    try:
+        with open(_PAPER_RUNS_YAML, encoding="utf-8") as f:
+            cfg = yaml.safe_load(f)
+        return bool(cfg.get("thgnn", {}).get("use_aaa", False))
+    except FileNotFoundError:
+        logger.warning("configs/paper_runs.yaml not found — defaulting use_aaa=False.")
+        return False
+
 
 # Two generalisation scenarios:
 #   A: train on 4 classic attacks, test on the unseen LLM-agent attack
@@ -280,9 +303,9 @@ def _build_and_run_attack(
     return attack.inject(poisoned_so_far, profiles)
 
 
-def _build_detector(name: str, seed: int):
+def _build_detector(name: str, seed: int, use_aaa: bool = False):
     if name == "thgnn":
-        return THGNNWrapper(seed=seed)
+        return THGNNWrapper(seed=seed, use_aaa=use_aaa)
     if name == "statistical_baseline":
         return StatisticalBaseline(seed=seed)
     if name == "semantic_shield_baseline":
@@ -311,6 +334,7 @@ def run_generalisation_single(args_tuple: Tuple[GenConfig, Dict[str, Any]]) -> D
     results_dir   = kwargs["results_dir"]
     cache_dir     = kwargs["cache_dir"]
     device        = kwargs.get("device") or _auto_device()
+    use_aaa       = kwargs.get("use_aaa", False)
 
     result: Dict[str, Any] = {
         "config": {
@@ -369,7 +393,7 @@ def run_generalisation_single(args_tuple: Tuple[GenConfig, Dict[str, Any]]) -> D
         )
 
         # ── 3. Fit detector on combined training graph ────────────────────
-        detector = _build_detector(cfg.detector, cfg.seed)
+        detector = _build_detector(cfg.detector, cfg.seed, use_aaa=use_aaa)
         t0_fit = time.perf_counter()
         detector.fit(train_poisoned, device=device, seed=cfg.seed)
         t_fit = time.perf_counter() - t0_fit
@@ -513,9 +537,13 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    args   = _parse_args()
-    device = args.device or _auto_device()
-    logger.info("Device: %s  Workers: %d", device, args.workers)
+    args    = _parse_args()
+    device  = args.device or _auto_device()
+    use_aaa = _load_use_aaa()
+    logger.info(
+        "Device: %s  Workers: %d  thgnn.use_aaa (from paper_runs.yaml): %s",
+        device, args.workers, use_aaa,
+    )
 
     configs = _build_configs(args)
 
@@ -549,6 +577,7 @@ def main() -> None:
         "cache_dir":   args.cache_dir,
         "results_dir": args.results_dir,
         "device":      device,
+        "use_aaa":     use_aaa,
     }
     tasks = [(cfg, run_kwargs) for cfg in configs]
 
