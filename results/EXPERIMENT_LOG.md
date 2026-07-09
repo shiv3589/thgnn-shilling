@@ -56,3 +56,53 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 2026-07-09T13:52:58Z | dry_run | synthetic_dry_run | random | 0.01 | thgnn | base | 42 | OK | 0.0678 | 1.0 | 0.3667 | d087ba6 |  |
 | 2026-07-09T13:52:59Z | dry_run | synthetic_dry_run | random | 0.01 | statistical_baseline | na | 42 | OK | 1.0 | 1.0 | 0.0 | d087ba6 |  |
+
+---
+
+## use_aaa wiring fix — all THGNNWrapper entrypoints — 2026-07-09
+
+The use_aaa provenance bug (paper_runs.yaml sets thgnn.use_aaa: true but the
+value was never forwarded to HGTEncoder, so every run silently used base HGT
+attention regardless) has been fixed at its root (THGNNWrapper itself,
+commit 94a5bb9) and at every caller that builds a THGNNWrapper:
+
+| Entrypoint | Commit | Status before fix | Paper draft impact |
+|---|---|---|---|
+| src/detectors/thgnn_wrapper.py (root cause) | 94a5bb9 | use_aaa param did not exist | N/A — library code |
+| scripts/run_experiments.py | 54676ed | use_aaa dropped in _build_detector | LIVE — canonical entrypoint via reproduce_paper.sh; produces results/raw/*.json consumed by aggregate_results.py / paper tables |
+| scripts/run_ablation.py | 1569877 | use_aaa dropped in _build_detector ("thgnn" variant) | LIVE — also invoked by reproduce_paper.sh. The "Full TH-GNN \| ML-1M \| 0.292±0.419" row already compiled into paper/tables/ablation.tex (input by paper/sections/experiments.tex) came from this exact code path, necessarily run with use_aaa=False pre-fix regardless of what paper_runs.yaml specified. NEEDS A RE-RUN + provenance check before this table can be trusted as "AAA" or "base" — same unconfirmed-variant ambiguity Session 1 exists to resolve for Table 1. |
+| scripts/run_generalisation.py | eca7aa1 | use_aaa dropped in _build_detector | Preventative — paper/tables/generalisation.tex reads "Results pending full experimental run"; no real numbers affected |
+| scripts/run_robustness.py | 8d27485 | use_aaa dropped in _build_detector | Preventative — scripts/gen_robustness_placeholder.py confirms run_robustness.py "has not been run"; no real numbers affected |
+
+Each fix was independently verified: a live smoke check via that script's
+own `_build_detector()` confirmed lambda_t/s/g parameters are present
+(requires_grad=True) only when use_aaa=True, and that the two variants'
+forward passes differ (mean abs diff 0.0283 on an identical synthetic
+graph/seed across all four scripts). Each script's own `--dry-run` /
+equivalent entry point was also run directly and confirmed to log
+"thgnn.use_aaa (from paper_runs.yaml): True" before failing cleanly on
+missing local data (expected on this machine).
+
+### Also found, NOT fixed here (different pattern, reported for visibility)
+
+Three more scripts build HGTEncoder *directly* (bypassing THGNNWrapper
+entirely), so the fix above does not reach them:
+
+- **scripts/run_transfer.py** — same bug class (use_aaa never passed to
+  HGTEncoder), but paper/tables/transfer.tex also reads "Results pending" —
+  no real numbers affected. Not yet fixed.
+- **scripts/run_scalability.py** — same bug class, but its output
+  (results/tables/scalability.csv) is only referenced in a commented-out
+  line in paper/sections/experiments.tex — not compiled into the paper.
+  Not yet fixed.
+- **scripts/run_attention_analysis.py** — architecturally different: its
+  CapturingHGTEncoder subclasses the base HGTLayer specifically (an
+  attention-weight-capture design that does not support the AAA path at
+  all), not a simple missing-argument bug. Needs a design decision (add an
+  AAA-capturing counterpart, or explicitly document this tool as
+  base-HGT-only-by-design) rather than a one-line wiring fix.
+
+Of the four canonical-pipeline entrypoints named in scripts/reproduce_paper.sh,
+only run_experiments.py and run_ablation.py are invoked there (both now
+fixed); run_transfer.py, run_scalability.py, and run_attention_analysis.py
+are standalone scripts not part of that pipeline.
